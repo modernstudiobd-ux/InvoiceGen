@@ -22,10 +22,25 @@
    color must never restyle the editor chrome. */
 :root{--app-accent:#4f46e5;--app-accent-rgb:79,70,229;--app-accent-dark:#4338ca;--accent:#18181b;--accent-rgb:24,24,27;--ink:#1a1d29;--font-modern:"Inter","Segoe UI",Arial,sans-serif;--muted:#6b7280;--line:#e3e6ee;--panel:#fff;--danger:#b42318;--radius:14px;--radius-sm:9px;--sidebar-width:232px;--right-sidebar-width:280px;--page-w:210mm;--page-h:297mm;--shadow-sm:0 1px 2px rgba(16,24,40,.06);--shadow-md:0 6px 20px rgba(16,24,40,.08);--shadow-lg:0 18px 40px rgba(16,24,40,.14);--bg:#eef0f6}
 *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
-body{margin:0;font-family:var(--font-modern);background:radial-gradient(1100px 620px at 14% -8%,#eef1fb 0%,var(--bg) 46%) fixed,var(--bg);color:var(--ink);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{margin:0;font-family:var(--font-modern);background:radial-gradient(1100px 620px at 14% -8%,#eef1fb 0%,var(--bg) 46%) fixed,var(--bg);color:var(--ink);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
 button,input,select,textarea{font:inherit}button{cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(var(--app-accent-rgb),.25);outline-offset:2px}
-.app{display:grid;grid-template-columns:var(--sidebar-width) minmax(0,1fr) var(--right-sidebar-width);min-height:100vh;position:relative;transition:grid-template-columns .18s ease}
+/* .appheader (a normal, in-flow block above this) has real height of its
+   own — .app used to claim a flat "min-height:100vh" regardless, which
+   quietly made the *actual* content below the header taller than the
+   remaining viewport by exactly the header's height, needing a permanent
+   little bit of extra page scroll just to reach the bottom of a full-height
+   pane. flex:1 on .app (body is now the flex column, above) instead gives
+   it exactly the space left after the header — no fixed guess, correct at
+   any header height/wrap — and grid-template-rows:1fr makes that single
+   row (and therefore every grid item stretched to it: .sidebar, .workspace,
+   .right-sidebar) resolve to a real, definite height matching it, so each
+   pane's own overflow:auto/scrollbar works against a size that's actually
+   the visible viewport, not merely "at least" it. min-height:0 overrides a
+   flex item's default min-height:auto, which would otherwise still let
+   .app's own content (not just its children's overflow) push it taller
+   than the space flex just gave it. */
+.app{display:grid;grid-template-columns:var(--sidebar-width) minmax(0,1fr) var(--right-sidebar-width);grid-template-rows:1fr;flex:1;min-height:0;position:relative;transition:grid-template-columns .18s ease}
 .app.design-closed{grid-template-columns:var(--sidebar-width) minmax(0,1fr) 0}
 .app.design-closed .right-sidebar,.app.design-closed .sidebar-resizer{display:none}
 .sidebar{height:100vh;overflow:hidden;position:sticky;top:0;background:#fff;border-right:1px solid var(--line);padding:16px;transition:padding .18s ease;display:flex;flex-direction:column}
@@ -38,6 +53,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sidebar-footer a:hover{color:var(--app-accent);text-decoration:underline}
 .sidebar-resizer{position:absolute;top:0;right:var(--right-sidebar-width);width:6px;height:100%;margin-right:-3px;cursor:col-resize;z-index:16;background:transparent;transition:background .15s}
 .sidebar-resizer:hover,.sidebar-resizer.dragging{background:rgba(var(--app-accent-rgb),.35)}
+/* No explicit height here on purpose — .app's grid-template-rows:1fr (see
+   above) already stretches this to fill the exact space available (grid
+   items default to align-items:stretch), correctly accounting for
+   .appheader's own height above it. An explicit height:100vh here would
+   *ignore* that and claim the full viewport height regardless of the
+   header — taller than the space actually left for it, which is exactly
+   the "phantom extra scroll" problem grid-template-rows:1fr avoids. */
 .workspace{padding:18px 20px;overflow:auto}.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:12px}
 /* Right Sidebar — canvas/document settings (Page setup, Alignment, Template,
    Currency). Same visual language as the left .sidebar (panels, fields,

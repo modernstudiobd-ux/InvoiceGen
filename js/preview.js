@@ -8,24 +8,6 @@ import { applyAllOptionalColors } from "./accent.js";
 import { syncCurrencyDisplay } from "./currencySearch.js";
 import { buildColumnHeaderHtml, buildAddColumnHeaderHtml } from "./columnCanvas.js";
 
-// Matches the compact-tier breakpoint in responsive.css/js/layout.js's own
-// compactQuery exactly (max-width:1080px — the point where both sidebars
-// become off-canvas drawers and the canvas gets the full window width to
-// itself; see the shared breakpoint note at the top of responsive.css).
-// Kept as a separate, self-contained query here rather than importing
-// layout.js's copy: layout.js already imports fitInvoiceCanvas *from* this
-// file, so importing back from layout.js would create a circular module
-// dependency for one one-line matchMedia query.
-const mobilePhoneQuery = window.matchMedia("(max-width:1080px)");
-// Floor for Edit mode's shrink-to-fit zoom on a phone — see the comment on
-// its one usage in fitInvoiceCanvas() below for why this exists and why
-// it's Edit-only. 0.68 was chosen as the practical balance: high enough
-// that on-canvas editing controls are comfortably distinguishable by touch
-// (roughly +48% over the ~0.46 natural fit on a 390px-wide phone), without
-// requiring so much horizontal scroll to reach the far side of the page
-// that basic company-name/client-name editing becomes awkward.
-const MOBILE_EDIT_MIN_FIT = 0.68;
-
 // Writes text into a preview element — a thin wrapper kept mainly so every
 // preview text update goes through one place (guards against a missing
 // element cleanly, same as the rest of this file's helpers).
@@ -604,29 +586,63 @@ export function fitInvoiceCanvas() {
   const p = currentPaper();
   const naturalW = p.w * 96 / 25.4;   // page width in CSS px at the standard 96dpi
   const naturalH = p.h * 96 / 25.4;   // page height in CSS px
-  // Measure against the wrap's own parent, not wrap.clientWidth itself — the
-  // wrap's CSS max-width caps it at one natural page width, so at zoom>100%
-  // clientWidth would silently cap "available" too, making the scaled
-  // invoice wider than its own wrapper. That's what caused zooming in to
-  // clip/shift the preview instead of actually showing it larger.
+  // Measure against the wrap's own parent, not wrap.clientWidth/Height
+  // itself — the wrap's CSS max-width caps it at one natural page width, so
+  // at zoom>100% clientWidth would silently cap "available" too, making the
+  // scaled invoice wider than its own wrapper. That's what caused zooming in
+  // to clip/shift the preview instead of actually showing it larger.
+  //
+  // clientWidth measures content+padding, not just content — subtracting
+  // the panel's own left/right padding gets the actual width available to
+  // a child placed inside it. Using clientWidth as-is overstated that by
+  // exactly the panel's horizontal padding (20px total in the compact
+  // layout), which on top of the mobile floor below (now removed) used to
+  // compound into the canvas being sized wider than it actually had room
+  // for.
   const panel = wrap.parentElement;
-  const available = (panel ? panel.clientWidth : 0) || naturalW;
-  let fit = Math.min(1, available / naturalW);   // shrink to fit narrow screens; never auto-enlarge
+  let available = naturalW;
+  if (panel) {
+    const panelCS = getComputedStyle(panel);
+    const panelPadX = (parseFloat(panelCS.paddingLeft) || 0) + (parseFloat(panelCS.paddingRight) || 0);
+    available = Math.max(0, panel.clientWidth - panelPadX) || naturalW;
+  }
+  // Width-driven fit: the invoice always spans the full available width (up
+  // to its own natural 100% size — never enlarged past that), the same way
+  // a normal document/PDF viewer works, with .workspace's own overflow:auto
+  // handling anything taller than the visible pane via ordinary vertical
+  // scrolling.
+  //
+  // This used to also cap the scale by *height* ("shrink to whichever of
+  // width or height is tighter, so the page fits the pane in both
+  // dimensions at once with no unrelated vertical scrolling"), which reads
+  // reasonably in isolation but was the actual root cause of exactly the
+  // symptom it was meant to prevent, in the opposite direction: on any
+  // viewport whose available width is closer to the page's own natural
+  // width than its available height is to the page's natural height —
+  // which in practice was most desktop windows and most tablets, not just
+  // some unusual edge case — *height* became the binding constraint
+  // instead of width, shrinking the invoice well below 100% and leaving
+  // real, empty left/right margins around it even though the width had
+  // clearly had room to spare. A phone in portrait mostly escaped this
+  // (its available width is already the tighter dimension on its own), but
+  // a phone in landscape, a tablet, or an ordinary laptop window did not.
+  // No page (however tall a multi-page invoice gets) requires a fixed
+  // canvas height to display correctly — it was only ever needed to *avoid
+  // scrolling*, and scrolling to see the rest of a document that's taller
+  // than the window is completely ordinary, so there's nothing to trade
+  // off by dropping it.
+  const fit = Math.min(1, available / naturalW);
   const isPreviewMode = document.body.classList.contains("canvas-preview-mode");
-  // Mobile Edit-mode floor: shrink-to-fit alone can zoom a phone-width page
-  // down to ~45-50% (a 210mm page vs. a ~360px-wide panel) — small enough
-  // that the on-canvas editing controls (column drag/menu/resize handles,
-  // item remove buttons, Logo settings) sit too close together to tell
-  // apart by touch, even with the scale-compensated hit areas those get
-  // (see --canvas-scale below and the matching rules in responsive.css) —
-  // expanding one control's own tap target can't create room between it
-  // and its neighbor once the row itself has shrunk this far. Preview/
-  // Print must stay pixel-accurate to the real page (that's the whole
-  // point of Preview — see setCanvasMode in js/layout.js), so this floor
-  // is scoped to Edit only; the canvas simply grows wider than the phone
-  // and scrolls horizontally past that point, the same already-built
-  // mechanism used below for zooming in past 100%.
-  if (!isPreviewMode && mobilePhoneQuery.matches) fit = Math.max(fit, MOBILE_EDIT_MIN_FIT);
+  // Edit and Preview intentionally share this exact same fit — a paper size
+  // (A4, Letter, ...) only ever changes naturalW/naturalH above, never how
+  // the result is fitted to the available space, and neither mode applies
+  // a floor that could push the canvas wider *or taller* than what's
+  // actually available: on-canvas editing controls (column drag/menu/
+  // resize handles, item remove buttons, Logo settings) stay tappable at
+  // any scale via the scale-compensated hit areas below (--canvas-scale),
+  // so there's no touch-target tradeoff left that would justify letting the
+  // canvas overflow its container on a narrow or short screen the way a
+  // fixed minimum zoom used to.
   const total = fit * state.zoom;
   const scaledW = naturalW * total;
   inv.style.transformOrigin = "top left";
