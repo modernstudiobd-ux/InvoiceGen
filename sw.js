@@ -1,7 +1,7 @@
 // InvoGen - Invoice Generator — Service Worker
 // Bump this version string whenever index.html (or any cached asset) changes,
 // so returning users automatically pick up the new version.
-const VERSION = "v3.18.0";
+const VERSION = "v3.19.0";
 const SHELL_CACHE = `invoice-studio-shell-${VERSION}`;
 const RUNTIME_CACHE = `invoice-studio-runtime-${VERSION}`;
 
@@ -22,7 +22,8 @@ const SHELL_ASSETS = [
   "./js/toast.js",
   "./js/accent.js",
   "./js/preview.js",
-  "./js/columns.js",
+  "./js/columnCanvas.js",
+  "./js/currencySearch.js",
   "./js/items.js",
   "./js/toggles.js",
   "./js/persistence.js",
@@ -34,6 +35,8 @@ const SHELL_ASSETS = [
   "./js/print.js",
   "./js/install.js",
   "./js/logo.js",
+  "./js/settings.js",
+  "./js/version.js",
   "./js/main.js",
   "./fonts/inter-variable.woff2",
   "./fonts/currency-latinext.woff2",
@@ -58,7 +61,12 @@ const SHELL_ASSETS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
-      .then((cache) => cache.addAll(SHELL_ASSETS))
+      // One missing/renamed file must never abort the whole install (that
+      // is how a stale precache entry once left the app with no working
+      // service worker, and therefore not installable/offline-capable).
+      // Add each asset on its own and just log any that fail.
+      .then((cache) => Promise.all(SHELL_ASSETS.map((url) =>
+        cache.add(url).catch((err) => console.warn("SW precache skipped", url, err)))))
       .then(() => self.skipWaiting())
   );
 });

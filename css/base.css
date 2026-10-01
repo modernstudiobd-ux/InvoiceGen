@@ -215,6 +215,7 @@ button.design-reopen-btn{display:none}
 .drawer-item .icon{width:17px;height:17px}
 .canvasmode-btn .icon{width:14px;height:14px}
 .install-banner .icon{width:15px;height:15px;margin-right:5px;vertical-align:-3px;color:var(--app-accent)}
+.install-banner .install-text{flex:1 1 220px;min-width:0}
 .hidden{display:none!important}
 .toast{position:fixed;right:20px;bottom:20px;background:#191d2b;color:#fff;padding:11px 14px;border-radius:11px;box-shadow:var(--shadow-lg);font-size:12.5px;max-width:min(360px,calc(100vw - 40px));opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:99}
 .toast.show{opacity:1;transform:none}

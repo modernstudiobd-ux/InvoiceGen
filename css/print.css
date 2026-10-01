@@ -46,7 +46,18 @@
    each page — the footer instead shows the invoice number and a
    best-effort total page count. */
 @media print{
-  html,body{background:#fff}
+  /* Page-level reset: body is a min-height:100vh flex column on screen
+     (base.css), and print's "100vh" is the page height — so any in-flow
+     app chrome above the invoice (header, the PWA install banner) made
+     the document taller than the invoice and spilled it onto an extra
+     page. Printing must see a plain block flow containing only the
+     invoice. */
+  html,body{background:#fff!important;height:auto!important;min-height:0!important;margin:0!important;padding:0!important;display:block!important;overflow:visible!important}
+  /* Application UI, never invoice content: the PWA install banner (and
+     its manual-instructions variant) must never reach print or Print
+     Preview. js/install.js also suppresses it on beforeprint as a second
+     line of defense. */
+  .install-banner,#installBanner{display:none!important}
   .appheader,.toast{display:none!important}
   .sidebar,.sidebar-resizer,.canvasbar,.right-sidebar{display:none!important}
   .mobileview-toggle,.mobile-drawer,.drawer-overlay,.fullscreen-exit,.actions{display:none!important}

@@ -395,3 +395,53 @@
   .toolbar-row{padding:4px 8px;gap:6px;row-gap:6px}
   .canvasbar{row-gap:6px}
 }
+
+/* --- Compact phone controls ---------------------------------------------
+   Phone-width only (<=640px); desktop and tablet are untouched. Everything
+   below tightens height/padding/icon/font together rather than scaling by a
+   flat percentage, and keeps a >=30px touch target (>=32px for the controls
+   used most). Widths still come from the existing flex/clamp layout above,
+   so these follow the available screen width. iOS Safari zooms the page when
+   a focused field's text is under 16px, so form fields keep 16px there. */
+@media (max-width:640px){
+  .appheader{gap:5px;padding:6px 10px;padding-top:calc(6px + env(safe-area-inset-top))}
+  .header-actions{gap:6px}
+  .actions-primary,.actions-secondary{gap:6px}
+  .actions-primary .btn,.actions-secondary .btn{min-height:clamp(30px,calc(.9vw + 27px),32px);padding:4px 3px;font-size:clamp(10px,calc(.25vw + 9.2px),11px);border-radius:8px}
+  .header-actions .btn .icon{width:clamp(12px,calc(.25vw + 11.2px),13px);height:clamp(12px,calc(.25vw + 11.2px),13px);margin-right:4px}
+  .mobileview-toggle{padding:4px 10px;gap:8px}
+  .hamburger-btn.btn,.mtb-icon.btn{width:32px;height:32px;border-radius:8px}
+  .hamburger-btn .icon,.mtb-icon .icon{width:15px;height:15px}
+  .mobileview-title{font-size:12.5px}
+  .install-banner{padding:5px 10px;gap:6px 8px;font-size:11px;line-height:1.3}
+  .install-banner .btn.small{min-height:28px;padding:3px 10px}
+  .install-banner .btn.icon{width:28px;min-height:28px;padding:0}
+  .install-banner .icon{width:13px;height:13px;margin-right:4px;vertical-align:-2px}
+  .install-banner .btn .icon{margin:0}
+  .toolbar-row{padding:5px 6px;gap:6px;row-gap:6px}
+  .canvasbar{gap:6px;row-gap:6px;--toolbar-ctrl-h:30px}
+  .canvasbar-left,.canvasbar-right{gap:5px;row-gap:5px}
+  .canvasbar .btn.small{padding:0 8px}
+  .zoom-btn{width:24px}
+  .zoom-label{width:32px;font-size:10px}
+  .canvasmode-btn{padding:0 clamp(6px,2vw,8px);font-size:10.5px}
+  .canvasmode-btn .icon{width:11px;height:11px}
+  /* Left menu drawer + Design drawer */
+  .sidebar-drawer-head{padding:10px 12px 6px}
+  .sidebar-drawer-head .btn.icon,.right-sidebar-head .btn.icon,.history-panel-close{width:30px;height:30px}
+  .navitem{padding:6px 9px;gap:9px;border-radius:9px}
+  .navitem .icon{width:17px;height:17px}
+  .navitem strong{font-size:12px}
+  .navitem small{font-size:10px}
+  .field input,.field select,.field textarea{min-height:32px;padding:5px 8px;font-size:13px}
+  .field .colorrow input[type=color]{min-height:32px;width:36px}
+  .field label{font-size:10px}
+  .btn.small.icon{min-width:0}
+}
+/* iOS Safari only (-webkit-touch-callout is WebKit-on-iOS specific): keep
+   16px field text so focusing a field never triggers the page zoom. */
+@supports (-webkit-touch-callout:none){
+  @media (max-width:640px){
+    .field input,.field select,.field textarea,.combobox .combobox-input{font-size:16px}
+  }
+}

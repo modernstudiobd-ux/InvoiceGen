@@ -8,6 +8,10 @@
 
 <!-- PWA: installability -->
 <link rel="manifest" href="manifest.webmanifest">
+<!-- beforeinstallprompt can fire before the module scripts below have run;
+     catch it here so js/install.js (which adopts window.__installPromptEvent)
+     never misses it. Only stores the event — all behavior lives in install.js. -->
+<script>window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPromptEvent=e;});</script>
 <meta name="theme-color" content="#4f46e5">
 <!-- Favicon — SVG master first (scales perfectly, every modern browser
      honors it over the PNG fallbacks below); favicon.ico covers legacy
@@ -97,24 +101,16 @@
     </div>
   </div>
 </header>
-<!-- The PWA install prompt (js/install.js: shown for any browser that
-     actually fires beforeinstallprompt — Chrome/Edge on desktop as much
-     as Android, never iOS Safari, never once already installed or
-     dismissed — see that file for exactly which). Lives here, directly
-     under the header, rather than inside .sidebar where it used to sit:
-     that meant it was only ever visible on the mobile "Menu" tab (the
-     sidebar is what that tab shows) and never on "Invoice" — the default
-     tab since js/layout.js's setMobileView("preview") — so on a phone it
-     was effectively unreachable unless someone happened to check Menu
-     first. It also used to carry a flat "@media (min-width:641px){
-     display:none!important}" that hid it from every desktop browser
-     outright, regardless of whether Chrome/Edge had actually judged the
-     app installable there — installability, not viewport width, is what
-     should decide that, so that rule is gone too (see .install-banner in
-     css/base.css). One element, shown identically on phone/tablet/desktop
-     now, rather than a mobile-only copy plus a separate desktop one. -->
-<div class="install-banner hidden" id="installBanner">
-  <span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Install this app for quick access and offline use.</span>
+<!-- The PWA install notice (js/install.js). Two modes, chosen by feature
+     detection: with an Install button where the browser exposes
+     beforeinstallprompt (Chromium), or as plain manual instructions (no
+     button) on iOS / Safari 17+ / Firefox for Android, which have their own
+     install UI but no API to trigger it. Never shown when already installed,
+     when installation isn't available, or in print/print preview
+     (css/print.css). Lives directly under the header so it is reachable on
+     every mobile tab. -->
+<div class="install-banner hidden" id="installBanner" role="region" aria-label="Install app">
+  <span class="install-text"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span id="installText">Install this app for quick access and offline use.</span></span>
   <div style="display:flex;gap:6px;flex:none">
     <button class="btn small primary" id="installAppBtn" type="button">Install</button>
     <button class="btn small icon" id="installDismissBtn" type="button" aria-label="Dismiss"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg></button>
