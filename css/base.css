@@ -341,3 +341,32 @@ button.design-reopen-btn{display:none}
 :root[data-theme="dark"] .historycard{background:var(--panel-alt);border-color:#333849}
 :root[data-theme="dark"] .historycard.current{border-color:var(--app-accent)}
 
+
+/* --- Invoicing submenu (sidebar) -------------------------------------------
+   Group heading + indented sub-items built from the existing .navitem look —
+   same hover/active colors, just a smaller, single-line row nested under a
+   thin guide line. The chevron rotates when the group is collapsed. */
+.navgroup-toggle .navgroup-chevron{width:15px;height:15px;margin:0 0 0 auto;flex:none;color:var(--muted);transition:transform .15s ease}
+.navgroup-toggle[aria-expanded="false"] .navgroup-chevron{transform:rotate(-90deg)}
+.navgroup-toggle .icon:first-child{color:var(--app-accent)}
+.navgroup-toggle strong{color:var(--app-accent)}
+.navsub{display:flex;flex-direction:column;gap:1px;margin:2px 0 4px 19px;padding-left:8px;border-left:1px solid var(--line)}
+.navsub[hidden]{display:none}
+.navsub .navitem{padding:6px 9px;gap:9px;border-radius:9px}
+.navsub .navitem .icon{width:16px;height:16px}
+.navsub .navitem strong{font-size:12px}
+.calc-panel{--calc-gap:8px}
+.calc-tabs{margin-bottom:10px}
+.calc-body[hidden]{display:none}
+.calc-results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.calc-result{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius-sm);background:rgba(var(--app-accent-rgb),.05)}
+.calc-result span{font-size:10px;font-weight:750;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.calc-result strong{font-size:14px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.calc-table-wrap{margin-top:10px;max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)}
+.calc-table{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+.calc-table th,.calc-table td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--line)}
+.calc-table th:first-child,.calc-table td:first-child{text-align:left}
+.calc-table thead th{position:sticky;top:0;background:#f7f8fb;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.calc-table tbody tr:last-child td{border-bottom:0}
+:root[data-theme="dark"] .calc-table thead th{background:var(--panel-alt)}
+:root[data-theme="dark"] .navsub{border-left-color:var(--line)}

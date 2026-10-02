@@ -54,7 +54,21 @@ export const LEGACY_LABEL_MAP = {
   labelPayment: "payment", labelTerms: "terms", labelInvoiceDate: "date", labelDueDate: "due", labelReference: "ref"
 };
 
+// Document types selectable from the sidebar's Invoicing submenu. All 15
+// templates share the same label fields, so these few strings are the ONLY
+// text that differs between an invoice, an estimate and a receipt — layout,
+// styling and calculations are identical. `labels` keys match the label
+// fields' ids; `noun` is used in the footer ("Estimate #EST-1001") and the
+// mobile title; `prefix` is the default document-number prefix.
+export const DOC_TYPES = {
+  invoice:  { noun: "Invoice",  prefix: "INV", labels: { labelTitle: "INVOICE",  labelBillTo: "BILL TO",       labelInvoiceDate: "Invoice date",  labelDueDate: "Due date",     labelBalance: "Balance due" } },
+  estimate: { noun: "Estimate", prefix: "EST", labels: { labelTitle: "ESTIMATE", labelBillTo: "PREPARED FOR",  labelInvoiceDate: "Estimate date", labelDueDate: "Valid until",  labelBalance: "Estimated total" } },
+  receipt:  { noun: "Receipt",  prefix: "RCT", labels: { labelTitle: "RECEIPT",  labelBillTo: "RECEIVED FROM", labelInvoiceDate: "Receipt date",  labelDueDate: "Payment date", labelBalance: "Amount paid" } }
+};
+export const docNoun = () => (DOC_TYPES[state.docType] || DOC_TYPES.invoice).noun;
+
 export const state = {
+  docType: "invoice",
   logo: "",
   logoNatural: null,
   zoom: 1,
@@ -166,5 +180,5 @@ export function applyPaperSize() {
 export function serialize() {
   let f = {};
   fields.forEach(id => f[id] = $(id).value);
-  return { version: 2, logo: state.logo, logoNatural: state.logoNatural, zoom: state.zoom, columns: state.columns, items: state.items, sections: state.sections, fields: f };
+  return { version: 2, docType: state.docType, logo: state.logo, logoNatural: state.logoNatural, zoom: state.zoom, columns: state.columns, items: state.items, sections: state.sections, fields: f };
 }

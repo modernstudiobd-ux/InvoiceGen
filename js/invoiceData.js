@@ -2,7 +2,8 @@
 // entry, or an imported .json file) back into live app state + a full re-render.
 
 import { $, uid } from "./dom.js";
-import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP } from "./state.js";
+import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, DOC_TYPES } from "./state.js";
+import { syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
 import { renderToggles } from "./toggles.js";
 import { renderPreview } from "./preview.js";
@@ -22,6 +23,8 @@ export function load(d) {
     const legacyVal = typeof legacyLabels[legacyKey] === "string" ? legacyLabels[legacyKey] : defaultLabels()[legacyKey];
     $(fid).value = legacyVal || "";
   });
+  // Saves from before document types existed have no docType → Invoice.
+  state.docType = Object.prototype.hasOwnProperty.call(DOC_TYPES, d.docType) ? d.docType : "invoice";
   state.logo = typeof d.logo === "string" ? d.logo : "";
   state.logoNatural = (d.logoNatural && typeof d.logoNatural.w === "number" && typeof d.logoNatural.h === "number") ? d.logoNatural : null;
   state.zoom = (typeof d.zoom === "number" && d.zoom >= 0.5 && d.zoom <= 1.5) ? d.zoom : 1;
@@ -29,5 +32,5 @@ export function load(d) {
   state.columns = cleanColumns.length ? cleanColumns : defaultColumns();
   state.items = Array.isArray(d.items) ? d.items.filter(i => i && typeof i === "object") : [];
   state.sections = { ...defaultSections(), ...(d.sections && typeof d.sections === "object" ? d.sections : {}) };
-  setAccent($("accentHex").value); applyAllOptionalColors(); renderToggles(); renderPreview(); save();
+  setAccent($("accentHex").value); applyAllOptionalColors(); syncDocTypeUI(); renderPreview(); save();
 }

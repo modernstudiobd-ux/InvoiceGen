@@ -22,6 +22,8 @@ import { printInvoice } from "./print.js";
 import { initInstallPrompt, registerServiceWorker } from "./install.js";
 import { naturalLogoHeight, handleLogoFile, removeLogo } from "./logo.js";
 import { initSettings, getDefaultPaperSize } from "./settings.js";
+import { syncDocTypeUI } from "./docType.js";
+import { initCalculators } from "./calculators.js";
 // layout.js self-wires its own listeners on import (sidebar resize, mobile view switch, floating panels, etc.)
 import "./layout.js";
 
@@ -232,6 +234,9 @@ renderToggles(); renderPreview();
 
 /* --- Restore last autosaved draft, then set up History/undo state --- */
 try { let raw = localStorage.getItem(KEY); if (raw) load(JSON.parse(raw)); } catch {}
+syncDocTypeUI();   // nav highlight, placeholders and toggle names for the restored (or default) document type
+initCalculators();
+renderPreview();
 if (!getCurrentId()) setCurrentId(uid());
 pushEditHistory();
 updateUndoRedoButtons();

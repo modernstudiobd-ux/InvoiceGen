@@ -5,6 +5,8 @@
 import { $ } from "./dom.js";
 import { renderPreview, fitInvoiceCanvas } from "./preview.js";
 import { closeColSettings } from "./columnCanvas.js";
+import { setDocType } from "./docType.js";
+import { setCalcTab } from "./calculators.js";
 
 // Resizes the Design panel (right sidebar) — moved here from the left nav
 // (see the comment on #sidebarResizer in index.html). Width is computed
@@ -369,6 +371,38 @@ export function closeLogoSettingsPanel() { logoEntry.close(); }
 // exist.
 registerDropdown($("settingsToggleBtn"), $("settingsPanel"), { maxWidth: 300 });
 registerDropdown($("helpToggleBtn"), $("helpPanel"), { maxWidth: 320 });
+
+// Calculators — one panel, three nav entries (Calculators, Revenue Forecast,
+// Markup Calculator). "Calculators" is the registered toggle; the other two
+// open the same panel on their own tab, and switch tabs if it's already open
+// (rather than toggling it closed). They stop the click from bubbling so the
+// shared "click outside closes" handler doesn't immediately close the panel.
+const calcEntry = registerDropdown($("calculatorsToggleBtn"), $("calculatorsPanel"), { maxWidth: 380 });
+document.querySelectorAll("[data-calc]").forEach(btn => {
+  btn.addEventListener("click", e => {
+    if (btn === $("calculatorsToggleBtn")) {
+      // registered toggle handles open/close; tab state is synced after.
+      setTimeout(() => setCalcTab(document.querySelector("[data-calc-tab].active")?.dataset.calcTab), 0);
+      return;
+    }
+    e.stopPropagation();
+    if (!$("calculatorsPanel").classList.contains("open")) calcEntry.open();
+    setCalcTab(btn.dataset.calc);
+  });
+});
+// Invoicing group heading: collapse/expand the submenu.
+const invoicingToggle = $("invoicingToggleBtn"), invoicingSubmenu = $("invoicingSubmenu");
+invoicingToggle.addEventListener("click", () => {
+  const open = invoicingToggle.getAttribute("aria-expanded") !== "true";
+  invoicingToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  invoicingSubmenu.hidden = !open;
+});
+// Invoices / Estimates / Receipts: switch document type (js/docType.js), then
+// show the result on phones, same as opening a saved invoice does.
+document.querySelectorAll("[data-doctype]").forEach(btn => btn.addEventListener("click", () => {
+  setDocType(btn.dataset.doctype);
+  setMobileView("preview");
+}));
 
 // Horizontally scrolling the toolbar row, or resizing the window, would
 // leave an already-open panel visually anchored to where its button used

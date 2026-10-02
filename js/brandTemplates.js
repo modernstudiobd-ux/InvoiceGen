@@ -13,6 +13,7 @@
 
 import { $, esc, uid } from "./dom.js";
 import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP } from "./state.js";
+import { normalizeLabels, syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
 import { renderToggles } from "./toggles.js";
 import { renderPreview } from "./preview.js";
@@ -101,7 +102,11 @@ export function applyBrandTemplate(id) {
   state.sections = { ...defaultSections(), ...(d.sections && typeof d.sections === "object" ? d.sections : {}) };
   setAccent($("accentHex").value);
   applyAllOptionalColors();
-  renderToggles(); renderPreview(); save();
+  // A template saved from an invoice carries invoice wording; keep default
+  // labels matching the document type currently being edited (custom
+  // wording is left alone).
+  normalizeLabels(); syncDocTypeUI();
+  renderPreview(); save();
   toast(`Loaded "${entry.name}" — client, items and invoice number are unchanged.`);
   // Same reasoning as openInvoiceById/duplicateInvoiceById in library.js:
   // applying a template changes the on-screen invoice, so switch mobile to

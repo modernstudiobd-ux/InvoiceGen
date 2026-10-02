@@ -1,7 +1,7 @@
 // preview.js — renders the live invoice document (the on-screen A4/Letter canvas).
 
 import { $, esc } from "./dom.js";
-import { state, currentPaper, applyPaperSize, templateFooterInsetMm, templatePaddingMm } from "./state.js";
+import { state, currentPaper, applyPaperSize, templateFooterInsetMm, templatePaddingMm, docNoun } from "./state.js";
 import { money, alignClass, fmtCell, num, dateFmt } from "./format.js";
 import { calc, itemValue } from "./calc.js";
 import { applyAllOptionalColors } from "./accent.js";
@@ -71,7 +71,7 @@ export function renderPreview() {
   // header's companyName/invoiceNumber input, so it stays a plain mirrored
   // display kept in sync here.
   setText($("pFooterCompany"), $("companyName").value.trim() || "Your Company");
-  setText($("pFooterInvoice"), "Invoice #" + no);
+  setText($("pFooterInvoice"), docNoun() + " #" + no);
 
   // Status select styled as a colored badge (border/background/text)
   // matching the chosen status, same palette as before.
@@ -559,7 +559,7 @@ export function applyPrintTableWrap() {
   if (footerClone) {
     const invNo = ($("invoiceNumber") && $("invoiceNumber").value.trim()) || "Untitled";
     const invoiceSpan = footerClone.querySelector("#pFooterInvoice");
-    if (invoiceSpan) invoiceSpan.textContent = pageCount > 1 ? `Invoice #${invNo}  ·  ${pageCount} pages` : `Invoice #${invNo}`;
+    if (invoiceSpan) invoiceSpan.textContent = pageCount > 1 ? `${docNoun()} #${invNo}  ·  ${pageCount} pages` : `${docNoun()} #${invNo}`;
   }
 
   printWrapCtx = { table, footer, originalChildren };
@@ -715,7 +715,7 @@ export function fitInvoiceCanvas() {
   const footerInvoiceEl = $("pFooterInvoice");
   if (footerInvoiceEl) {
     const invNo = ($("invoiceNumber") && $("invoiceNumber").value.trim()) || "Untitled";
-    footerInvoiceEl.textContent = "Invoice #" + invNo + (pageCount > 1 ? `  ·  ${pageCount} pages` : "");
+    footerInvoiceEl.textContent = docNoun() + " #" + invNo + (pageCount > 1 ? `  ·  ${pageCount} pages` : "");
   }
 
   $("zoomLabel").textContent = Math.round(state.zoom * 100) + "%";

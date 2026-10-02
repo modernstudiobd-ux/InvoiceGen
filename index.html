@@ -172,13 +172,27 @@
        "Brand Templates" are the very same #newInvoiceBtn/#historyToggleBtn
        (opens #historyPanel)/#templatesToggleBtn (opens #templatesPanel)
        buttons that used to sit in the canvas toolbar, just restyled as nav
-       rows. "Invoices" itself isn't a separate view to navigate to — this
-       app only has the one editor — so it's a static, non-interactive
-       "you are here" row rather than a button that would do nothing. -->
+       rows, under the "Invoicing" group heading. -->
   <nav class="appnav" aria-label="Invoice actions">
-    <div class="navitem active" aria-current="page">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-      <span><strong>Invoices</strong><small>Create, edit and manage invoices</small></span>
+    <!-- Invoicing — the section heading for everything this app produces.
+         Collapsible group (chevron); Invoices / Estimates / Receipts switch
+         the document type of the one editor (js/docType.js), and the three
+         calculator entries open the Calculators panel on the matching tool
+         (js/calculators.js). -->
+    <div class="navgroup" id="invoicingGroup">
+      <button class="navitem navgroup-toggle" id="invoicingToggleBtn" type="button" aria-expanded="true" aria-controls="invoicingSubmenu">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        <span><strong>Invoicing</strong><small>Documents and tools</small></span>
+        <svg class="icon navgroup-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="navsub" id="invoicingSubmenu" role="group" aria-label="Invoicing">
+        <button class="navitem navsubitem" type="button" data-doctype="invoice" aria-current="page"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 3 14 8 19 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg><span><strong>Invoices</strong></span></button>
+        <button class="navitem navsubitem" type="button" data-doctype="estimate"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg><span><strong>Estimates</strong></span></button>
+        <button class="navitem navsubitem" type="button" data-doctype="receipt"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2Z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg><span><strong>Receipts</strong></span></button>
+        <button class="navitem navsubitem" type="button" id="calculatorsToggleBtn" data-calc="" aria-haspopup="true" aria-expanded="false" aria-controls="calculatorsPanel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="2"/><line x1="8" y1="7.5" x2="16" y2="7.5"/><line x1="8" y1="12" x2="8.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="16" y1="12" x2="16.01" y2="12"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="12" y1="16" x2="12.01" y2="16"/><line x1="16" y1="16" x2="16.01" y2="16"/></svg><span><strong>Calculators</strong></span></button>
+        <button class="navitem navsubitem" type="button" data-calc="forecast" aria-haspopup="true" aria-controls="calculatorsPanel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span><strong>Revenue Forecast</strong></span></button>
+        <button class="navitem navsubitem" type="button" data-calc="markup" aria-haspopup="true" aria-controls="calculatorsPanel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><span><strong>Markup Calculator</strong></span></button>
+      </div>
     </div>
     <button class="navitem" id="newInvoiceBtn" type="button" title="Clear client and items; keeps company profile and design">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -678,6 +692,38 @@
     <div class="danger-zone">
       <div class="danger-zone-label">Danger zone</div>
       <button class="btn small danger" id="resetSettingsBtn" type="button" style="width:100%">Reset settings to default</button>
+    </div>
+  </div>
+
+  <div class="history-panel calc-panel" id="calculatorsPanel" role="dialog" aria-label="Calculators">
+    <div class="history-panel-head"><h2>Calculators</h2></div>
+    <div class="theme-switch calc-tabs" role="tablist" aria-label="Calculator">
+      <button type="button" class="theme-btn" role="tab" id="calcTabForecast" data-calc-tab="forecast" aria-controls="calcForecast">Revenue Forecast</button>
+      <button type="button" class="theme-btn" role="tab" id="calcTabMarkup" data-calc-tab="markup" aria-controls="calcMarkup">Markup</button>
+    </div>
+    <div class="calc-body" id="calcForecast" role="tabpanel" aria-labelledby="calcTabForecast">
+      <div class="grid2">
+        <div class="field"><label for="fcStart">Starting monthly revenue</label><input id="fcStart" type="number" inputmode="decimal" min="0" step="any" value="10000"></div>
+        <div class="field"><label for="fcGrowth">Monthly growth %</label><input id="fcGrowth" type="number" inputmode="decimal" step="any" value="5"></div>
+      </div>
+      <div class="field" style="margin-top:8px"><label for="fcMonths">Months to forecast (1–36)</label><input id="fcMonths" type="number" inputmode="numeric" min="1" max="36" step="1" value="12"></div>
+      <div class="calc-results" aria-live="polite">
+        <div class="calc-result"><span>Total revenue</span><strong id="fcTotal">—</strong></div>
+        <div class="calc-result"><span>Final month</span><strong id="fcFinal">—</strong></div>
+      </div>
+      <div class="calc-table-wrap"><table class="calc-table"><thead><tr><th>Month</th><th>Revenue</th><th>Cumulative</th></tr></thead><tbody id="fcRows"></tbody></table></div>
+    </div>
+    <div class="calc-body" id="calcMarkup" role="tabpanel" aria-labelledby="calcTabMarkup">
+      <div class="grid2">
+        <div class="field"><label for="mkCost">Cost</label><input id="mkCost" type="number" inputmode="decimal" min="0" step="any" value="100"></div>
+        <div class="field"><label for="mkMarkup">Markup %</label><input id="mkMarkup" type="number" inputmode="decimal" step="any" value="25"></div>
+      </div>
+      <div class="field" style="margin-top:8px"><label for="mkPrice">Selling price</label><input id="mkPrice" type="number" inputmode="decimal" min="0" step="any" value="125"></div>
+      <div class="calc-results" aria-live="polite">
+        <div class="calc-result"><span>Profit</span><strong id="mkProfit">—</strong></div>
+        <div class="calc-result"><span>Margin</span><strong id="mkMargin">—</strong></div>
+      </div>
+      <span class="hint" style="display:block;margin-top:8px">Edit Markup % to get a price, or edit the selling price to get the markup. Margin is profit as a share of the selling price.</span>
     </div>
   </div>
 
