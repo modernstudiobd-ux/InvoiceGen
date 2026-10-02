@@ -1,5 +1,5 @@
 // calculators.js — the Revenue Forecast and Markup Calculator tools shown in
-// the Calculators panel (sidebar → Invoicing). Self-contained: they read only
+// the Calculators panel (sidebar → Calculators group). Self-contained: they read only
 // their own inputs, never touch the invoice, and are not saved with it.
 // Money is shown in the invoice's current currency via format.js's money().
 
@@ -48,7 +48,7 @@ export function renderMarkup(source) {
   $("mkMargin").textContent = price > 0 ? pct((profit / price) * 100) : "—";
 }
 
-export function setCalcTab(tab) {
+export function setCalcTab(tab, { render = true } = {}) {
   const t = tab === "markup" ? "markup" : "forecast";
   document.querySelectorAll("[data-calc-tab]").forEach(b => {
     const on = b.dataset.calcTab === t;
@@ -59,6 +59,7 @@ export function setCalcTab(tab) {
   document.querySelectorAll("[data-calc]").forEach(b => {
     if (b.dataset.calc) b.classList.toggle("active", b.dataset.calc === t && $("calculatorsPanel").classList.contains("open"));
   });
+  if (!render) return;
   if (t === "forecast") renderForecast(); else renderMarkup();
 }
 

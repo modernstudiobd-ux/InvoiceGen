@@ -342,7 +342,7 @@ button.design-reopen-btn{display:none}
 :root[data-theme="dark"] .historycard.current{border-color:var(--app-accent)}
 
 
-/* --- Invoicing submenu (sidebar) -------------------------------------------
+/* --- Billing / Calculators submenus (sidebar) -------------------------------------------
    Group heading + indented sub-items built from the existing .navitem look —
    same hover/active colors, just a smaller, single-line row nested under a
    thin guide line. The chevron rotates when the group is collapsed. */

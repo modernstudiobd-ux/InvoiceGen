@@ -54,7 +54,7 @@ export const LEGACY_LABEL_MAP = {
   labelPayment: "payment", labelTerms: "terms", labelInvoiceDate: "date", labelDueDate: "due", labelReference: "ref"
 };
 
-// Document types selectable from the sidebar's Invoicing submenu. All 15
+// Document types selectable from the sidebar's Billing submenu. All 15
 // templates share the same label fields, so these few strings are the ONLY
 // text that differs between an invoice, an estimate and a receipt — layout,
 // styling and calculations are identical. `labels` keys match the label

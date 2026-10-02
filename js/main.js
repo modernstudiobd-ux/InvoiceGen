@@ -161,7 +161,7 @@ $("printBtn").onclick = () => {
 function download(name, text) { let b = new Blob([text], { type: "application/json" }), u = URL.createObjectURL(b), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 500); }
 $("exportBtn").onclick = () => download(($("invoiceNumber").value || "invoice") + ".json", JSON.stringify(serialize(), null, 2));
 $("importBtn").onclick = () => $("jsonFile").click();
-$("jsonFile").onchange = async e => { try { load(JSON.parse(await e.target.files[0].text())); toast("Invoice imported."); } catch (err) { toast(err.message); } e.target.value = ""; };
+$("jsonFile").onchange = async e => { try { load(JSON.parse(await e.target.files[0].text())); setCurrentId(uid()); renderHistory(); toast("Invoice imported."); } catch (err) { toast(err.message); } e.target.value = ""; };
 $("resetBtn").onclick = () => { if (confirm("Reset the app and delete ALL locally saved invoices and templates (current draft + Saved Invoices + Brand Templates)? This cannot be undone.")) { localStorage.removeItem(KEY); localStorage.removeItem(LIBRARY_KEY); localStorage.removeItem(CURRENT_ID_KEY); localStorage.removeItem(BRAND_KEY); location.reload(); } };
 
 /* --- Spreadsheet (CSV/XLSX) import --- */
@@ -278,7 +278,8 @@ window.addEventListener("invoicestudio:autosaved", refreshSaveStatus);
 refreshSaveStatus();
 setInterval(refreshSaveStatus, 15000);
 
-$("saveInvoiceBtn").onclick = () => { saveToHistory(); toast("Saved to Saved Invoices."); };
+// Only claim success when the record was really stored (saveToHistory shows the failure reason itself).
+$("saveInvoiceBtn").onclick = () => { if (saveToHistory()) toast("Saved to Saved Invoices."); };
 $("duplicateInvoiceBtn").onclick = () => duplicateCurrentInvoice();
 $("newInvoiceBtn").onclick = () => newInvoice();
 $("clearHistoryBtn").onclick = () => clearLibrary();

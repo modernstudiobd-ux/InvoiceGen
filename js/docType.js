@@ -1,4 +1,4 @@
-// docType.js — Invoice / Estimate / Receipt switching (sidebar → Invoicing).
+// docType.js — Invoice / Estimate / Receipt switching (sidebar → Billing).
 //
 // All templates share one set of label fields, so switching document type
 // only swaps a handful of label strings (title, "Bill to", the two date row

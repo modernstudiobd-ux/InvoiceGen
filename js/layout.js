@@ -289,7 +289,7 @@ function positionDropdownPanel(panel, toggleBtn, maxWidth = 360) {
 // touching four existing handlers to add themselves to each other's
 // "close my siblings" list.
 const dropdowns = [];
-function registerDropdown(toggleBtn, panel, { maxWidth = 360 } = {}) {
+function registerDropdown(toggleBtn, panel, { maxWidth = 360, bindToggle = true } = {}) {
   function close() {
     panel.classList.remove("open");
     toggleBtn.setAttribute("aria-expanded", "false");
@@ -305,7 +305,7 @@ function registerDropdown(toggleBtn, panel, { maxWidth = 360 } = {}) {
     if (compactQuery.matches) panelOverlay.classList.toggle("show", nowOpen);
     return nowOpen;
   }
-  toggleBtn.addEventListener("click", e => { e.stopPropagation(); open(); });
+  if (bindToggle) toggleBtn.addEventListener("click", e => { e.stopPropagation(); open(); });
   document.addEventListener("click", e => {
     const path = e.composedPath();
     if (!path.includes(panel) && !path.includes(toggleBtn)) close();
@@ -372,31 +372,35 @@ export function closeLogoSettingsPanel() { logoEntry.close(); }
 registerDropdown($("settingsToggleBtn"), $("settingsPanel"), { maxWidth: 300 });
 registerDropdown($("helpToggleBtn"), $("helpPanel"), { maxWidth: 320 });
 
-// Calculators — one panel, three nav entries (Calculators, Revenue Forecast,
-// Markup Calculator). "Calculators" is the registered toggle; the other two
-// open the same panel on their own tab, and switch tabs if it's already open
-// (rather than toggling it closed). They stop the click from bubbling so the
-// shared "click outside closes" handler doesn't immediately close the panel.
-const calcEntry = registerDropdown($("calculatorsToggleBtn"), $("calculatorsPanel"), { maxWidth: 380 });
-document.querySelectorAll("[data-calc]").forEach(btn => {
-  btn.addEventListener("click", e => {
-    if (btn === $("calculatorsToggleBtn")) {
-      // registered toggle handles open/close; tab state is synced after.
-      setTimeout(() => setCalcTab(document.querySelector("[data-calc-tab].active")?.dataset.calcTab), 0);
-      return;
-    }
-    e.stopPropagation();
-    if (!$("calculatorsPanel").classList.contains("open")) calcEntry.open();
-    setCalcTab(btn.dataset.calc);
-  });
-});
-// Invoicing group heading: collapse/expand the submenu.
-const invoicingToggle = $("invoicingToggleBtn"), invoicingSubmenu = $("invoicingSubmenu");
-invoicingToggle.addEventListener("click", () => {
-  const open = invoicingToggle.getAttribute("aria-expanded") !== "true";
-  invoicingToggle.setAttribute("aria-expanded", open ? "true" : "false");
-  invoicingSubmenu.hidden = !open;
-});
+// Calculators — one panel, two nav entries (Revenue Forecast, Markup
+// Calculator), both children of the top-level Calculators group. The panel is
+// anchored to the first child (its aria-expanded tracks open/closed) and
+// opened by our own handler instead of registerDropdown's default click
+// binding, so each child can open the panel on ITS tab: clicking the active
+// tab's entry again closes the panel, clicking the other one switches tabs
+// without closing. Clicks stop propagating so the shared "click outside
+// closes" handler doesn't immediately close the panel they just opened.
+const calcPanel = $("calculatorsPanel");
+const calcEntry = registerDropdown($("calcForecastNavBtn"), calcPanel, { maxWidth: 380, bindToggle: false });
+document.querySelectorAll("[data-calc]").forEach(btn => btn.addEventListener("click", e => {
+  e.stopPropagation();
+  const isOpen = calcPanel.classList.contains("open");
+  const activeTab = document.querySelector("[data-calc-tab].active")?.dataset.calcTab;
+  if (isOpen && activeTab === btn.dataset.calc) { calcEntry.close(); return; }
+  if (!isOpen) calcEntry.open();
+  setCalcTab(btn.dataset.calc);
+}));
+// Keep the nav's "you are here" highlight in step with the panel however it
+// was closed (Escape, outside click, ×, switching to another panel).
+new MutationObserver(() => setCalcTab(document.querySelector("[data-calc-tab].active")?.dataset.calcTab, { render: false }))
+  .observe(calcPanel, { attributes: true, attributeFilter: ["class"] });
+// Group headings (Billing, Calculators): collapse/expand their submenu.
+document.querySelectorAll(".navgroup-toggle").forEach(head => head.addEventListener("click", () => {
+  const sub = $(head.getAttribute("aria-controls"));
+  const open = head.getAttribute("aria-expanded") !== "true";
+  head.setAttribute("aria-expanded", open ? "true" : "false");
+  if (sub) sub.hidden = !open;
+}));
 // Invoices / Estimates / Receipts: switch document type (js/docType.js), then
 // show the result on phones, same as opening a saved invoice does.
 document.querySelectorAll("[data-doctype]").forEach(btn => btn.addEventListener("click", () => {
@@ -461,6 +465,9 @@ document.querySelectorAll(".history-panel").forEach(panel => {
   // rather than only clearing the panel's own "open" class.
   closeBtn.addEventListener("click", () => {
     if (panel.id === "colSettingsPanel") closeColSettings();
+    // The Calculators panel's anchor button switches tabs rather than toggling
+    // (two nav entries share the panel), so close it directly.
+    else if (panel === calcPanel) calcEntry.close();
     else if (toggle) toggle.click();
     else panel.classList.remove("open");
   });

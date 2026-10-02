@@ -19,9 +19,17 @@ export function loadLibrary() {
   catch { return []; }
 }
 
+// Returns true only if the write actually reached localStorage. Callers must
+// check it: a full browser store (every saved invoice embeds its logo, and
+// logos up to 3 MB are accepted) makes setItem throw, and the old version
+// swallowed that and let callers announce "Saved" for an invoice that was
+// never stored.
 export function saveLibrary(lib) {
-  try { localStorage.setItem(LIBRARY_KEY, JSON.stringify(lib)); }
-  catch { toast("Could not save locally — your browser's storage may be full (try a smaller logo)."); }
+  try { localStorage.setItem(LIBRARY_KEY, JSON.stringify(lib)); return true; }
+  catch {
+    toast("Not saved — browser storage is full. Use a smaller logo or delete saved invoices you no longer need.");
+    return false;
+  }
 }
 
 export function getCurrentId() {
@@ -39,18 +47,28 @@ export function nextInvoiceNumber() {
   return best ? best.prefix + String(best.n + 1).padStart(best.digits, "0") : "INV-1001";
 }
 
+// Saves (or updates) the current invoice's record in the library, keyed by
+// the current invoice id so re-saving an opened invoice updates that same
+// record instead of adding another. Returns true only if it was really
+// stored; on failure the library is left exactly as it was and the reason
+// has already been shown (see saveLibrary).
 export function saveToHistory() {
   try {
     const snap = serialize();
     let id = getCurrentId();
     if (!id) { id = uid(); setCurrentId(id); }
-    let lib = loadLibrary();
+    const lib = loadLibrary();
     const meta = { id, invoiceNumber: $("invoiceNumber").value || "Untitled", clientName: $("clientName").value || "", status: $("status").value, currency: $("currency").value, total: calc().total, updatedAt: Date.now(), snapshot: snap };
     const idx = lib.findIndex(x => x.id === id);
     if (idx >= 0) lib[idx] = meta; else lib.unshift(meta);
-    saveLibrary(lib);
+    if (!saveLibrary(lib)) return false;
     renderHistory();
-  } catch { toast("Could not save this invoice — your browser's storage may be full (try a smaller logo)."); }
+    return true;
+  } catch (err) {
+    console.warn("saveToHistory failed:", err);
+    toast("Could not save this invoice.");
+    return false;
+  }
 }
 
 export function renderHistory() {
@@ -77,8 +95,9 @@ export function renderHistory() {
 export function openInvoiceById(id) {
   const entry = loadLibrary().find(x => x.id === id);
   if (!entry) return;
+  try { load(entry.snapshot); }
+  catch (err) { console.warn("Could not open saved invoice:", err); return toast("This saved invoice couldn't be opened — its data is damaged."); }
   setCurrentId(id);
-  load(entry.snapshot);
   renderHistory();
   // Show the actual invoice that was just opened, not the nav sidebar —
   // "edit" here means the mobile *sidebar/menu* view (see setMobileView in
@@ -132,8 +151,8 @@ export function duplicateCurrentInvoice() {
   $("invoiceNumber").value = nextInvoiceNumber();
   $("invoiceDate").value = today();
   $("dueDate").value = plusDays(today(), 14);
-  renderPreview(); save(); saveToHistory();
-  toast("Duplicated as " + $("invoiceNumber").value + ".");
+  renderPreview(); save();
+  if (saveToHistory()) toast("Duplicated as " + $("invoiceNumber").value + ".");
 }
 
 export function duplicateInvoiceById(id) {
