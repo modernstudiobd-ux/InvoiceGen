@@ -172,12 +172,18 @@ export function renderPreview() {
       // tab cards. Preview keeps the old plain, formatted text (a faithful
       // dry run of Print/PDF, which is never interactive either way).
       let cellsHtml = visible.map(c => {
-        if (isPreviewMode || c.role === "amount") {
+        if (isPreviewMode) {
           return `<td class="${alignClass(c.align)}">${fmtCell(itemValue(item, c), c)}</td>`;
+        }
+        // Edit mode only: data-label feeds the stacked (narrow-container)
+        // layout's per-field captions — see "Edit canvas — stacked layout"
+        // in css/responsive.css. No visual effect in the normal table.
+        if (c.role === "amount") {
+          return `<td class="${alignClass(c.align)}" data-label="${esc(c.label)}">${fmtCell(itemValue(item, c), c)}</td>`;
         }
         const inputType = ["number", "currency", "percentage"].includes(c.type) ? "number" : c.type === "date" ? "date" : "text";
         const stepAttr = inputType === "number" ? ' step="0.01"' : "";
-        return `<td class="${alignClass(c.align)}"><input type="${inputType}"${stepAttr} class="item-cell-input" data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(item[c.key] ?? "")}" aria-label="${esc(c.label)}, item ${idx + 1}"></td>`;
+        return `<td class="${alignClass(c.align)}" data-label="${esc(c.label)}"><input type="${inputType}"${stepAttr} class="item-cell-input" data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(item[c.key] ?? "")}" aria-label="${esc(c.label)}, item ${idx + 1}"></td>`;
       }).join("");
       if (!isPreviewMode) {
         cellsHtml += `<td class="item-actions-col"><button type="button" class="item-remove-btn" data-idx="${idx}" aria-label="Remove item ${idx + 1}" title="Remove item">×</button></td>`;
@@ -579,6 +585,10 @@ export function clearPrintTableWrap() {
   printWrapCtx = null;
 }
 
+// Container-width threshold (px) below which the Edit canvas stacks into a
+// single column. Measured against the canvas's own container, not the device.
+const STACK_BELOW_PX = 640;
+
 export function fitInvoiceCanvas() {
   if (printGuard) return;
   const wrap = document.querySelector(".canvaswrap"), inv = $("invoice");
@@ -633,6 +643,19 @@ export function fitInvoiceCanvas() {
   // off by dropping it.
   const fit = Math.min(1, available / naturalW);
   const isPreviewMode = document.body.classList.contains("canvas-preview-mode");
+  // ROOT CAUSE of the "Edit canvas never goes single-column" bug: the
+  // invoice was ALWAYS laid out at the paper's fixed natural width (794px
+  // for A4) and then shrunk with transform:scale() to fit. Every inner grid
+  // therefore saw a 794px-wide container no matter how narrow the screen
+  // was, so no breakpoint — media or container query — could ever fire; the
+  // whole two-column page just got smaller (~0.45x on a phone, i.e. ~4.5px
+  // text). Edit mode is a form, not a page mock-up, so below STACK_BELOW_PX
+  // of available width it now lays out at the REAL available width (divided
+  // by zoom, so zoom still works as a pure scale of that layout) and the
+  // .edit-stacked class (css/responsive.css) collapses every section into
+  // one column. Preview/Print/PDF never enter this branch.
+  const stacked = !isPreviewMode && available > 0 && available < STACK_BELOW_PX;
+  inv.classList.toggle("edit-stacked", stacked);
   // Edit and Preview intentionally share this exact same fit — a paper size
   // (A4, Letter, ...) only ever changes naturalW/naturalH above, never how
   // the result is fitted to the available space, and neither mode applies
@@ -643,8 +666,10 @@ export function fitInvoiceCanvas() {
   // so there's no touch-target tradeoff left that would justify letting the
   // canvas overflow its container on a narrow or short screen the way a
   // fixed minimum zoom used to.
-  const total = fit * state.zoom;
-  const scaledW = naturalW * total;
+  const total = stacked ? state.zoom : fit * state.zoom;
+  const scaledW = stacked ? available : naturalW * total;
+  if (stacked) inv.style.setProperty("--stack-w", (available / total) + "px");
+  else inv.style.removeProperty("--stack-w");
   inv.style.transformOrigin = "top left";
   inv.style.transform = `scale(${total})`;
   // Exposes the canvas's current on-screen scale to CSS. #invoice is

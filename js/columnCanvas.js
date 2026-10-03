@@ -128,22 +128,34 @@ function startReorderDrag(handle, startEvent) {
   let dropKey = null, dropBefore = true;
 
   function onMove(e) {
+    // Stacked (narrow Edit canvas) lists the column headings vertically, so
+    // reordering is decided on the Y axis there instead of X.
+    const vertical = !!document.querySelector("#invoice.edit-stacked");
     const cells = headerCells().filter(c => c.dataset.colKey !== dragKey);
     let best = null, bestDist = Infinity;
     cells.forEach(cell => {
       const r = cell.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const d = Math.abs(e.clientX - cx);
-      if (d < bestDist) { bestDist = d; best = { cell, r, cx }; }
+      const c = vertical ? r.top + r.height / 2 : r.left + r.width / 2;
+      const d = Math.abs((vertical ? e.clientY : e.clientX) - c);
+      if (d < bestDist) { bestDist = d; best = { cell, r, c }; }
     });
     if (!best) return;
     dropKey = best.cell.dataset.colKey;
-    dropBefore = e.clientX < best.cx;
-    const x = dropBefore ? best.r.left : best.r.right;
+    dropBefore = (vertical ? e.clientY : e.clientX) < best.c;
     indicator.style.display = "block";
-    indicator.style.left = (x - 1) + "px";
-    indicator.style.top = best.r.top + "px";
-    indicator.style.height = best.r.height + "px";
+    if (vertical) {
+      const y = dropBefore ? best.r.top : best.r.bottom;
+      indicator.style.left = best.r.left + "px";
+      indicator.style.width = best.r.width + "px";
+      indicator.style.top = (y - 1) + "px";
+      indicator.style.height = "3px";
+    } else {
+      const x = dropBefore ? best.r.left : best.r.right;
+      indicator.style.width = "3px";
+      indicator.style.left = (x - 1) + "px";
+      indicator.style.top = best.r.top + "px";
+      indicator.style.height = best.r.height + "px";
+    }
   }
   function onUp() {
     handle.releasePointerCapture(startEvent.pointerId);

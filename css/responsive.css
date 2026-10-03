@@ -445,3 +445,89 @@
     .field input,.field select,.field textarea,.combobox .combobox-input{font-size:16px}
   }
 }
+
+/* === Edit canvas — stacked (single-column) layout ===========================
+   Applied by fitInvoiceCanvas() (js/preview.js) as .edit-stacked on #invoice
+   whenever Edit mode's container is narrower than STACK_BELOW_PX. In that
+   state the invoice is NOT a scaled-down A4 page any more: its width is the
+   real available container width (--stack-w, already divided by zoom) so
+   every section genuinely sees a narrow container and stacks into ONE
+   column. Screen-only — Preview, Print and PDF never use this (Preview
+   doesn't get the class; @media screen keeps even a mid-print DOM out of it).
+   #invoice.edit-stacked (id-level specificity) deliberately beats the
+   per-template padding/header rules in templates.css without !important. */
+@media screen {
+  #invoice.edit-stacked{width:var(--stack-w);min-height:0;padding:clamp(14px,4.5vw,28px);border-radius:12px;font-size:14px}
+
+  /* Header: company block, then title block — one column. */
+  #invoice.edit-stacked .inv-header{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin:0 0 16px;padding:0 0 16px;text-align:left}
+  #invoice.edit-stacked.has-header-bg:not(.template-medical) .inv-header,
+  #invoice.edit-stacked.template-medical .inv-header,
+  #invoice.edit-stacked.template-manufacturing .inv-header{padding:14px;margin:0 0 16px}
+  #invoice.edit-stacked .companywrap{flex-direction:column;align-items:stretch;gap:12px}
+  #invoice.edit-stacked .companyinfo,#invoice.edit-stacked .invtitle{width:100%;min-width:0;text-align:left}
+  #invoice.edit-stacked .invtitle h2 input,#invoice.edit-stacked .invtitle input{text-align:left}
+  #invoice.edit-stacked .invno{justify-content:flex-start}
+
+  /* Date/reference rows: caption above its value instead of two columns. */
+  #invoice.edit-stacked .metatable,#invoice.edit-stacked .metatable tbody,
+  #invoice.edit-stacked .metatable tr,#invoice.edit-stacked .metatable td{display:block;width:100%}
+  #invoice.edit-stacked .metatable tr{margin:0 0 10px}
+  #invoice.edit-stacked .metatable td{padding:0;text-align:left}
+  /* !important: js/preview.js sizeMetaLabelInputs() sets an inline px width
+     on the label inputs for the two-column table; here they must be fluid. */
+  #invoice.edit-stacked .metatable td input,
+  #invoice.edit-stacked .metatable td:last-child input{width:100%!important;text-align:left;min-height:36px}
+  #invoice.edit-stacked .metatable td:last-child{position:relative}
+  #invoice.edit-stacked .metatable td:first-child input{font-size:12px;font-weight:700;color:#667085;min-height:0}
+  #invoice.edit-stacked .date-display{justify-content:flex-start!important;padding:0 36px 0 3px!important;font-size:16px;font-weight:700}
+  #invoice.edit-stacked .statusbalance{align-items:stretch}
+  #invoice.edit-stacked .balance{flex-direction:column;align-items:flex-start;gap:4px}
+  #invoice.edit-stacked .statusbalance .status{width:100%}
+
+  #invoice.edit-stacked .billrow{margin:16px 0;text-align:left}
+
+  /* Line items: each row becomes a one-column card of captioned fields;
+     the column headings (renamed/reordered/hidden in js/columnCanvas.js)
+     become a one-column "Columns" list above the cards. */
+  #invoice.edit-stacked .invtable,#invoice.edit-stacked .invtable thead,#invoice.edit-stacked .invtable tbody,
+  #invoice.edit-stacked .invtable tr,#invoice.edit-stacked .invtable th,#invoice.edit-stacked .invtable td{display:block;width:100%}
+  #invoice.edit-stacked .invtable{font-size:14px;table-layout:auto}
+  #invoice.edit-stacked .invtable colgroup{display:none}
+  #invoice.edit-stacked .invtable thead tr{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  #invoice.edit-stacked .invtable th{font-size:12px;padding:6px 8px 6px 26px;text-align:left;border-radius:8px}
+  #invoice.edit-stacked .invtable th.col-actions-head{padding:0;width:auto;align-self:flex-start;border:0}
+  #invoice.edit-stacked .col-head-cell{padding-left:26px!important;padding-right:8px!important}
+  #invoice.edit-stacked .col-drag-handle{left:4px;width:18px;height:26px}
+  #invoice.edit-stacked .col-resize-handle{display:none}
+  #invoice.edit-stacked .col-label-input{font-size:14px;min-height:30px}
+  #invoice.edit-stacked .col-menu-btn{width:30px;height:30px;font-size:16px}
+  #invoice.edit-stacked .col-add-btn{width:36px;height:36px;font-size:18px}
+  #invoice.edit-stacked .invtable tr.inv-item-row{position:relative;border:1px solid #d7dde6;border-radius:10px;padding:12px;margin:0 0 12px;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+  #invoice.edit-stacked .invtable td{border:0!important;padding:0!important;text-align:left!important}
+  #invoice.edit-stacked .invtable td[data-label]::before{content:attr(data-label);display:block;font-size:11px;font-weight:700;letter-spacing:.03em;color:#667085;margin:0 0 3px}
+  #invoice.edit-stacked .item-cell-input{display:block;width:100%;min-height:44px;font-size:16px;text-align:left;padding:8px 10px;border:1px solid #cfd6e0;border-radius:8px;background:#fff}
+  #invoice.edit-stacked .item-cell-input:focus{border-color:var(--app-accent);outline:2px solid rgba(var(--app-accent-rgb),.25);outline-offset:0}
+  #invoice.edit-stacked .invtable td.item-actions-col{display:flex;justify-content:flex-end}
+  #invoice.edit-stacked .item-remove-btn{width:44px;height:44px;font-size:20px}
+  #invoice.edit-stacked .invtable tr.add-item-row,#invoice.edit-stacked .invtable tr.add-item-row td{display:block;border:0}
+  #invoice.edit-stacked .add-item-btn{min-height:44px;width:100%}
+  #invoice.edit-stacked .table-toolbar{margin:0 0 10px}
+
+  /* Notes / totals / payment / terms: one column. */
+  #invoice.edit-stacked .bottomgrid,#invoice.edit-stacked .paymentgrid{grid-template-columns:minmax(0,1fr);gap:16px}
+  #invoice.edit-stacked .sumrow{font-size:14px;padding:6px 0;align-items:center}
+  #invoice.edit-stacked .sumrow span{align-items:center}
+  #invoice.edit-stacked .sumrow input.pct-input,#invoice.edit-stacked .sumrow input.money-input{border:1px solid #cfd6e0;border-radius:8px;background:#fff}
+  #invoice.edit-stacked .sumrow.total{font-size:17px}
+  #invoice.edit-stacked input.pct-input{width:4.2em;min-height:36px}
+  #invoice.edit-stacked input.money-input{width:8em;min-height:36px}
+
+  /* Comfortable, zoom-safe (16px) text fields everywhere on the canvas. */
+  #invoice.edit-stacked .metaText input,#invoice.edit-stacked .metaText textarea,
+  #invoice.edit-stacked .notebox textarea,#invoice.edit-stacked .paymentgrid textarea,
+  #invoice.edit-stacked input.label,#invoice.edit-stacked .metatable input,#invoice.edit-stacked .clientname,
+  #invoice.edit-stacked .status{font-size:16px}
+  #invoice.edit-stacked .metaText input,#invoice.edit-stacked .metaText textarea{min-height:36px}
+  #invoice.edit-stacked .footer{display:none}
+}
