@@ -531,3 +531,32 @@
   #invoice.edit-stacked .metaText input,#invoice.edit-stacked .metaText textarea{min-height:36px}
   #invoice.edit-stacked .footer{display:none}
 }
+
+/* === UI polish — tablet & phone ============================================
+   Fluid (clamp) spacing so the chrome tightens gradually with available width
+   instead of jumping at one breakpoint, then phone-specific hierarchy: primary
+   actions stay solid, secondary actions go quiet, and the header uses less of
+   the screen so the Edit canvas gets the room. */
+@media (max-width:1080px){
+  .appheader{padding:10px clamp(12px,2.5vw,20px)}
+  .workspace{padding:clamp(8px,2vw,18px) clamp(8px,2.2vw,20px) 24px}
+  .sidebar,.right-sidebar{padding-top:16px}
+}
+@media (max-width:640px){
+  .appheader{gap:8px;padding-bottom:10px;border-bottom-color:var(--line)}
+  .actions-secondary{border-left:0;padding-left:0;margin-left:0}
+  /* Secondary actions: quiet, borderless-feeling buttons so Save/Print lead. */
+  .actions-secondary .btn:not(.danger){background:#f6f7fb;border-color:transparent;color:#344054}
+  .actions-secondary .btn:not(.danger):hover{background:#eceef6}
+  .actions-secondary .btn.danger{background:#fff}
+  .header-actions .btn{font-weight:700}
+  .mobileview-toggle{border-bottom-color:var(--line)}
+  .mobileview-title{font-weight:800}
+  /* Drawer rows: 44px tap height, bigger secondary text. */
+  .sidebar .navitem{min-height:44px}
+  .sidebar .navitem.navsubitem{min-height:40px}
+  .sidebar .navitem small{font-size:11.5px}
+  .right-sidebar .panel{padding:12px}
+  /* Edit canvas (stacked): the document reads as one clean card. */
+  #invoice.edit-stacked{box-shadow:0 1px 3px rgba(16,24,40,.08),0 8px 24px rgba(16,24,40,.06)}
+}

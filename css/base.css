@@ -389,3 +389,65 @@ button.design-reopen-btn{display:none}
 }
 .right-sidebar .field,.right-sidebar .grid2>*,.right-sidebar .grid3>*{min-width:0}
 .right-sidebar .field input,.right-sidebar .field select,.right-sidebar .field textarea{max-width:100%;min-width:0}
+
+/* === UI polish layer =========================================================
+   Visual refinement of the existing app chrome only (header, left nav, canvas
+   toolbar, Design panel, form controls). Same structure, same colors, same
+   controls — this just unifies size/spacing/type so the pieces read as one
+   system: one control height (--ctrl-h), one control font size, one radius,
+   one hairline border, calmer elevation. Deliberately does NOT touch
+   .invoice / templates / print — the document itself is unchanged.
+   css/responsive.css (loaded after this file) still wins at tablet/phone. */
+:root{--ctrl-h:34px;--ctrl-font:13px;--ctrl-radius:8px;--ease-ui:150ms cubic-bezier(.2,.7,.3,1)}
+
+/* Header: a little more air, 34px controls everywhere (they were 29px here but
+   34px in the canvas toolbar), and a hairline dividing primary from secondary. */
+.appheader{padding:12px 20px;gap:16px}
+.brand h1{font-size:18px;font-weight:800}
+.header-actions .btn{min-height:var(--ctrl-h);padding:0 13px;font-size:12px}
+.btn{border-radius:var(--ctrl-radius);transition:background-color var(--ease-ui),border-color var(--ease-ui),box-shadow var(--ease-ui),color var(--ease-ui)}
+.btn:hover{transform:none}
+.btn:not(.primary):not(.danger){box-shadow:none}
+.btn:not(.primary):not(.danger):hover{background:#f6f7fb;border-color:#c9cfdb;box-shadow:none}
+@media (min-width:641px){
+  .actions-secondary{padding-left:12px;margin-left:4px;border-left:1px solid var(--line)}
+}
+
+/* Left nav: roomier rows, slightly larger secondary text (10.5px was hard to
+   read), consistent hover/active feedback. */
+.sidebar{padding:18px 12px 12px}
+.appnav{gap:2px}
+.navitem{padding:9px 12px;border-radius:10px;transition:background-color var(--ease-ui),color var(--ease-ui)}
+.navitem strong{font-size:13px;font-weight:700}
+.navitem small{font-size:11px}
+.navitem.navsubitem{padding:6px 12px}
+.sidebar .notice{font-size:11.5px;line-height:1.45;padding:10px 12px;border-radius:10px}
+.sidebar-footer{font-size:11px}
+
+/* Design panel: flat, hairline-bordered cards (no stacked shadows), clearer
+   section headings, and form controls at the same 34px / 13px as the rest of
+   the app instead of the browser-default 16px they were inheriting. */
+.right-sidebar{padding:18px 16px}
+.right-sidebar-head{margin-bottom:16px}
+.right-sidebar-head h2{font-size:15px;font-weight:800}
+.panel{padding:14px;margin-bottom:12px;border-radius:12px;box-shadow:none}
+.panelhead{margin-bottom:12px}
+.panelhead h2{font-size:13px;font-weight:750}
+.grid2,.grid3{gap:10px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.035em;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{font-size:var(--ctrl-font);min-height:var(--ctrl-h);border-radius:var(--ctrl-radius);border-color:#d5dae3}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:#b8c0cf}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{border-color:var(--app-accent);outline:3px solid rgba(var(--app-accent-rgb),.18);outline-offset:0}
+.field+.field{margin-top:12px}
+.grid2>.field+.field,.grid3>.field+.field,.field.full+.field{margin-top:0}
+.field .colorrow{gap:8px}
+.field .colorrow input[type=color]{width:44px;min-height:var(--ctrl-h);border-radius:var(--ctrl-radius)}
+.field .hint,.panel .hint{font-size:11px;line-height:1.45}
+.toggleline{padding:10px 0;font-size:12.5px}
+
+/* Canvas area: a little more breathing room around the document. */
+.workspace{padding:20px 24px 32px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}
+}
