@@ -370,3 +370,22 @@ button.design-reopen-btn{display:none}
 .calc-table tbody tr:last-child td{border-bottom:0}
 :root[data-theme="dark"] .calc-table thead th{background:var(--panel-alt)}
 :root[data-theme="dark"] .navsub{border-left-color:var(--line)}
+
+/* --- Settings danger-zone helper text ----------------------------------- */
+.danger-hint{display:block;margin-top:5px;font-size:10.5px;line-height:1.35}
+
+/* --- Responsive Design-panel form (container-based) ---------------------
+   The panel's width is NOT the viewport's: on desktop it is a 240–480px
+   resizable column, on phones a ≤340px drawer. The old rule (responsive.css)
+   only collapsed two-up fields from the *viewport* width, so a panel dragged
+   narrow on a wide screen kept cramped two-column rows. Making the panel a
+   size container lets its fields follow the width they actually have:
+   at the default 280px panel (248px of content) the existing two-column
+   layout is unchanged; below ~240px of content they stack to one column.
+   (Narrow viewports keep the existing single-column rule too.) */
+.right-sidebar{container-type:inline-size;container-name:designform}
+@container designform (max-width:239px){
+  .grid2,.grid3,.itemgrid{grid-template-columns:1fr}
+}
+.right-sidebar .field,.right-sidebar .grid2>*,.right-sidebar .grid3>*{min-width:0}
+.right-sidebar .field input,.right-sidebar .field select,.right-sidebar .field textarea{max-width:100%;min-width:0}

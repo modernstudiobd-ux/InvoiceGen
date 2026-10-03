@@ -15,7 +15,7 @@ import { addItem } from "./items.js";
 import { renderToggles } from "./toggles.js";
 import { save, undo, redo, pushEditHistory, updateUndoRedoButtons } from "./persistence.js";
 import { load } from "./invoiceData.js";
-import { LIBRARY_KEY, CURRENT_ID_KEY, getCurrentId, setCurrentId, saveToHistory, renderHistory, duplicateCurrentInvoice, newInvoice, clearLibrary } from "./library.js";
+import { LIBRARY_KEY, CURRENT_ID_KEY, getCurrentId, setCurrentId, saveToHistory, renderHistory, duplicateCurrentInvoice, newInvoice, clearLibrary, resetAllFields } from "./library.js";
 import { BRAND_KEY, saveCurrentAsTemplate, renderBrandTemplates, clearBrandTemplates } from "./brandTemplates.js";
 import { parseCSV, mapRows, ensureXLSX } from "./importSheet.js";
 import { printInvoice } from "./print.js";
@@ -162,7 +162,21 @@ function download(name, text) { let b = new Blob([text], { type: "application/js
 $("exportBtn").onclick = () => download(($("invoiceNumber").value || "invoice") + ".json", JSON.stringify(serialize(), null, 2));
 $("importBtn").onclick = () => $("jsonFile").click();
 $("jsonFile").onchange = async e => { try { load(JSON.parse(await e.target.files[0].text())); setCurrentId(uid()); renderHistory(); toast("Invoice imported."); } catch (err) { toast(err.message); } e.target.value = ""; };
-$("resetBtn").onclick = () => { if (confirm("Reset the app and delete ALL locally saved invoices and templates (current draft + Saved Invoices + Brand Templates)? This cannot be undone.")) { localStorage.removeItem(KEY); localStorage.removeItem(LIBRARY_KEY); localStorage.removeItem(CURRENT_ID_KEY); localStorage.removeItem(BRAND_KEY); location.reload(); } };
+// Two different resets, on purpose:
+//  • #resetBtn (action bar)  → "Reset Fields": clears only this document's entered data (library.js).
+//  • #fullResetBtn (Settings → Danger zone) → the full wipe below: draft, Saved Invoices, Brand
+//    Templates AND every saved preference. (The existing "Reset settings to default" button in
+//    Settings still resets only paper size / date format / theme — see settings.js.)
+$("resetBtn").onclick = () => resetAllFields();
+$("fullResetBtn").onclick = () => {
+  if (!confirm("FULL RESET — this erases EVERYTHING stored by the app on this device:\n\n• your current draft\n• ALL Saved Invoices\n• ALL Brand Templates\n• all settings (paper size, date format, theme, panel layout)\n\nThis cannot be undone. Continue?")) return;
+  [KEY, LIBRARY_KEY, CURRENT_ID_KEY, BRAND_KEY].forEach(k => localStorage.removeItem(k));
+  // Every other saved preference (paper size, date format, theme, panel width/state,
+  // last-saved stamp) — all under the app's own prefix. The "install banner dismissed"
+  // notes are browser-prompt bookkeeping, not settings, so they are left alone.
+  Object.keys(localStorage).filter(k => k.startsWith("invoiceStudio.") && !k.startsWith("invoiceStudio.installDismissed")).forEach(k => localStorage.removeItem(k));
+  location.reload();
+};
 
 /* --- Spreadsheet (CSV/XLSX) import --- */
 $("importSheetBtn").onclick = () => $("sheetFile").click();

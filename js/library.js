@@ -167,7 +167,7 @@ export function duplicateInvoiceById(id) {
 }
 
 export function newInvoice() {
-  if (!confirm("Start a new invoice? This clears the client and items from your current draft (company info and design stay). Save first if you want to keep this draft in Saved Invoices.")) return;
+  if (!confirm("Start a new document? This clears the client and items from your current draft (company info and design stay). Save first if you want to keep this draft in Saved Invoices.")) return;
   setCurrentId(uid());
   $("invoiceNumber").value = nextInvoiceNumber();
   $("status").value = "Draft";
@@ -180,5 +180,37 @@ export function newInvoice() {
   state.items = [];
   renderPreview(); save();
   renderHistory();
-  toast("New invoice started — " + $("invoiceNumber").value);
+  toast("New document started — " + $("invoiceNumber").value);
+}
+
+// "Reset Fields" (top action bar): clears ONLY what was entered on this
+// document — company and client details, reference, dates, status, number,
+// discount/tax/shipping, notes, payment details, terms and the line items —
+// back to the app's starting values. It deliberately leaves everything else alone:
+// app settings (paper-size/date-format/theme preferences), template, colors,
+// logo, currency, field labels, columns, section toggles, the document type,
+// Saved Invoices and Brand Templates. (The full wipe is "Full reset" in
+// Settings → Danger zone; see fullReset() in js/main.js.) Goes through the
+// normal save() path, so it is also undoable with Undo.
+// Fields restored to the app's own starting values — read straight from the
+// HTML defaults (defaultValue / the originally-selected option), so this can
+// never drift from what a brand-new document starts with. The number and the
+// two dates are seeded dynamically at startup, so they're handled below.
+const CONTENT_FIELDS = ["status", "reference", "companyName", "companyReg", "companyVat", "companyAddress", "companyPhone", "companyEmail", "companyWebsite",
+  "clientName", "clientContact", "clientTax", "clientAddress", "clientEmail", "discount", "tax", "shipping", "notes", "paymentDetails", "terms"];
+function restoreHtmlDefault(el) {
+  if (el.tagName === "SELECT") { const o = [...el.options].find(x => x.defaultSelected) || el.options[0]; if (o) el.value = o.value; }
+  else el.value = el.defaultValue;
+}
+export function resetAllFields() {
+  if (!confirm("Reset all fields? This clears everything you entered on this document — company and client details, line items, notes, dates and totals.\n\nYour settings, template, colors, logo and Saved Invoices are NOT changed. You can Undo this.")) return;
+  setCurrentId(uid());   // a blank document must not overwrite the saved invoice that was open
+  CONTENT_FIELDS.forEach(id => restoreHtmlDefault($(id)));
+  $("invoiceNumber").value = nextInvoiceNumber();
+  $("invoiceDate").value = today();
+  $("dueDate").value = plusDays(today(), 14);
+  state.items = [];
+  renderPreview(); save();
+  renderHistory();
+  toast("All fields reset.");
 }

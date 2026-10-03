@@ -88,16 +88,16 @@
          overflow toggle, so nothing about how they work changed). A "..."
          icon by itself doesn't say what's inside it, and for exactly two
          infrequent-but-legitimate actions a menu wasn't buying enough
-         compactness to be worth that ambiguity. Reset keeps the "danger"
-         styling (red) it already had as its own visual separation from
-         the other three, on top of the existing confirm() dialog in
-         js/main.js, which is untouched. -->
+         compactness to be worth that ambiguity. Reset Fields ("Reset All Fields") only clears the entered invoice
+         data — it is NOT the full reset, which lives in Settings → Danger
+         zone. Keeps the "danger" styling (red) as visual separation from
+         the other three, plus a confirm() dialog (js/library.js). -->
     <div class="actions-secondary">
       <button class="btn small" id="duplicateInvoiceBtn" title="Save a copy with the next invoice number and today's dates"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="btn-label">Copy</span></button>
       <button class="btn small" id="exportBtn" title="Download this invoice as a JSON file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span class="btn-label">Export</span></button>
       <button class="btn small" id="importBtn" title="Import an invoice from a JSON file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span class="btn-label">Import</span></button>
       <input type="file" id="jsonFile" class="hidden" accept=".json">
-      <button class="btn small danger" id="resetBtn" title="Erase all locally saved invoices, templates and settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg><span class="btn-label">Reset</span></button>
+      <button class="btn small danger" id="resetBtn" title="Reset All Fields — clears the invoice data you entered on this document. Settings, template, colors and Saved Invoices are kept."><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg><span class="btn-label">Reset Fields</span></button>
     </div>
   </div>
 </header>
@@ -168,7 +168,7 @@
       see .sidebar/.sidebar-scroll/.sidebar-footer in css/base.css. -->
  <div class="sidebar-scroll">
   <!-- App navigation — each row is an existing action/handler relocated
-       here, not a new/duplicate one: "New Invoice", "Load Invoice" and
+       here, not a new/duplicate one: "New Document", "Load Invoice" and
        "Brand Templates" are the very same #newInvoiceBtn/#historyToggleBtn
        (opens #historyPanel)/#templatesToggleBtn (opens #templatesPanel)
        buttons that used to sit in the canvas toolbar, just restyled as nav
@@ -203,9 +203,9 @@
         <button class="navitem navsubitem" type="button" id="calcMarkupNavBtn" data-calc="markup" aria-haspopup="true" aria-controls="calculatorsPanel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><span><strong>Markup Calculator</strong></span></button>
       </div>
     </div>
-    <button class="navitem" id="newInvoiceBtn" type="button" title="Clear client and items; keeps company profile and design">
+    <button class="navitem" id="newInvoiceBtn" type="button" title="Start a new document — clears client and items; keeps company profile and design">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      <span><strong>New Invoice</strong><small>Start a new invoice</small></span>
+      <span><strong>New Document</strong><small>Start a new document</small></span>
     </button>
     <div class="history-dropdown navitem-dropdown">
       <button class="navitem" id="historyToggleBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="historyPanel" title="View, reopen or delete previously saved invoices">
@@ -701,6 +701,9 @@
     <div class="danger-zone">
       <div class="danger-zone-label">Danger zone</div>
       <button class="btn small danger" id="resetSettingsBtn" type="button" style="width:100%">Reset settings to default</button>
+      <span class="hint danger-hint">Paper size, date format and theme only. Your invoices and templates are not touched.</span>
+      <button class="btn small danger" id="fullResetBtn" type="button" style="width:100%;margin-top:10px">Full reset — erase everything</button>
+      <span class="hint danger-hint">Deletes the current draft, all Saved Invoices and Brand Templates, and restores every setting. Cannot be undone. To clear just this document's fields, use Reset Fields above the canvas.</span>
     </div>
   </div>
 

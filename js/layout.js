@@ -92,7 +92,7 @@ function syncDrawerA11y() {
 syncDrawerA11y();
 // Default to the invoice itself, not the nav menu open: someone opening the
 // app (or reloading mid-edit) wants to see/keep editing their invoice, not
-// a list of New Invoice/Load Invoice/Templates/Settings/Help popped open
+// a list of New Document/Load Invoice/Templates/Settings/Help popped open
 // over it — landing with the menu open first just added a guaranteed extra
 // tap (or an extra thing blocking the canvas) before reaching the one thing
 // the app is actually for.
@@ -317,7 +317,7 @@ function registerDropdown(toggleBtn, panel, { maxWidth = 360, bindToggle = true 
 }
 
 // Saved-invoices "History" dropdown, positioned above the preview alongside
-// Save/Duplicate/New invoice (replaces the old sidebar History tab).
+// Save/Duplicate/New document (replaces the old sidebar History tab).
 const historyEntry = registerDropdown($("historyToggleBtn"), $("historyPanel"));
 const historyToggleBtn = historyEntry.toggleBtn, historyPanel = historyEntry.panel;
 export function closeHistoryPanel() { historyEntry.close(); }
