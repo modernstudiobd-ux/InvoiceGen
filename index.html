@@ -6,6 +6,9 @@
 <title>InvoGen - Invoice Generator</title>
 <meta name="description" content="Create, design and export professional invoices — works fully offline.">
 
+<!-- Security: strict Content-Security-Policy (GitHub Pages cannot send HTTP headers, so it is set here). Only this origin's own scripts/styles/fonts run; nothing is fetched from third parties; no eval, no plugins, no form posts. The hash allows exactly the one small inline install-prompt script below — if that script is edited, update the hash. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-TkmHvsMu5LZZir8Fvb6ie05g+r4GSBd/umC2t3rBt3E='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <!-- PWA: installability -->
 <link rel="manifest" href="manifest.webmanifest">
 <!-- beforeinstallprompt can fire before the module scripts below have run;

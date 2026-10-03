@@ -1,7 +1,7 @@
 // InvoGen - Invoice Generator — Service Worker
 // Bump this version string whenever index.html (or any cached asset) changes,
 // so returning users automatically pick up the new version.
-const VERSION = "v3.23.0";
+const VERSION = "v3.24.0";
 const SHELL_CACHE = `invoice-studio-shell-${VERSION}`;
 const RUNTIME_CACHE = `invoice-studio-runtime-${VERSION}`;
 
@@ -40,6 +40,7 @@ const SHELL_ASSETS = [
   "./js/calculators.js",
   "./js/version.js",
   "./js/main.js",
+  "./js/vendor/xlsx.full.min.js",
   "./fonts/inter-variable.woff2",
   "./fonts/currency-latinext.woff2",
   "./fonts/currency-thai.woff2",
@@ -91,40 +92,24 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // App shell (same-origin): network-first, so a returning visitor always
-  // gets the latest files whenever there's a connection — falling back to
-  // the cached copy only when actually offline. (Previously this was
-  // cache-first, which is faster but meant updates only took effect after a
-  // person reloaded twice in a row for the new service worker to take over;
-  // in practice that was a repeated source of "I'm still seeing the old
-  // version" confusion, so trading a little bit of load speed for always
-  // being current is the right call here.)
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
+  // Same-origin only. Anything cross-origin is left entirely to the browser
+  // (never intercepted or cached) — the app needs no third-party requests, and
+  // the page's Content-Security-Policy blocks them anyway.
+  if (url.origin !== self.location.origin) return;
+
+  // App shell: network-first, so a returning visitor always gets the latest
+  // files whenever there's a connection, falling back to the cache offline.
+  // Only complete, same-origin, successful responses are ever cached — never
+  // errors (404/500), redirects or opaque responses.
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response && response.ok && response.type === "basic") {
           const copy = response.clone();
           caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html")))
-    );
-    return;
-  }
-
-  // Third-party assets (e.g. the xlsx library, loaded only when importing a
-  // spreadsheet): stale-while-revalidate, so it still works offline after
-  // the first successful use, but stays fresh whenever online.
-  event.respondWith(
-    caches.open(RUNTIME_CACHE).then(async (cache) => {
-      const cached = await cache.match(request);
-      const networkFetch = fetch(request)
-        .then((response) => {
-          if (response && response.status === 200) cache.put(request, response.clone());
-          return response;
-        })
-        .catch(() => cached);
-      return cached || networkFetch;
-    })
+        }
+        return response;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html")))
   );
 });

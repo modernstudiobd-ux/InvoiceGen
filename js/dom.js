@@ -12,3 +12,10 @@ export function uid() {
 export function esc(v) {
   return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
+
+// Only embedded raster/SVG data URLs are accepted as a logo. Anything else
+// (a remote URL or other scheme smuggled in via an imported .json/localStorage
+// entry) is dropped, so opening a file can never make the app contact a server.
+export function safeLogo(v) {
+  return typeof v === "string" && v.length <= 6e6 && /^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,[A-Za-z0-9+/=]+$/i.test(v) ? v : "";
+}

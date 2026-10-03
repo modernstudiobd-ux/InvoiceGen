@@ -1,7 +1,7 @@
 // invoiceData.js — turns a serialized snapshot (from localStorage, a History
 // entry, or an imported .json file) back into live app state + a full re-render.
 
-import { $, uid } from "./dom.js";
+import { $, uid, safeLogo } from "./dom.js";
 import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, DOC_TYPES } from "./state.js";
 import { syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
@@ -25,7 +25,7 @@ export function load(d) {
   });
   // Saves from before document types existed have no docType → Invoice.
   state.docType = Object.prototype.hasOwnProperty.call(DOC_TYPES, d.docType) ? d.docType : "invoice";
-  state.logo = typeof d.logo === "string" ? d.logo : "";
+  state.logo = safeLogo(d.logo);
   state.logoNatural = (d.logoNatural && typeof d.logoNatural.w === "number" && typeof d.logoNatural.h === "number") ? d.logoNatural : null;
   state.zoom = (typeof d.zoom === "number" && d.zoom >= 0.5 && d.zoom <= 1.5) ? d.zoom : 1;
   let cleanColumns = Array.isArray(d.columns) ? d.columns.filter(c => c && typeof c === "object" && typeof c.key === "string" && typeof c.label === "string").map(c => ({ id: typeof c.id === "string" ? c.id : uid(), key: c.key, label: c.label, type: ["text", "number", "currency", "percentage", "date"].includes(c.type) ? c.type : "text", width: Number.isFinite(Number(c.width)) ? Number(c.width) : 15, align: ["left", "right", "center"].includes(c.align) ? c.align : "left", visible: c.visible !== false, role: ["none", "quantity", "rate", "amount"].includes(c.role) ? c.role : "none" })) : [];

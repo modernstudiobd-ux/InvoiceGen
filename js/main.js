@@ -161,7 +161,7 @@ $("printBtn").onclick = () => {
 function download(name, text) { let b = new Blob([text], { type: "application/json" }), u = URL.createObjectURL(b), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 500); }
 $("exportBtn").onclick = () => download(($("invoiceNumber").value || "invoice") + ".json", JSON.stringify(serialize(), null, 2));
 $("importBtn").onclick = () => $("jsonFile").click();
-$("jsonFile").onchange = async e => { try { load(JSON.parse(await e.target.files[0].text())); setCurrentId(uid()); renderHistory(); toast("Invoice imported."); } catch (err) { toast(err.message); } e.target.value = ""; };
+$("jsonFile").onchange = async e => { try { if (e.target.files[0].size > 8e6) throw Error("That file is too large to be an invoice."); load(JSON.parse(await e.target.files[0].text())); setCurrentId(uid()); renderHistory(); toast("Invoice imported."); } catch (err) { toast(err.message); } e.target.value = ""; };
 // Two different resets, on purpose:
 //  • #resetBtn (action bar)  → "Reset Fields": clears only this document's entered data (library.js).
 //  • #fullResetBtn (Settings → Danger zone) → the full wipe below: draft, Saved Invoices, Brand

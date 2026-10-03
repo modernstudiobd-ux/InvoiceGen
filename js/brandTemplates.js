@@ -11,7 +11,7 @@
 // so it's safe to use mid-invoice without losing whatever client/items work
 // is already on screen.
 
-import { $, esc, uid } from "./dom.js";
+import { $, esc, uid, safeLogo } from "./dom.js";
 import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP } from "./state.js";
 import { normalizeLabels, syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
@@ -95,7 +95,7 @@ export function applyBrandTemplate(id) {
     const legacyVal = typeof legacyLabels[legacyKey] === "string" ? legacyLabels[legacyKey] : defaultLabels()[legacyKey];
     $(fid).value = legacyVal || "";
   });
-  state.logo = typeof d.logo === "string" ? d.logo : "";
+  state.logo = safeLogo(d.logo);
   state.logoNatural = (d.logoNatural && typeof d.logoNatural.w === "number" && typeof d.logoNatural.h === "number") ? d.logoNatural : null;
   let cleanColumns = Array.isArray(d.columns) ? d.columns.filter(c => c && typeof c === "object" && typeof c.key === "string" && typeof c.label === "string").map(c => ({ id: typeof c.id === "string" ? c.id : uid(), key: c.key, label: c.label, type: ["text", "number", "currency", "percentage", "date"].includes(c.type) ? c.type : "text", width: Number.isFinite(Number(c.width)) ? Number(c.width) : 15, align: ["left", "right", "center"].includes(c.align) ? c.align : "left", visible: c.visible !== false, role: ["none", "quantity", "rate", "amount"].includes(c.role) ? c.role : "none" })) : [];
   state.columns = cleanColumns.length ? cleanColumns : defaultColumns();

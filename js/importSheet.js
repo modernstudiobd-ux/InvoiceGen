@@ -38,7 +38,16 @@ export function mapRows(rows) {
   }).filter(Boolean);
 }
 
+// SheetJS is self-hosted (js/vendor/, npm xlsx@0.18.5, integrity-checked) rather
+// than loaded from a third-party CDN: no runtime supply-chain exposure, works
+// offline, and lets the page's Content-Security-Policy stay "self"-only.
 export async function ensureXLSX() {
   if (window.XLSX) return;
-  await new Promise((res, rej) => { let s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"; s.onload = res; s.onerror = () => rej(Error("Excel parser could not load. Use CSV or connect to the internet.")); document.head.appendChild(s); });
+  await new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = new URL("./vendor/xlsx.full.min.js", import.meta.url).href;
+    s.onload = res;
+    s.onerror = () => rej(Error("Excel support could not be loaded. Try a CSV file instead."));
+    document.head.appendChild(s);
+  });
 }

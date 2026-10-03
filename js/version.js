@@ -9,6 +9,6 @@
 
 // Kept in lockstep with the VERSION constant in sw.js (which drives cache
 // busting) — bump both together on every delivered update.
-export const APP_VERSION = "3.23.0";
+export const APP_VERSION = "3.24.0";
 export const BUILD_DATE = "2026-10-03";
 export const BUILD_STRING = `v${APP_VERSION} (${BUILD_DATE})`;
