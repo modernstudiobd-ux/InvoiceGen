@@ -21,9 +21,29 @@
 import { $, esc } from "./dom.js";
 import { getDateFormat } from "./settings.js";
 
+// Forgiving number parser. Phone keyboards often produce things a plain
+// Number() rejects (and the app then silently treated as 0, so amounts never
+// changed): Bengali/Hindi/Arabic/Persian digits (০১২…), a comma as the decimal
+// mark ("12,5"), thousands commas ("1,200"), spaces / non-breaking spaces, and
+// stray currency symbols. Plain ASCII input behaves exactly as before.
+const DIGIT_BASES = [0x09E6, 0x0966, 0x0660, 0x06F0, 0x0AE6, 0x0BE6];
 export function num(v) {
-  v = Number(v);
-  return Number.isFinite(v) ? v : 0;
+  if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+  let s = String(v ?? "").trim();
+  if (!s) return 0;
+  let plain = Number(s);
+  if (Number.isFinite(plain)) return plain;
+  s = s.replace(/[\u0966-\u096F\u09E6-\u09EF\u0660-\u0669\u06F0-\u06F9\u0AE6-\u0AEF\u0BE6-\u0BEF]/g, ch => {
+    const c = ch.codePointAt(0), base = DIGIT_BASES.find(b => c >= b && c <= b + 9);
+    return String(c - base);
+  }).replace(/[\u066B]/g, ".").replace(/[\u066C\u00A0\u202F\s]/g, "").replace(/[^0-9.,eE+-]/g, "");
+  if (s.includes(",")) {
+    if (s.includes(".")) s = s.replace(/,/g, "");                       // 1,234.50
+    else if (/^[+-]?\d{1,3}(,\d{3})+$/.test(s)) s = s.replace(/,/g, ""); // 1,200
+    else s = s.replace(",", ".");                                       // 12,5
+  }
+  plain = Number(s);
+  return Number.isFinite(plain) ? plain : 0;
 }
 
 export function today() {

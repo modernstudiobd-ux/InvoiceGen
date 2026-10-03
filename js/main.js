@@ -100,7 +100,10 @@ document.addEventListener("click", e => {
 // renderPreview() would rebuild #pItems from scratch on every keystroke,
 // yanking focus and the caret out of the input the person is actively
 // typing in.
-document.addEventListener("input", e => {
+// Bound to "change" as well as "input": some phone keyboards (composition /
+// predictive input) don't fire "input" reliably for numeric fields until the
+// field is committed, which left the Amount and totals stale on mobile.
+const onItemCellEdit = e => {
   const el = e.target.closest(".item-cell-input");
   if (!el) return;
   const idx = Number(el.dataset.idx);
@@ -110,7 +113,9 @@ document.addEventListener("input", e => {
   item[el.dataset.key] = col && ["number", "currency", "percentage"].includes(col.type) ? num(el.value) : el.value;
   refreshItemRowAndTotals(idx);
   save();
-});
+};
+document.addEventListener("input", onItemCellEdit);
+document.addEventListener("change", onItemCellEdit);
 
 /* --- Logo upload + settings panel --- */
 $("logoFile").onchange = e => { const f = e.target.files && e.target.files[0]; if (f) handleLogoFile(f, e.target); };

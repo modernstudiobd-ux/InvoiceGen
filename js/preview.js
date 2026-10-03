@@ -181,9 +181,17 @@ export function renderPreview() {
         if (c.role === "amount") {
           return `<td class="${alignClass(c.align)}" data-label="${esc(c.label)}">${fmtCell(itemValue(item, c), c)}</td>`;
         }
-        const inputType = ["number", "currency", "percentage"].includes(c.type) ? "number" : c.type === "date" ? "date" : "text";
+        const isNumeric = ["number", "currency", "percentage"].includes(c.type);
+        // Touch screens: a plain text field with the decimal keypad (inputmode)
+        // instead of type=number — number fields on phones report "" for any
+        // value the keyboard/locale produces that the browser deems invalid
+        // (Bengali digits, "12,5", "12."), which silently zeroed the Amount.
+        // num() (format.js) parses whatever was typed. Desktop keeps type=number.
+        const touchUI = typeof matchMedia === "function" && matchMedia("(pointer:coarse)").matches;
+        const inputType = isNumeric ? (touchUI ? "text" : "number") : c.type === "date" ? "date" : "text";
         const stepAttr = inputType === "number" ? ' step="0.01"' : "";
-        return `<td class="${alignClass(c.align)}" data-label="${esc(c.label)}"><input type="${inputType}"${stepAttr} class="item-cell-input" data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(item[c.key] ?? "")}" aria-label="${esc(c.label)}, item ${idx + 1}"></td>`;
+        const modeAttr = isNumeric ? ' inputmode="decimal" autocomplete="off"' : "";
+        return `<td class="${alignClass(c.align)}" data-label="${esc(c.label)}"><input type="${inputType}"${stepAttr}${modeAttr} class="item-cell-input" data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(item[c.key] ?? "")}" aria-label="${esc(c.label)}, item ${idx + 1}"></td>`;
       }).join("");
       if (!isPreviewMode) {
         cellsHtml += `<td class="item-actions-col"><button type="button" class="item-remove-btn" data-idx="${idx}" aria-label="Remove item ${idx + 1}" title="Remove item">×</button></td>`;
