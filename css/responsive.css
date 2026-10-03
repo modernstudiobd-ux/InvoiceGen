@@ -546,9 +546,8 @@
   .appheader{gap:8px;padding-bottom:10px;border-bottom-color:var(--line)}
   .actions-secondary{border-left:0;padding-left:0;margin-left:0}
   /* Secondary actions: quiet, borderless-feeling buttons so Save/Print lead. */
-  .actions-secondary .btn:not(.danger){background:#f6f7fb;border-color:transparent;color:#344054}
-  .actions-secondary .btn:not(.danger):hover{background:#eceef6}
-  .actions-secondary .btn.danger{background:#fff}
+  .actions-secondary .btn:not(.danger){background:var(--surface-2);border-color:transparent}
+  .actions-secondary .btn:not(.danger):hover{background:var(--surface-hover)}
   .header-actions .btn{font-weight:700}
   .mobileview-toggle{border-bottom-color:var(--line)}
   .mobileview-title{font-weight:800}
@@ -559,4 +558,19 @@
   .right-sidebar .panel{padding:12px}
   /* Edit canvas (stacked): the document reads as one clean card. */
   #invoice.edit-stacked{box-shadow:0 1px 3px rgba(16,24,40,.08),0 8px 24px rgba(16,24,40,.06)}
+}
+
+/* === Mobile: reachable primary actions ======================================
+   Save and Print are the two most-used actions; at the top of a tall phone
+   they're the hardest place to reach. The same two buttons (same elements,
+   ids and handlers — nothing duplicated) are pinned to a bottom action bar
+   in thumb range, which also frees a header row for the canvas. Hidden in
+   fullscreen preview (existing .actions rule) and in print (header hidden). */
+@media (max-width:640px){
+  .actions-primary{position:fixed;left:0;right:0;bottom:0;z-index:50;width:auto;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(16,24,40,.08)}
+  .actions-primary .btn{min-height:44px;font-size:13px;font-weight:800;border-radius:12px}
+  .workspace{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  body.fullscreen-preview .actions-primary{display:none}
+  body.fullscreen-preview .workspace{padding-bottom:0}
 }
