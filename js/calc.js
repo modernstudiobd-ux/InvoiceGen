@@ -4,6 +4,8 @@ import { $ } from "./dom.js";
 import { state } from "./state.js";
 import { num } from "./format.js";
 
+export const isBlank = v => v == null || String(v).trim() === "";
+
 export function roleCol(role) {
   return state.columns.find(c => c.role === role);
 }
@@ -11,7 +13,10 @@ export function roleCol(role) {
 export function itemValue(item, col) {
   if (col.role === "amount") {
     let q = roleCol("quantity"), r = roleCol("rate");
-    return q && r ? num(item[q.key]) * num(item[r.key]) : num(item[col.key]);
+    // A blank quantity means "just the price": the line total is the rate
+    // itself (quantity 1). An explicitly typed 0 stays 0.
+    if (q && r) return (isBlank(item[q.key]) ? 1 : num(item[q.key])) * num(item[r.key]);
+    return num(item[col.key]);
   }
   return item[col.key] ?? "";
 }

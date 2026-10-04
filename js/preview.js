@@ -3,7 +3,7 @@
 import { $, esc } from "./dom.js";
 import { state, currentPaper, applyPaperSize, templateFooterInsetMm, templatePaddingMm, docNoun } from "./state.js";
 import { money, alignClass, fmtCell, num, dateFmt } from "./format.js";
-import { calc, itemValue } from "./calc.js";
+import { calc, itemValue, isBlank } from "./calc.js";
 import { applyAllOptionalColors } from "./accent.js";
 import { syncCurrencyDisplay } from "./currencySearch.js";
 import { buildColumnHeaderHtml, buildAddColumnHeaderHtml } from "./columnCanvas.js";
@@ -173,7 +173,8 @@ export function renderPreview() {
       // dry run of Print/PDF, which is never interactive either way).
       let cellsHtml = visible.map(c => {
         if (isPreviewMode) {
-          return `<td class="${alignClass(c.align)}">${fmtCell(itemValue(item, c), c)}</td>`;
+          const shown = c.role === "quantity" && isBlank(item[c.key]) ? "" : fmtCell(itemValue(item, c), c);
+          return `<td class="${alignClass(c.align)}">${shown}</td>`;
         }
         // Edit mode only: data-label feeds the stacked (narrow-container)
         // layout's per-field captions — see "Edit canvas — stacked layout"

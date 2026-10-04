@@ -311,7 +311,7 @@ function registerDropdown(toggleBtn, panel, { maxWidth = 360, bindToggle = true 
     if (!path.includes(panel) && !path.includes(toggleBtn)) close();
   });
   panelOverlay.addEventListener("click", close);
-  const entry = { toggleBtn, panel, open, close };
+  const entry = { toggleBtn, panel, open, close, maxWidth };
   dropdowns.push(entry);
   return entry;
 }
@@ -415,7 +415,16 @@ document.querySelectorAll("[data-doctype]").forEach(btn => btn.addEventListener(
 const toolbarRowEl = document.querySelector(".toolbar-row");
 function closeAllFloatingPanels() { dropdowns.forEach(d => d.close()); }
 if (toolbarRowEl) toolbarRowEl.addEventListener("scroll", closeAllFloatingPanels, { passive: true });
-window.addEventListener("resize", closeAllFloatingPanels);
+// Only a WIDTH change (rotation, window resize) moves the anchor enough to
+// justify closing. A height-only resize is what a phone's on-screen keyboard
+// does the moment you tap an input inside a panel (Calculators, Logo
+// settings, Import…) — closing then made those panels impossible to use on
+// mobile. Keep them open and, on desktop, just re-anchor them.
+let lastViewportW = window.innerWidth;
+window.addEventListener("resize", () => {
+  if (window.innerWidth !== lastViewportW) { lastViewportW = window.innerWidth; closeAllFloatingPanels(); return; }
+  dropdowns.forEach(d => { if (d.panel.classList.contains("open")) positionDropdownPanel(d.panel, d.toggleBtn, d.maxWidth); });
+});
 // Escape closes whichever floating panel is open and returns focus to its
 // trigger button — standard keyboard behavior for popovers/menus. Falls
 // back to closing an open drawer (menu or Design panel) when no dropdown

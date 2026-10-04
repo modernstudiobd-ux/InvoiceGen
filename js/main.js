@@ -110,7 +110,10 @@ const onItemCellEdit = e => {
   const item = state.items[idx];
   if (!item) return;
   const col = state.columns.find(c => c.key === el.dataset.key);
-  item[el.dataset.key] = col && ["number", "currency", "percentage"].includes(col.type) ? num(el.value) : el.value;
+  // A cleared numeric cell stays blank ("") instead of becoming 0, so a blank
+  // quantity can mean "price only" (see itemValue in calc.js).
+  item[el.dataset.key] = col && ["number", "currency", "percentage"].includes(col.type)
+    ? (el.value.trim() === "" ? "" : num(el.value)) : el.value;
   refreshItemRowAndTotals(idx);
   save();
 };
