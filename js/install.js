@@ -151,8 +151,18 @@ export function initInstallPrompt() {
 
 export function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
+    // When a new version takes over an already-controlled page, reload once so
+    // the phone runs the new code straight away instead of the old modules.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController || reloaded) return;
+      const a = document.activeElement;
+      if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return; // never interrupt typing
+      reloaded = true; location.reload();
+    });
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch(err => console.warn("Service worker registration failed:", err));
+      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(err => console.warn("Service worker registration failed:", err));
     });
   }
 }

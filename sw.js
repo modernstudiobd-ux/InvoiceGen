@@ -1,7 +1,7 @@
 // InvoGen - Invoice Generator — Service Worker
 // Bump this version string whenever index.html (or any cached asset) changes,
 // so returning users automatically pick up the new version.
-const VERSION = "v3.24.2";
+const VERSION = "v3.24.3";
 const SHELL_CACHE = `invoice-studio-shell-${VERSION}`;
 const RUNTIME_CACHE = `invoice-studio-runtime-${VERSION}`;
 
@@ -69,7 +69,7 @@ self.addEventListener("install", (event) => {
       // service worker, and therefore not installable/offline-capable).
       // Add each asset on its own and just log any that fail.
       .then((cache) => Promise.all(SHELL_ASSETS.map((url) =>
-        cache.add(url).catch((err) => console.warn("SW precache skipped", url, err)))))
+        cache.add(new Request(url, { cache: "reload" })).catch((err) => console.warn("SW precache skipped", url, err)))))
       .then(() => self.skipWaiting())
   );
 });
@@ -102,7 +102,7 @@ self.addEventListener("fetch", (event) => {
   // Only complete, same-origin, successful responses are ever cached — never
   // errors (404/500), redirects or opaque responses.
   event.respondWith(
-    fetch(request)
+    fetch(request.url, { cache: "no-cache", credentials: "same-origin" })
       .then((response) => {
         if (response && response.ok && response.type === "basic") {
           const copy = response.clone();
