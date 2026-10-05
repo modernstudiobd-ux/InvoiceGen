@@ -34,7 +34,7 @@ import "./layout.js";
    labelReference) — they're ordinary entries in `fields` (state.js) like
    everything else, so renaming "INVOICE" to "QUOTE" or "Bill to" to
    something else needs no special-case code here. --- */
-const OPTIONAL_COLOR_IDS = ["totalColor", "headerColor", "headerTextColor", "invoiceColor"];
+const OPTIONAL_COLOR_IDS = ["balanceLabelColor", "totalColor", "headerColor", "headerTextColor", "invoiceColor"];
 fields.forEach(id => {
   let e = $(id), ev = e.tagName === "SELECT" ? "change" : "input";
   e.addEventListener(ev, () => {

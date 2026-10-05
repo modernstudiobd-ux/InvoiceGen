@@ -26,7 +26,9 @@ const OPTIONAL_COLOR_VARS = {
   totalColor: { cssVar: "--total-color", hostClass: null },
   headerColor: { cssVar: "--header-bg", hostClass: "has-header-bg" },
   headerTextColor: { cssVar: "--header-text", hostClass: "has-header-text" },
-  invoiceColor: { cssVar: "--invoice-bg", hostClass: null }
+  invoiceColor: { cssVar: "--invoice-bg", hostClass: null },
+  // Balance due LABEL (not the amount): see applyBalanceLabelColor below.
+  balanceLabelColor: { cssVar: "--balance-label-color", hostClass: "has-balance-label" }
 };
 
 // Each template's own actual default for these four settings — must stay in
@@ -61,9 +63,75 @@ const TEMPLATE_DEFAULT_COLORS = {
 };
 const OPTIONAL_COLOR_DEFAULT_KEY = { totalColor: "total", headerColor: "headerBg", headerTextColor: "headerText", invoiceColor: "invoiceBg" };
 
+// ---- Balance due label: automatic, contrast-aware colour -----------------
+// WCAG 2.x relative luminance / contrast ratio.
+const AA = 4.5, AA_TARGET = 4.6; // small margin so rounding to hex never dips below 4.5
+const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+function parseRgba(str) {
+  const m = String(str).match(/rgba?\(([^)]+)\)/);
+  if (!m) return null;
+  const p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+  return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1];
+}
+const over = (fg, bg) => [0, 1, 2].map(i => fg[i] * fg[3] + bg[i] * (1 - fg[3]));
+// The colour the label really sits on: its box's background composited over
+// every ancestor's (backgrounds can be translucent, e.g. rgba(accent, .16)).
+function effectiveBackground(el) {
+  const layers = [];
+  for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+    const c = parseRgba(getComputedStyle(n).backgroundColor);
+    if (c && c[3] > 0) { layers.push(c); if (c[3] >= 1) break; }
+  }
+  let base = [255, 255, 255];
+  for (let i = layers.length - 1; i >= 0; i--) base = over(layers[i], base);
+  return base;
+}
+const toHex = rgb => "#" + rgb.map(v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("");
+// Keep the template's own label colour when it is already readable; otherwise
+// move it (keeping its hue) toward black or white, whichever reaches the
+// target ratio with the smallest change.
+function readable(fg, bg) {
+  if (ratio(fg, bg) >= AA) return fg;
+  let best = null;
+  for (const target of [[0, 0, 0], [255, 255, 255]]) {
+    for (let t = 0.02; t <= 1.0001; t += 0.02) {
+      const c = fg.map((v, i) => v + (target[i] - v) * t);
+      if (ratio(c, bg) >= AA_TARGET) { if (!best || t < best.t) best = { t, c }; break; }
+    }
+  }
+  return best ? best.c : (lum(bg) > 0.179 ? [0, 0, 0] : [255, 255, 255]);
+}
+
+export function applyBalanceLabelColor() {
+  const inv = $("invoice"), label = $("labelBalance"), swatch = $("balanceLabelColor");
+  if (!inv || !label) return;
+  const cfg = OPTIONAL_COLOR_VARS.balanceLabelColor;
+  const hex = $("balanceLabelColorHex").value.trim();
+  if (/^#[0-9a-f]{6}$/i.test(hex)) {             // user override: always respected
+    inv.style.setProperty(cfg.cssVar, hex);
+    inv.classList.add(cfg.hostClass);
+    if (swatch) swatch.value = hex;
+    return;
+  }
+  // Automatic: measure the template's own label colour and the box's real
+  // background with the override layer switched off, then fix only if needed.
+  inv.classList.remove(cfg.hostClass);
+  inv.style.removeProperty(cfg.cssVar);
+  const box = label.closest(".balance") || label;
+  const bg = effectiveBackground(box);
+  const fgRaw = parseRgba(getComputedStyle(label).color) || [0, 0, 0, 1];
+  const auto = toHex(readable(over(fgRaw, bg), bg));
+  inv.style.setProperty(cfg.cssVar, auto);
+  inv.classList.add(cfg.hostClass);
+  if (swatch) swatch.value = auto;
+}
+
 export function applyOptionalColor(id) {
   const cfg = OPTIONAL_COLOR_VARS[id];
   if (!cfg) return;
+  if (id === "balanceLabelColor") return applyBalanceLabelColor();
   const invoice = $("invoice");
   const hex = $(id + "Hex").value.trim();
   if (/^#[0-9a-f]{6}$/i.test(hex)) {
@@ -89,5 +157,8 @@ export function clearOptionalColor(id) {
 }
 
 export function applyAllOptionalColors() {
-  Object.keys(OPTIONAL_COLOR_VARS).forEach(applyOptionalColor);
+  // The label's automatic colour depends on the others (accent, invoice
+  // background, template), so it is always resolved last.
+  Object.keys(OPTIONAL_COLOR_VARS).filter(k => k !== "balanceLabelColor").forEach(applyOptionalColor);
+  applyBalanceLabelColor();
 }

@@ -82,7 +82,7 @@ export const fields = [
   "companyName", "companyReg", "companyVat", "companyAddress", "companyPhone", "companyEmail", "companyWebsite",
   "clientName", "clientContact", "clientTax", "clientAddress", "clientEmail",
   "discount", "tax", "shipping", "notes", "paymentDetails", "terms", "notesAlign", "template", "accent", "accentHex",
-  "totalColorHex", "headerColorHex", "headerTextColorHex", "invoiceColorHex", "paperSize",
+  "totalColorHex", "balanceLabelColorHex", "headerColorHex", "headerTextColorHex", "invoiceColorHex", "paperSize",
   "labelTitle", "labelBillTo", "labelBalance", "labelNote", "labelPayment", "labelTerms",
   "labelInvoiceDate", "labelDueDate", "labelReference"
 ];

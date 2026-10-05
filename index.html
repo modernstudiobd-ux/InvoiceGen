@@ -526,13 +526,21 @@
       <div class="field"><label for="accent">Accent color</label><input id="accent" type="color" value="#18181b"></div>
       <div class="field"><label for="accentHex">Accent HEX</label><input id="accentHex" value="#18181b"></div>
     </div>
-    <div class="hint" style="margin:8px 0 10px">The four settings below are optional overrides — leave the HEX field empty to keep the template's own default.</div>
+    <div class="hint" style="margin:8px 0 10px">The settings below are optional overrides — leave the HEX field empty to keep the template's own default (the Balance due label color is chosen automatically for readability).</div>
     <div class="field">
-      <label for="totalColorHex">Balance due text color</label>
+      <label for="balanceLabelColorHex">Balance due label color</label>
       <div class="colorrow">
-        <input id="totalColor" type="color" value="#18181b" aria-label="Balance due text color swatch">
+        <input id="balanceLabelColor" type="color" value="#000000" aria-label="Balance due label color swatch">
+        <input id="balanceLabelColorHex" type="text" placeholder="Template default" autocomplete="off" spellcheck="false">
+        <button class="btn small icon" id="balanceLabelColorClear" type="button" title="Clear override" aria-label="Clear balance due label color override"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 2.636-6.364L3 8"/><path d="M3 3v5h5"/></svg></button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="totalColorHex">Balance due amount color</label>
+      <div class="colorrow">
+        <input id="totalColor" type="color" value="#18181b" aria-label="Balance due amount color swatch">
         <input id="totalColorHex" type="text" placeholder="Template default" autocomplete="off" spellcheck="false">
-        <button class="btn small icon" id="totalColorClear" type="button" title="Clear override" aria-label="Clear balance due text color override"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 2.636-6.364L3 8"/><path d="M3 3v5h5"/></svg></button>
+        <button class="btn small icon" id="totalColorClear" type="button" title="Clear override" aria-label="Clear balance due amount color override"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 2.636-6.364L3 8"/><path d="M3 3v5h5"/></svg></button>
       </div>
     </div>
     <div class="field">

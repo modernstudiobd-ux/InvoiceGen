@@ -261,7 +261,7 @@
 .template-retail .invtitle h2{font-weight:900;font-size:30px;text-transform:uppercase;letter-spacing:.04em}
 .template-retail .invno{font-weight:800}
 .template-retail .balance{background:var(--template-accent);border-radius:0;clip-path:polygon(0 0,94% 0,100% 50%,94% 100%,0 100%)}
-.template-retail .balance strong{color:var(--total-color,#fff)}.template-retail .balance span{color:var(--total-color,#fff)}
+.template-retail .balance strong{color:var(--total-color,#fff)}.template-retail .balance span{color:#fff}
 .template-retail .status{border-radius:0;font-weight:900}
 .template-retail .label{font-weight:900}
 .template-retail .invtable th{background:#111;color:#fff;border-color:#111;font-weight:900;text-transform:uppercase}
@@ -280,7 +280,7 @@
 .template-technology .metatable{font-family:"SFMono-Regular",Consolas,"Courier New",monospace;font-size:10px}
 .template-technology .balance{border-radius:8px;background:#0b0e14}
 .template-technology .balance strong{color:var(--total-color,#7ee7c7)}
-.template-technology .balance span{color:var(--total-color,#9aa1ac)}
+.template-technology .balance span{color:#9aa1ac}
 .template-technology .status{border-radius:6px}
 .template-technology .invtable th{background:#0b0e14;color:#e6e8eb;border-color:#0b0e14;font-family:"SFMono-Regular",Consolas,"Courier New",monospace;font-weight:600;font-size:8px}
 .template-technology .invtable td{border-color:#e4e7ec}
