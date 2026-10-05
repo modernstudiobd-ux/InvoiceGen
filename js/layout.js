@@ -422,7 +422,13 @@ if (toolbarRowEl) toolbarRowEl.addEventListener("scroll", closeAllFloatingPanels
 // mobile. Keep them open and, on desktop, just re-anchor them.
 let lastViewportW = window.innerWidth;
 window.addEventListener("resize", () => {
-  if (window.innerWidth !== lastViewportW) { lastViewportW = window.innerWidth; closeAllFloatingPanels(); return; }
+  // Some phone browsers also nudge the width when the keyboard opens, so never
+  // close a panel the user is typing into (focus is inside it).
+  const typingInPanel = dropdowns.some(d => d.panel.classList.contains("open") && d.panel.contains(document.activeElement));
+  if (window.innerWidth !== lastViewportW) {
+    lastViewportW = window.innerWidth;
+    if (!typingInPanel) { closeAllFloatingPanels(); return; }
+  }
   dropdowns.forEach(d => { if (d.panel.classList.contains("open")) positionDropdownPanel(d.panel, d.toggleBtn, d.maxWidth); });
 });
 // Escape closes whichever floating panel is open and returns focus to its

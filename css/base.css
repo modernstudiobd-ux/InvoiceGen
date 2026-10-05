@@ -486,3 +486,6 @@ button.design-reopen-btn{display:none}
 
 /* Header: one hairline, no stacked shadows. */
 .appheader{box-shadow:0 1px 0 var(--line)}
+
+/* Dark theme: the workspace re-scopes --ink to the light paper palette, but text colour is inherited from body, so set it explicitly. */
+:root[data-theme="dark"] .workspace{color:var(--ink)}

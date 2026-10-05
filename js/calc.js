@@ -13,9 +13,10 @@ export function roleCol(role) {
 export function itemValue(item, col) {
   if (col.role === "amount") {
     let q = roleCol("quantity"), r = roleCol("rate");
-    // A blank quantity means "just the price": the line total is the rate
-    // itself (quantity 1). An explicitly typed 0 stays 0.
-    if (q && r) return (isBlank(item[q.key]) ? 1 : num(item[q.key])) * num(item[r.key]);
+    // Price-only lines: a blank quantity — or no quantity column at all —
+    // means quantity 1, so the line total is the rate itself. An explicitly
+    // typed 0 stays 0.
+    if (r) return (q && !isBlank(item[q.key]) ? num(item[q.key]) : 1) * num(item[r.key]);
     return num(item[col.key]);
   }
   return item[col.key] ?? "";
