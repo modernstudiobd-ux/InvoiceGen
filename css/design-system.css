@@ -589,3 +589,57 @@ input[type=color]:focus-visible{outline:0;border-color:var(--ds-ink);box-shadow:
 :root[data-theme="dark"] input[type=color]{background:var(--ds-card)}
 :root[data-theme="dark"] input[type=color]::-webkit-color-swatch{box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
 .field .colorrow input[type=text]:placeholder-shown,.fe-colorrow .fe-input:placeholder-shown{text-transform:none;letter-spacing:0;font-family:Inter,system-ui,sans-serif}
+
+/* ============================================================================
+   v3.30.0 — Import help on the design system, jump top/bottom, column tools
+   ========================================================================== */
+/* "How to set up your file" — Edit panel + Form */
+.importhelp{margin:12px 0 4px;font-size:13px}
+.importhelp>summary{display:flex;align-items:center;justify-content:space-between;min-height:40px;padding:0;cursor:pointer;list-style:none;font:500 13px/1.3 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+.importhelp>summary::-webkit-details-marker{display:none}
+.importhelp>summary::after{content:"⌄";color:var(--ds-muted);transition:transform 150ms var(--ds-ease)}
+.importhelp[open]>summary::after{transform:rotate(180deg)}
+.importhelp>summary:focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px;border-radius:8px}
+.importhelp-body{margin-top:4px;padding:4px 14px;background:var(--ds-card);border:1px solid var(--ds-hairline);border-radius:12px;color:var(--ds-body);font:400 13px/1.5 Inter,system-ui,sans-serif}
+.importhelp-body p{margin:10px 0;font-size:13px;color:var(--ds-body)}
+.importhelp-body p.hint{color:var(--ds-muted);font-size:12px}
+.importhelp-list{display:flex;flex-direction:column;gap:0}
+.importhelp-list li{padding:10px 0;border-bottom:1px solid var(--ds-hairline-soft);font-size:13px}
+.importhelp-list li:last-child{border-bottom:0}
+.importhelp-list strong{display:block;font:600 13px/1.3 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+.importhelp-aliases{display:block;margin-top:2px;font:400 12px/1.45 Inter,system-ui,sans-serif;color:var(--ds-muted)}
+.fe-help .importhelp-body,.fe-help.fe-details .importhelp-body{max-height:none;overflow:visible}
+.fe-help>summary{min-height:44px;font:500 13px/1.3 Inter,system-ui,sans-serif}
+.fe-import{background:var(--ds-canvas-soft)}
+.fe-import .fe-help{margin-top:8px}
+:root[data-theme="dark"] .importhelp-body{background:var(--ds-card)}
+
+/* Item + column tools */
+.fe-item-acts{display:flex;gap:2px;align-items:center}
+.fe-dup{min-height:32px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--ds-ink);font:500 12px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.fe-dup:hover{background:var(--ds-strong)}
+.fe-dup:focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px}
+.fe-ghost{border-style:solid;border-color:var(--ds-hairline-strong)}
+.fe-danger{color:#b91c1c;margin-left:auto}
+:root[data-theme="dark"] .fe-danger{color:#f87171}
+.fe-details>summary small{margin-left:auto;margin-right:12px;font:400 13px/1 Inter,system-ui,sans-serif;color:var(--ds-muted)}
+.fe-wlab{grid-column:1 / -1}
+.fe-wrow{display:flex;align-items:center;gap:12px}
+.fe-wrow .fe-input{width:72px;flex:none}
+.fe-range{flex:1;min-width:0;accent-color:var(--ds-ink);height:28px}
+@media (max-width:640px){.fe-dup{min-height:44px}.fe-item-tools .fe-add{flex:1 1 100%}.fe-danger{margin-left:0}.fe-wrow .fe-input{width:80px}.fe-range{height:44px}}
+
+/* Jump to top / bottom (long invoices only) */
+.jump-nav{position:fixed;right:24px;bottom:24px;z-index:55;display:flex;flex-direction:column;gap:8px}
+.jump-nav[hidden],.jump-nav button[hidden]{display:none}
+.jump-nav button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--ds-hairline-strong);border-radius:9999px;background:var(--ds-card);color:var(--ds-ink);box-shadow:0 4px 14px rgba(0,0,0,.14);cursor:pointer;transition:background 150ms var(--ds-ease)}
+.jump-nav button:hover{background:var(--ds-canvas-soft)}
+.jump-nav button:focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px}
+.jump-nav svg{width:20px;height:20px}
+@media (min-width:1081px){body:has(#appRoot:not(.design-closed)) .jump-nav{right:calc(var(--right-sidebar-width) + 24px)}}
+@media (max-width:1080px){.jump-nav{right:16px;bottom:16px}body.form-mode .jump-nav{bottom:80px}}
+@media (max-width:640px){.jump-nav{bottom:100px}body.form-mode .jump-nav{bottom:164px}}
+body.fullscreen-preview .jump-nav{display:none}
+@media print{.jump-nav{display:none!important}}
+.fe-chk input,.fe-toggle input{accent-color:var(--ds-ink)}
+.importhelp-body p:last-child{margin-bottom:12px}.importhelp-body{max-height:min(320px,50vh)}.fe-help .importhelp-body{max-height:none}

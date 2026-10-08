@@ -130,7 +130,7 @@ function build() {
         '<div class="fe-grid"><div class="fe-field"><label for="fe_logoHeightValue">Size (px)</label><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off"></div>' +
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
     } else if (title === "COLUMNS") {
-      sec.innerHTML = '<details class="fe-details" id="feColsDetails"><summary>Table columns</summary><p class="fe-hint">Rename, show/hide, reorder and set the type of each line-item column.</p><div id="feCols" class="fe-cols"></div><button type="button" class="fe-add" id="feAddCol">+ Add column</button></details>';
+      sec.innerHTML = '<details class="fe-details" id="feColsDetails"><summary><span>Column settings</span><small id="feColCount"></small></summary><p class="fe-hint">Rename, show or hide, reorder, resize and set the type, alignment and calculation role of each line-item column.</p><div id="feCols" class="fe-cols"></div><button type="button" class="fe-add" id="feAddCol">+ Add column</button></details>';
     } else if (title === "DESIGN") {
       buildDesign(sec);
     } else if (title === "LABELS") {
@@ -139,7 +139,7 @@ function build() {
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
     } else if (title === "ITEMS") {
       sec.id = "feItemsSec";
-      sec.innerHTML = '<h3>Line items</h3><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
+      sec.innerHTML = '<h3>Line items</h3><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost" id="feGoCols">Column settings</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
     } else {
       sec.innerHTML = `<h3>${title}</h3><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
@@ -183,6 +183,14 @@ function build() {
       return;
     }
     if (e.target.closest("#feAddItem")) { api.addItem(); return; }
+    if (e.target.closest("#feGoCols")) { const d = $("feColsDetails"); d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    if (e.target.closest("#feClearAll")) { const b = $("clearItemsBtn"); if (b) b.click(); return; }
+    const dup = e.target.closest(".fe-dup");
+    if (dup) {
+      const idx = Number(dup.dataset.idx), it = state.items[idx];
+      if (it) { state.items.splice(idx + 1, 0, JSON.parse(JSON.stringify(it))); api.renderPreview(); api.save(); }
+      return;
+    }
     if (e.target.closest("#feSeePreview")) { $("canvasModePreviewBtn").click(); return; }
     if (e.target.closest("#feImport")) { $("importSheetBtn").click(); return; }
     if (e.target.closest("#feLogoRemove")) { $("removeLogoBtn").click(); return; }
@@ -219,6 +227,7 @@ function build() {
   });
   root.addEventListener("input", e => {
     const cf = e.target.closest(".fe-col [data-f]");
+    if (cf && cf.dataset.f === "width" && cf.type === "range") { colFieldChange(cf); return; }
     if (cf && cf.dataset.f === "label") { const c = state.columns.find(x => x.key === cf.closest(".fe-col").dataset.key); if (c) { c.label = cf.value; api.save(); } }
     if (e.target.id === "fe_logoHeightValue") {
       const n = $("logoHeightValue"); n.value = e.target.value; n.dispatchEvent(new Event("input", { bubbles: true }));
@@ -297,7 +306,7 @@ function renderItems() {
       const wide = c === prim ? " fe-wide" : "";
       return `<div class="fe-cell-wrap${wide}"><label class="fe-lab" for="fe_i${idx}_${esc(c.key)}">${esc(c.label)}</label><input id="fe_i${idx}_${esc(c.key)}" class="fe-input fe-cell${numeric ? " fe-num" : ""}" type="${type}"${type === "number" ? ' step="0.01"' : ""}${numeric ? ' inputmode="decimal" autocomplete="off"' : ""} data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(v)}"${c === prim ? ' placeholder="e.g. Website design" enterkeyhint="next"' : ' enterkeyhint="next"'}></div>`;
     }).join("");
-    return `<div class="fe-item"><div class="fe-item-head"><span>Item ${idx + 1}</span><button type="button" class="fe-del" data-idx="${idx}" aria-label="Remove item ${idx + 1}">Remove</button></div><div class="fe-item-grid" style="--tpl:${tpl}">${cells}</div></div>`;
+    return `<div class="fe-item"><div class="fe-item-head"><span>Item ${idx + 1}</span><span class="fe-item-acts"><button type="button" class="fe-dup" data-idx="${idx}" aria-label="Duplicate item ${idx + 1}">Duplicate</button><button type="button" class="fe-del" data-idx="${idx}" aria-label="Remove item ${idx + 1}">Remove</button></span></div><div class="fe-item-grid" style="--tpl:${tpl}">${cells}</div></div>`;
   }).join("");
 }
 
@@ -330,11 +339,12 @@ function colFieldChange(el) {
 function renderColumns() {
   const host = $("feCols"); if (!host) return;
   const sig = state.columns.map(c => c.key + (c.visible ? "1" : "0") + c.role).join(",");
+  const cc = $("feColCount"); if (cc) cc.textContent = state.columns.filter(c => c.visible).length + " of " + state.columns.length + " shown";
   if (sig === colsSig) {
     host.querySelectorAll(".fe-col").forEach(row => {
       const c = state.columns.find(x => x.key === row.dataset.key); if (!c) return;
       [["label", c.label], ["type", c.type], ["align", c.align], ["role", c.role], ["width", String(Math.round(num(c.width)))]].forEach(([f, v]) => {
-        const el = row.querySelector(`[data-f="${f}"]`); if (el && el !== document.activeElement && el.value !== v) el.value = v;
+        row.querySelectorAll(`[data-f="${f}"]`).forEach(el => { if (el !== document.activeElement && el.value !== v) el.value = v; });
       });
     });
     return;
@@ -347,7 +357,7 @@ function renderColumns() {
       <label>Type<select class="fe-input" data-f="type">${opts(TYPES, c.type)}</select></label>
       <label>Align<select class="fe-input" data-f="align">${opts(ALIGNS, c.align)}</select></label>
       <label>Role<select class="fe-input" data-f="role">${opts(ROLES, c.role)}</select></label>
-      <label>Width %<input class="fe-input fe-num" data-f="width" type="text" inputmode="numeric" value="${Math.round(num(c.width))}"></label></div>
+      <label class="fe-wlab">Width %<span class="fe-wrow"><input class="fe-range" data-f="width" type="range" min="5" max="80" step="1" value="${Math.round(num(c.width))}" aria-label="Column width"><input class="fe-input fe-num" data-f="width" type="text" inputmode="numeric" value="${Math.round(num(c.width))}" aria-label="Column width percent"></span></label></div>
     <div class="fe-col-actions"><button type="button" data-act="up" aria-label="Move column up"${i === 0 ? " disabled" : ""}>↑ Up</button><button type="button" data-act="down" aria-label="Move column down"${i === state.columns.length - 1 ? " disabled" : ""}>↓ Down</button><button type="button" class="fe-del" data-act="remove" aria-label="Remove column">Remove</button></div></div>`).join("");
 }
 function syncLogo() {

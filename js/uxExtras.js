@@ -54,6 +54,32 @@ export function syncMobileTotal() {
   if (amt.textContent !== src.textContent) amt.textContent = src.textContent;
   const t = (srcLab && (srcLab.value || srcLab.placeholder)) || "Balance due";
   if (lab && lab.textContent !== t) lab.textContent = t;
+  syncJumpNav();
+}
+
+/* ---- Jump to top / bottom — only for long invoices (many line items) ------- */
+let jump = null, jumpRaf = 0;
+function buildJump() {
+  jump = document.createElement("div"); jump.className = "jump-nav"; jump.hidden = true;
+  const ic = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="${d}"/></svg>`;
+  jump.innerHTML = `<button type="button" id="jumpTop" title="Jump to top" aria-label="Jump to top">${ic("m18 15-6-6-6 6")}</button><button type="button" id="jumpBottom" title="Jump to bottom" aria-label="Jump to bottom">${ic("m6 9 6 6 6-6")}</button>`;
+  document.body.appendChild(jump);
+  const go = top => window.scrollTo({ top: top ? 0 : document.documentElement.scrollHeight, behavior: matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth" });
+  jump.querySelector("#jumpTop").addEventListener("click", () => go(true));
+  jump.querySelector("#jumpBottom").addEventListener("click", () => go(false));
+  const onScroll = () => { if (!jumpRaf) jumpRaf = requestAnimationFrame(() => { jumpRaf = 0; syncJumpNav(); }); };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+}
+export function syncJumpNav() {
+  if (!jump) { if (!document.body) return; buildJump(); }
+  const doc = document.documentElement, max = doc.scrollHeight - innerHeight;
+  const long = state.items.length >= 6 && max > innerHeight * 1.2;
+  jump.hidden = !long;
+  if (!long) return;
+  const y = scrollY;
+  jump.querySelector("#jumpTop").hidden = y < 240;
+  jump.querySelector("#jumpBottom").hidden = y > max - 240;
 }
 
 /* ---- Visual template picker ------------------------------------------------ */
