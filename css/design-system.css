@@ -643,3 +643,55 @@ body.fullscreen-preview .jump-nav{display:none}
 @media print{.jump-nav{display:none!important}}
 .fe-chk input,.fe-toggle input{accent-color:var(--ds-ink)}
 .importhelp-body p:last-child{margin-bottom:12px}.importhelp-body{max-height:min(320px,50vh)}.fe-help .importhelp-body{max-height:none}
+
+/* ============================================================================
+   Modern Professional — restyled on the design system (v3.31.0).
+   Scoped to .template-modern ONLY: every other template, the layout/pagination
+   (paddings, column widths, field set) and all colour overrides (accent, header,
+   balance, invoice background) are untouched. Same fields, same behaviour.
+   ========================================================================== */
+.invoice.template-modern{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#0c0a09;--m-ink:#0c0a09;--m-body:#4e4e4e;--m-muted:#777169;--m-hair:#e7e5e4;--m-soft:#fafafa;--m-strong:#f0efed}
+/* Header */
+.template-modern .inv-header{border-radius:0}
+.invoice.template-modern:not(.has-header-bg) .inv-header{padding-bottom:16px;border-bottom:1px solid var(--m-hair);margin-bottom:2px}
+.template-modern .companyname{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25;color:var(--m-ink)}
+.template-modern .metaText{color:var(--m-muted);line-height:1.5}
+.template-modern .logobox:not(.has-logo){border:1px solid var(--m-hair);border-radius:12px;background:var(--m-soft)}
+.template-modern .logofallback{background:var(--m-ink);color:#fff;border-radius:11px;font-family:"Space Grotesk",Inter,sans-serif;font-weight:700}
+.template-modern .invtitle h2{font-family:"Space Grotesk",Inter,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.05;color:var(--m-ink);margin:0}
+.template-modern .invno{font-size:11px;font-weight:600;color:var(--m-muted);margin-top:4px;letter-spacing:.01em}
+.template-modern .metatable td{font-size:10px;color:var(--m-body)}
+.template-modern .metatable td:first-child{color:var(--m-muted)}
+.template-modern .metatable td:last-child input{font-weight:600;color:var(--m-ink)}
+/* Balance card + status pill */
+.template-modern .balance{background:var(--m-soft);border:1px solid var(--m-hair);border-radius:12px;padding:10px 14px;align-items:center}
+.template-modern .balance span,.template-modern .balance span input{font-size:10px;font-weight:500;color:var(--m-muted)}
+.template-modern .balance strong{font-family:"Space Grotesk",Inter,sans-serif;font-size:19px;font-weight:700;letter-spacing:-.01em;color:var(--total-color,var(--m-ink))}
+.template-modern .status{font-weight:600;font-size:9.5px;letter-spacing:.01em}
+/* Bill to */
+.template-modern .billrow{margin:18px 0 16px}
+.template-modern .label,.template-modern .table-toolbar-title{font-size:8.5px;font-weight:600;letter-spacing:.1em;color:var(--m-muted)}
+.template-modern .clientname{font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--m-ink)}
+/* Line items table — hairline rows, soft header, no boxed cells */
+.template-modern .invtable{border-collapse:separate;border-spacing:0;font-size:10px;color:var(--m-ink)}
+.template-modern .invtable th{background:var(--m-soft);color:var(--m-muted);font-size:8.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;border:0;border-top:1px solid var(--m-hair);border-bottom:1px solid var(--m-hair);padding:8px 7px}
+.template-modern .invtable th:first-child{border-left:1px solid var(--m-hair);border-top-left-radius:8px;border-bottom-left-radius:0}
+.template-modern .invtable th:last-child{border-right:1px solid var(--m-hair);border-top-right-radius:8px}
+.template-modern .invtable td{border:0;border-bottom:1px solid var(--m-hair);padding:9px 7px;color:var(--m-ink)}
+.template-modern .invtable tbody tr:last-child td{border-bottom:1px solid var(--m-strong)}
+.template-modern .invtable td.right,.template-modern .invtable td:last-child{font-variant-numeric:tabular-nums}
+.template-modern .empty{color:var(--m-muted)}
+/* Notes + totals */
+.template-modern .bottomgrid{margin-top:16px;gap:24px}
+.template-modern .notebox{border:1px solid var(--m-hair);border-radius:12px;background:var(--m-soft);padding:12px}
+.template-modern .summary{border-top:0;padding-top:0}
+.template-modern .sumrow{padding:5px 0;font-size:10.5px;color:var(--m-ink);font-variant-numeric:tabular-nums}
+.template-modern .sumrow span:first-child{color:var(--m-muted)}
+.template-modern .sumrow.total{border-top:1px solid var(--m-ink);margin-top:6px;padding-top:10px;font-size:14px;font-weight:600}
+.template-modern .sumrow.total span:first-child{color:var(--m-ink)}
+.template-modern .sumrow.total #pTotal{font-family:"Space Grotesk",Inter,sans-serif;font-weight:700;font-size:17px;letter-spacing:-.01em;color:var(--total-color,var(--m-ink))}
+/* Payment / terms + footer */
+.template-modern .paymentgrid{border-top:1px solid var(--m-hair);margin-top:18px;padding-top:14px;gap:24px}
+.template-modern .footer{color:var(--m-muted);font-size:8.5px;border-top:1px solid var(--m-hair);padding-top:8px}
+.template-modern .page-break-line{border-top-color:var(--m-hair)}
+.template-modern .invtitle h2 input::placeholder,.template-modern .clientname::placeholder{color:inherit;opacity:1}
