@@ -296,3 +296,9 @@ body.canvas-preview-mode .first-run{display:none}
   .canvasbar-right .canvasmode-btn{flex:0 0 auto;padding:0 10px}
   .canvasbar-right .design-reopen-btn{flex:none}
 }
+
+/* ---- v3.27.2: icons follow the design system (Lucide, 1.5px, muted) ---------- */
+.navitem .icon,.navgroup-toggle .icon:first-child{stroke-width:1.5;color:var(--ds-muted)}
+.navgroup-toggle strong{color:var(--ds-ink)}
+.navitem.active .icon,.navitem[aria-current="page"] .icon{color:var(--ds-ink)}
+.right-sidebar-head h2{font-family:Inter,"Segoe UI",system-ui,sans-serif;font-weight:600;font-size:20px;letter-spacing:-.01em}
