@@ -4,6 +4,7 @@ import { $, esc } from "./dom.js";
 import { state, currentPaper, applyPaperSize, templateFooterInsetMm, templatePaddingMm, docNoun } from "./state.js";
 import { money, alignClass, fmtCell, num, dateFmt } from "./format.js";
 import { calc, itemValue, isBlank } from "./calc.js";
+import { syncMobileTotal, syncTemplateGallery } from "./uxExtras.js";
 import { applyAllOptionalColors } from "./accent.js";
 import { syncCurrencyDisplay } from "./currencySearch.js";
 import { buildColumnHeaderHtml, buildAddColumnHeaderHtml } from "./columnCanvas.js";
@@ -36,6 +37,7 @@ export function renderPreview() {
   // toggle classes set by the optional color overrides, so re-derive them
   // here from the current HEX fields every time a render happens.
   applyAllOptionalColors();
+  syncTemplateGallery();
   // Footer inset matches this template's own padding (see TEMPLATE_PADDING_MM
   // in state.js) — the same values the print footer uses — instead of a
   // fixed 12mm/9mm inset borrowed from Modern Professional for every template.
@@ -215,7 +217,7 @@ export function renderPreview() {
   setText($("pSubtotal"), money(t.subtotal));
   setText($("pDiscount"), "−" + money(t.disc));
   setText($("pTax"), money(t.tax));
-  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total));
+  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total)); syncMobileTotal();
   $("discountRow").classList.toggle("print-hide-empty", !t.disc);
   $("taxRow").classList.toggle("print-hide-empty", !t.tax);
   $("shippingRow").classList.toggle("print-hide-empty", !t.ship);
@@ -276,7 +278,7 @@ export function refreshItemRowAndTotals(idx) {
   setText($("pSubtotal"), money(t.subtotal));
   setText($("pDiscount"), "−" + money(t.disc));
   setText($("pTax"), money(t.tax));
-  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total));
+  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total)); syncMobileTotal();
   $("discountRow").classList.toggle("print-hide-empty", !t.disc);
   $("taxRow").classList.toggle("print-hide-empty", !t.tax);
   $("shippingRow").classList.toggle("print-hide-empty", !t.ship);

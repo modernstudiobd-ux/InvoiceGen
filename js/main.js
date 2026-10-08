@@ -24,6 +24,7 @@ import { naturalLogoHeight, handleLogoFile, removeLogo } from "./logo.js";
 import { initSettings, getDefaultPaperSize } from "./settings.js";
 import { syncDocTypeUI } from "./docType.js";
 import { initCalculators } from "./calculators.js";
+import { initMoreMenu, initHistoryFilters, initFirstRun, confirmPrint, syncMobileTotal } from "./uxExtras.js";
 // layout.js self-wires its own listeners on import (sidebar resize, mobile view switch, floating panels, etc.)
 import "./layout.js";
 
@@ -163,6 +164,7 @@ $("resetColorBtn").onclick = () => { setAccent(DEFAULT_ACCENT); OPTIONAL_COLOR_I
 
 /* --- Print / JSON export-import / reset --- */
 $("printBtn").onclick = () => {
+  if (!confirmPrint()) return;
   const filename = ($("invoiceNumber").value || "invoice").trim().replace(/[\\/:*?"<>|]+/g, "-");
   printInvoice(filename);
 };
@@ -286,7 +288,7 @@ function refreshSaveStatus() {
   const el = $("saveStatus");
   if (!el) return;
   const ts = Number(localStorage.getItem("invoiceStudio.lastSavedAt"));
-  if (!ts) { el.classList.remove("show"); return; }
+  if (!ts) { el.textContent = "Autosave on"; el.title = "Changes are saved automatically on this device"; el.classList.add("show"); return; }
   const text = formatSavedAgo(ts);
   el.textContent = text;
   // On phones this indicator collapses to just its status dot (see
@@ -299,6 +301,12 @@ function refreshSaveStatus() {
 window.addEventListener("invoicestudio:autosaved", refreshSaveStatus);
 refreshSaveStatus();
 setInterval(refreshSaveStatus, 15000);
+
+/* --- UX helpers (js/uxExtras.js) --- */
+initMoreMenu();
+initHistoryFilters(renderHistory);
+initFirstRun();
+syncMobileTotal();
 
 // Only claim success when the record was really stored (saveToHistory shows the failure reason itself).
 $("saveInvoiceBtn").onclick = () => { if (saveToHistory()) toast("Saved to Saved Invoices."); };

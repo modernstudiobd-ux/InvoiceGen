@@ -74,10 +74,16 @@ export function saveToHistory() {
 export function renderHistory() {
   const root = $("historyList"), countEl = $("historyCount");
   if (!root) return;
-  const lib = loadLibrary().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  const all = loadLibrary().slice().sort((a, b) => b.updatedAt - a.updatedAt);
   const curId = getCurrentId();
-  if (countEl) countEl.textContent = lib.length ? lib.length + (lib.length === 1 ? " invoice saved" : " invoices saved") : "";
-  if (!lib.length) { root.innerHTML = '<p class="hint">No saved invoices yet — click Save above to add this one.</p>'; return; }
+  // Search (client name / invoice number) + status chip — display filtering only.
+  const q = ($("historySearch") ? $("historySearch").value : "").trim().toLowerCase();
+  const st = (document.querySelector("#historyChips .chip.active") || {}).dataset?.status || "";
+  const filtering = !!(q || st);
+  const lib = all.filter(e => (!q || `${e.invoiceNumber || ""} ${e.clientName || ""}`.toLowerCase().includes(q)) && (!st || (e.status || "Draft") === st));
+  if (countEl) countEl.textContent = all.length ? (filtering ? `${lib.length} of ${all.length} shown` : all.length + (all.length === 1 ? " invoice saved" : " invoices saved")) : "";
+  if (!all.length) { root.innerHTML = '<p class="hint">No saved invoices yet — click Save above to add this one.</p>'; return; }
+  if (!lib.length) { root.innerHTML = '<p class="hint">No saved invoices match your search.</p>'; return; }
   root.innerHTML = lib.map(e => `<div class="historycard${e.id === curId ? " current" : ""}" data-id="${esc(e.id)}">
    <div class="historytop"><div><strong>${esc(e.invoiceNumber || "Untitled")}</strong>${e.id === curId ? '<span class="tinybadge">Current</span>' : ""}</div><span class="historyamount">${esc(moneyFor(e.total, e.currency))}</span></div>
    <div class="historymeta"><span>${esc(e.clientName || "No client")} · ${esc(e.status || "Draft")}</span><span>${esc(dateFmt(e.updatedAt))}</span></div>
