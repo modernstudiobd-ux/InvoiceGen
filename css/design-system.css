@@ -495,3 +495,77 @@ select.fe-input{padding-right:8px}
 .fe-toggle:last-child{border-bottom:0}
 #feResetColors{margin-top:12px;min-height:40px}
 @media (max-width:640px){.fe-swatch{height:46px}.fe-colorrow .btn{min-height:46px}}
+
+/* ============================================================================
+   v3.29.3 — Form UX pass: jump tabs, compact items, validation, affixes,
+   undo snackbar, preview FAB
+   ========================================================================== */
+.fe-nav{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;margin:0 -24px;padding:10px 24px;background:var(--ds-card);border-bottom:1px solid var(--ds-hairline-soft);scrollbar-width:none}
+.fe-nav::-webkit-scrollbar{display:none}
+.fe-nav button{flex:none;min-height:36px;padding:0 14px;border:1px solid var(--ds-hairline-strong);border-radius:9999px;background:var(--ds-card);color:var(--ds-ink);font:500 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.fe-nav button:hover{background:var(--ds-canvas-soft)}
+.fe-nav button:focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px}
+.fe-sec,.fe-profile{scroll-margin-top:64px}
+.fe-profile{padding:8px 0;border-bottom:1px solid var(--ds-hairline-soft)}
+.fe-profile>summary small{margin-left:auto;margin-right:12px;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:400 13px/1 Inter,system-ui,sans-serif;color:var(--ds-muted)}
+.fe-profile-body>.fe-sec:first-child{padding-top:8px}
+.fe-profile-body .fe-sec:last-child{border-bottom:0}
+.fe-grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fe-affix{position:relative;display:flex;align-items:center}
+.fe-affix .fe-input{width:100%}
+.fe-aff{position:absolute;top:0;bottom:0;display:flex;align-items:center;color:var(--ds-muted);font:500 13px/1 Inter,system-ui,sans-serif;pointer-events:none}
+.fe-prefix .fe-aff{left:12px}.fe-prefix .fe-input{padding-left:30px}
+.fe-suffix .fe-aff{right:12px}.fe-suffix .fe-input{padding-right:28px}
+.fe-input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.fe-input::-webkit-outer-spin-button,.fe-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.fe-input::placeholder{color:#8a847c}
+.fe-err{margin:0;font:500 12px/1.3 Inter,system-ui,sans-serif;color:#b91c1c}
+.fe-err[hidden]{display:none}
+.fe-input.fe-bad{border-color:#b91c1c}
+.fe-items{container-type:inline-size}
+.fe-item-grid{grid-template-columns:repeat(auto-fit,minmax(88px,1fr))}
+.fe-cell-wrap.fe-wide{order:-1}
+.fe-item{padding:10px 14px 12px}
+.fe-item-head{margin-bottom:6px}
+@container (min-width:470px){
+  .fe-item-grid{grid-template-columns:var(--tpl);column-gap:8px}
+  .fe-cell-wrap.fe-wide{grid-column:auto;order:0}
+}
+.fe-snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:16px;padding:6px 8px 6px 16px;border-radius:9999px;background:#1c1917;color:#fff;font:500 13px/1 Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.fe-snack[hidden]{display:none}
+.fe-snack button{min-height:40px;padding:0 14px;border:0;border-radius:9999px;background:transparent;color:#fcd34d;font:600 13px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.fe-snack button:focus-visible{outline:2px solid #fff;outline-offset:1px}
+body:not(.form-mode) .fe-snack,body:not(.form-mode) .fe-fab{display:none!important}
+.fe-fab{display:none}
+.fe-foot{display:none!important}
+@media (max-width:1080px){
+  .fe-fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:8px}
+  body.fullscreen-preview .fe-fab{display:none!important}
+  .fe-fab .btn{min-height:48px;padding:0 22px;border-radius:9999px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+  .fe-saved{opacity:0;transition:opacity 200ms var(--ds-ease);padding:8px 12px;border-radius:9999px;background:var(--ds-card);border:1px solid var(--ds-hairline);color:#15803d;font:500 12px/1 Inter,system-ui,sans-serif}
+  .fe-saved.show{opacity:1}
+  .fe-snack{bottom:calc(80px + env(safe-area-inset-bottom))}
+  .formeditor{padding-bottom:88px}
+}
+@media (max-width:640px){
+  .fe-nav{margin:0 -16px;padding:8px 16px;top:56px}
+  .fe-sec,.fe-profile{scroll-margin-top:124px}
+  .fe-grid3{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .fe-grid3 .fe-input{padding-left:10px;padding-right:10px}
+  .fe-grid3 .fe-prefix .fe-input{padding-left:26px}
+  .fe-grid3 .fe-suffix .fe-input{padding-right:24px}
+  .fe-nav button{min-height:40px}
+  .fe-fab{bottom:calc(96px + env(safe-area-inset-bottom))}
+  .fe-snack{bottom:calc(160px + env(safe-area-inset-bottom))}
+}
+@media (min-width:1081px){.fe-nav{top:0}}
+:root[data-theme="dark"] .fe-nav,:root[data-theme="dark"] .fe-nav button{background:var(--ds-card)}
+:root[data-theme="dark"] .fe-err{color:#f87171}
+:root[data-theme="dark"] .fe-input.fe-bad{border-color:#f87171}
+:root[data-theme="dark"] .fe-saved{color:#4ade80}
+@media print{.fe-fab,.fe-snack{display:none!important}}
+@media (prefers-reduced-motion:reduce){.fe-saved{transition:none}}
+body.form-mode .workspace{overflow:visible}
+body.form-mode .formeditor{overflow:visible}
+:root[data-theme="dark"] .fe-seg button{color:#d6d3d1}
+:root[data-theme="dark"] .fe-seg button.active{color:var(--ds-ink)}

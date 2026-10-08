@@ -205,6 +205,11 @@ export function setCanvasMode(mode) {
   states.forEach(([b, on]) => { if (!b) return; b.classList.toggle("active", !!on); b.setAttribute("aria-selected", String(!!on)); });
   try { localStorage.setItem("invoiceStudio.canvasMode", isForm ? "form" : "edit"); } catch {}
   if (isPreview) closeColSettings();
+  // Form mode has its own Design section, so tuck the side panel away on desktop (not saved; restored on exit)
+  if (!compactQuery.matches) {
+    const root = appRoot;
+    if (root) root.classList.toggle("design-closed", isForm || localStorage.getItem("invoiceStudio.designPanelOpen") === "0");
+  }
   if (isForm) enterFormMode();
   renderPreview();
   setInvoiceFieldsEditable(!isPreview);

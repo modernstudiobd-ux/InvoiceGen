@@ -9,7 +9,7 @@
 import { $, esc } from "./dom.js";
 import { state, sectionDefs } from "./state.js";
 import { itemValue } from "./calc.js";
-import { num, fmtCell } from "./format.js";
+import { num, fmtCell, CURRENCY_SYMBOLS } from "./format.js";
 
 let api = null;          // { addItem, renderPreview, save, refreshItemRowAndTotals }
 let built = false;
@@ -18,28 +18,27 @@ const binds = [];        // { src, el, section, wrap, labelFrom }
 
 /* [id, label, kind, section, extra] — kind: text | email | tel | url | date | area | select | num */
 const GROUPS = [
+  ["Details", [
+    ["invoiceNumber", "Number", "text", null], ["status", "Status", "select", "status"],
+    ["invoiceDate", "Issue date", "date", "invoiceDate", "", "labelInvoiceDate"], ["dueDate", "Due date", "date", "dueDate", "", "labelDueDate"],
+    ["reference", "Reference / PO", "text", "reference", "full", "labelReference"]]],
   ["Client", [
     ["clientName", "Client name", "text", "client"], ["clientEmail", "Client email", "email", "client"],
     ["clientContact", "Contact name", "text", "client"], ["clientTax", "VAT / Tax number", "text", "client"],
     ["clientAddress", "Address", "area", "client", "full"]]],
+  ["ITEMS", []],
+  ["COLUMNS", []],
+  ["Totals", [
+    ["discount", "Discount %", "num", "discount"], ["tax", "Tax %", "num", "tax"], ["shipping", "Shipping", "num", "shipping"]]],
+  ["Notes & terms", [
+    ["notes", "Notes", "area", "notes", "full"], ["paymentDetails", "Payment details", "area", "payment", "full"],
+    ["terms", "Terms", "area", "terms", "full"], ["notesAlign", "Notes alignment", "select", "notes"]]],
   ["Your company", [
     ["companyName", "Company name", "text", "company", "full"], ["companyEmail", "Email", "email", "company"],
     ["companyPhone", "Phone", "tel", "company"], ["companyWebsite", "Website", "url", "company"],
     ["companyReg", "Registration number", "text", "company"], ["companyVat", "VAT / Tax number", "text", "company"],
     ["companyAddress", "Address", "area", "company", "full"]]],
   ["LOGO", []],
-  ["Details", [
-    ["invoiceNumber", "Number", "text", null], ["status", "Status", "select", "status"],
-    ["invoiceDate", "Issue date", "date", "invoiceDate", "", "labelInvoiceDate"], ["dueDate", "Due date", "date", "dueDate", "", "labelDueDate"],
-    ["reference", "Reference / PO", "text", "reference", "full", "labelReference"]]],
-  ["ITEMS", []],
-  ["COLUMNS", []],
-  ["Totals", [
-    ["discount", "Discount %", "num", "discount"], ["tax", "Tax %", "num", "tax"], ["shipping", "Shipping", "num", "shipping"]]],
-  ["Notes & terms", [
-    ["notesAlign", "Notes alignment", "select", "notes"],
-    ["notes", "Notes", "area", "notes", "full"], ["paymentDetails", "Payment details", "area", "payment", "full"],
-    ["terms", "Terms", "area", "terms", "full"]]],
   ["DESIGN", []],
   ["LABELS", [
     ["labelTitle", "Document title", "text", null], ["labelBillTo", "Client heading", "text", "client"],
@@ -48,6 +47,18 @@ const GROUPS = [
     ["labelNote", "Notes heading", "text", "notes"], ["labelPayment", "Payment heading", "text", "payment"],
     ["labelTerms", "Terms heading", "text", "terms"]]]
 ];
+const PROFILE = new Set(["Your company", "LOGO", "DESIGN", "LABELS"]);
+const NAV = [["Details", "feSecDetails"], ["Client", "feSecClient"], ["Items", "feItemsSec"], ["Totals", "feSecTotals"], ["Notes", "feSecNotes"], ["Business", "feProfile"]];
+const PH = {
+  clientName: "e.g. Acme Ltd", clientEmail: "billing@acme.com", clientContact: "e.g. Jane Smith", clientTax: "e.g. GB123456789",
+  clientAddress: "Street, city, postcode", companyName: "e.g. Your Studio", companyEmail: "hello@yourstudio.com",
+  companyPhone: "+1 555 123 4567", companyWebsite: "https://yourstudio.com", invoiceNumber: "e.g. INV-0001",
+  reference: "e.g. PO-1234", notes: "e.g. Thank you for your business", discount: "0", tax: "0", shipping: "0.00"
+};
+const AC = { companyName: "organization", companyEmail: "email", companyPhone: "tel", companyWebsite: "url", companyAddress: "street-address" };
+const SECID = { Details: "feSecDetails", Client: "feSecClient", Totals: "feSecTotals", "Notes & terms": "feSecNotes" };
+const REQ_HINT = { clientName: "Needed before printing" };
+const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 function fieldEl(def) {
   const [id, label, kind, section, extra, labelFrom] = def;
@@ -64,16 +75,39 @@ function fieldEl(def) {
     el = document.createElement("input");
     el.type = kind === "num" ? "text" : kind === "date" ? "date" : kind;
     if (kind === "num") { el.inputMode = "decimal"; el.autocomplete = "off"; }
-    if (kind === "email") el.autocomplete = "off";
+    el.autocomplete = kind === "num" ? "off" : (AC[id] || "off");
+    if (kind !== "date" && kind !== "num") el.enterKeyHint = "next";
+    if (kind === "num") el.enterKeyHint = "next";
   }
-  el.id = "fe_" + id; el.className = "fe-input";
+  if (PH[id]) el.placeholder = PH[id];
+  el.id = "fe_" + id; el.className = "fe-input" + (kind === "num" ? " fe-num" : "");
   const evt = kind === "select" ? "change" : "input";
   el.addEventListener(evt, () => {
     src.value = el.value;
     src.dispatchEvent(new Event(evt, { bubbles: true }));
     if (kind === "select") src.dispatchEvent(new Event("input", { bubbles: true }));
   });
-  wrap.append(lab, el);
+  let box = el;
+  if (kind === "num") {
+    const sym = id === "shipping" ? null : "%";
+    box = document.createElement("div"); box.className = "fe-affix" + (sym ? " fe-suffix" : " fe-prefix");
+    const a = document.createElement("span"); a.className = "fe-aff"; a.setAttribute("aria-hidden", "true");
+    if (sym) a.textContent = sym; else a.dataset.cur = "1";
+    if (sym) box.append(el, a); else box.append(a, el);
+  }
+  wrap.append(lab, box);
+  if (id === "clientName" || id === "clientEmail" || id === "companyEmail") {
+    const hint = document.createElement("p"); hint.className = "fe-err"; hint.id = "fe_err_" + id; hint.hidden = true; hint.setAttribute("role", "alert");
+    el.setAttribute("aria-describedby", hint.id); wrap.append(hint);
+    const check = () => {
+      const v = el.value.trim(); let m = "";
+      if (id === "clientName" && !v) m = REQ_HINT.clientName;
+      else if (id !== "clientName" && v && !isEmail(v)) m = "Check the email address";
+      hint.textContent = m; hint.hidden = !m; el.classList.toggle("fe-bad", !!m); el.setAttribute("aria-invalid", m ? "true" : "false");
+    };
+    el.addEventListener("blur", check);
+    el.addEventListener("input", () => { if (!hint.hidden) check(); });
+  }
   binds.push({ src, el, section, wrap, lab, label, labelFrom });
   return wrap;
 }
@@ -82,8 +116,15 @@ function build() {
   const root = $("formEditor"); if (!root || built) return;
   built = true;
   root.innerHTML = "";
+  const nav = document.createElement("nav"); nav.className = "fe-nav"; nav.setAttribute("aria-label", "Jump to section");
+  nav.innerHTML = NAV.map(([t, id]) => `<button type="button" data-go="${id}">${t}</button>`).join("");
+  root.appendChild(nav);
+  const prof = document.createElement("details"); prof.className = "fe-details fe-profile"; prof.id = "feProfile";
+  prof.innerHTML = '<summary><span>Business profile &amp; design</span><small id="feProfileSum"></small></summary><p class="fe-hint">Your company details, logo, template, colors and labels. Usually set once.</p><div class="fe-profile-body"></div>';
+  const profBody = prof.querySelector(".fe-profile-body");
   GROUPS.forEach(([title, defs]) => {
     const sec = document.createElement("section"); sec.className = "fe-sec";
+    if (SECID[title]) sec.id = SECID[title];
     if (title === "LOGO") {
       sec.innerHTML = '<h3>Logo</h3><div class="fe-logo"><div class="fe-logo-thumb" id="feLogoThumb"><img alt="" id="feLogoImg" hidden><span id="feLogoLetter">Y</span></div><div class="fe-logo-actions"><label class="btn small primary" for="feLogoFile">Upload logo</label><input id="feLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="feLogoRemove">Remove</button><button type="button" class="btn small" id="feLogoReset">Reset size</button></div></div>' +
         '<div class="fe-grid"><div class="fe-field"><label for="fe_logoHeightValue">Size (px)</label><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off"></div>' +
@@ -102,6 +143,7 @@ function build() {
     } else {
       sec.innerHTML = `<h3>${title}</h3><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
+      if (title === "Totals") grid.classList.add("fe-grid3");
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
       if (title === "Totals") {
         const sum = document.createElement("dl"); sum.className = "fe-sum"; sum.id = "feSum";
@@ -109,15 +151,37 @@ function build() {
         sec.appendChild(sum);
       }
     }
-    root.appendChild(sec);
+    (PROFILE.has(title) ? profBody : root).appendChild(sec);
+    if (title === "Notes & terms") root.appendChild(prof);
   });
   const help = document.querySelector("#importPanel .importhelp"), hh = $("feImportHelp");
   if (help && hh) hh.innerHTML = '<details class="fe-details fe-help">' + help.innerHTML.replace(/<summary>[\s\S]*?<\/summary>/, "<summary>How to set up your file</summary>") + "</details>";
   const foot = document.createElement("div"); foot.className = "fe-foot";
   foot.innerHTML = '<button type="button" class="btn primary" id="feSeePreview">See preview</button>';
   root.appendChild(foot);
+  if (!$("feFab")) {
+    const fab = document.createElement("div"); fab.id = "feFab"; fab.className = "fe-fab";
+    fab.innerHTML = '<span class="fe-saved" id="feSaved" role="status" aria-live="polite"></span><button type="button" class="btn primary" id="feFabBtn">Preview</button>';
+    document.body.appendChild(fab);
+    fab.querySelector("#feFabBtn").addEventListener("click", () => $("canvasModePreviewBtn").click());
+    const sn = document.createElement("div"); sn.id = "feSnack"; sn.className = "fe-snack"; sn.setAttribute("role", "status"); sn.hidden = true;
+    sn.innerHTML = '<span id="feSnackMsg"></span><button type="button" id="feUndo">Undo</button>';
+    document.body.appendChild(sn);
+    sn.querySelector("#feUndo").addEventListener("click", undoRemove);
+    let st; window.addEventListener("invoicestudio:autosaved", () => {
+      if (!document.body.classList.contains("form-mode")) return;
+      const el = $("feSaved"); el.textContent = "Saved ✓"; el.classList.add("show"); clearTimeout(st); st = setTimeout(() => el.classList.remove("show"), 1600);
+    });
+  }
 
   root.addEventListener("click", e => {
+    const go = e.target.closest(".fe-nav [data-go]");
+    if (go) {
+      const t = $(go.dataset.go); if (!t) return;
+      if (t.tagName === "DETAILS") t.open = true;
+      t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth", block: "start" });
+      return;
+    }
     if (e.target.closest("#feAddItem")) { api.addItem(); return; }
     if (e.target.closest("#feSeePreview")) { $("canvasModePreviewBtn").click(); return; }
     if (e.target.closest("#feImport")) { $("importSheetBtn").click(); return; }
@@ -131,9 +195,13 @@ function build() {
     const rm = e.target.closest(".fe-del");
     if (rm) {
       const idx = Number(rm.dataset.idx);
-      if (Number.isInteger(idx) && state.items[idx] !== undefined) { state.items.splice(idx, 1); api.renderPreview(); api.save(); }
+      if (Number.isInteger(idx) && state.items[idx] !== undefined) {
+        const [item] = state.items.splice(idx, 1); api.renderPreview(); api.save();
+        showUndo(idx, item);
+      }
     }
   });
+  root.addEventListener("keydown", onEnter);
   const onCell = e => {
     const el = e.target.closest(".fe-cell"); if (!el) return;
     const idx = Number(el.dataset.idx), item = state.items[idx]; if (!item) return;
@@ -158,6 +226,34 @@ function build() {
   });
 }
 
+let undoInfo = null, undoT;
+function showUndo(idx, item) {
+  undoInfo = { idx, item };
+  const sn = $("feSnack"); if (!sn) return;
+  $("feSnackMsg").textContent = "Item " + (idx + 1) + " removed"; sn.hidden = false;
+  clearTimeout(undoT); undoT = setTimeout(() => { sn.hidden = true; undoInfo = null; }, 6000);
+}
+function undoRemove() {
+  if (!undoInfo) return;
+  state.items.splice(Math.min(undoInfo.idx, state.items.length), 0, undoInfo.item);
+  undoInfo = null; $("feSnack").hidden = true; clearTimeout(undoT);
+  api.renderPreview(); api.save();
+}
+function onEnter(e) {
+  if (e.key !== "Enter" || e.isComposing) return;
+  const t = e.target;
+  if (!(t instanceof HTMLInputElement) || ["checkbox", "color", "file", "button"].includes(t.type)) return;
+  const all = [...document.querySelectorAll("#formEditor input.fe-input, #formEditor select.fe-input, #formEditor textarea.fe-input")].filter(x => x.offsetParent !== null && !x.disabled);
+  const i = all.indexOf(t); if (i < 0) return;
+  e.preventDefault();
+  const cells = [...document.querySelectorAll("#feItems .fe-cell")];
+  if (cells.length && t === cells[cells.length - 1]) {
+    api.addItem();
+    requestAnimationFrame(() => { const c = document.querySelectorAll("#feItems .fe-cell"); const first = c[cells.length]; if (first) first.focus(); });
+    return;
+  }
+  if (all[i + 1]) all[i + 1].focus();
+}
 function visibleCols() { return state.columns.filter(c => c.visible); }
 
 function updateAmounts() {
@@ -189,6 +285,8 @@ function renderItems() {
   }
   itemsSig = sig;
   if (!state.items.length) { host.innerHTML = '<p class="fe-empty">No line items yet.</p>'; return; }
+  const prim = cols.filter(c => c.role !== "amount" && !["number", "currency", "percentage", "date"].includes(c.type)).sort((a, b) => num(b.width) - num(a.width))[0];
+  const tpl = cols.map(c => c === prim ? "minmax(150px,3fr)" : c.role === "amount" ? "minmax(84px,1fr)" : "minmax(60px,1fr)").join(" ");
   const touch = typeof matchMedia === "function" && matchMedia("(pointer:coarse)").matches;
   host.innerHTML = state.items.map((item, idx) => {
     const cells = cols.map(c => {
@@ -196,10 +294,10 @@ function renderItems() {
       const numeric = ["number", "currency", "percentage"].includes(c.type);
       const type = numeric ? (touch ? "text" : "number") : c.type === "date" ? "date" : "text";
       const v = item[c.key] == null ? "" : item[c.key];
-      const wide = !numeric && c.type !== "date" ? " fe-wide" : "";
-      return `<div class="fe-cell-wrap${wide}"><label class="fe-lab" for="fe_i${idx}_${esc(c.key)}">${esc(c.label)}</label><input id="fe_i${idx}_${esc(c.key)}" class="fe-input fe-cell${numeric ? " fe-num" : ""}" type="${type}"${type === "number" ? ' step="0.01"' : ""}${numeric ? ' inputmode="decimal" autocomplete="off"' : ""} data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(v)}"></div>`;
+      const wide = c === prim ? " fe-wide" : "";
+      return `<div class="fe-cell-wrap${wide}"><label class="fe-lab" for="fe_i${idx}_${esc(c.key)}">${esc(c.label)}</label><input id="fe_i${idx}_${esc(c.key)}" class="fe-input fe-cell${numeric ? " fe-num" : ""}" type="${type}"${type === "number" ? ' step="0.01"' : ""}${numeric ? ' inputmode="decimal" autocomplete="off"' : ""} data-idx="${idx}" data-key="${esc(c.key)}" value="${esc(v)}"${c === prim ? ' placeholder="e.g. Website design" enterkeyhint="next"' : ' enterkeyhint="next"'}></div>`;
     }).join("");
-    return `<div class="fe-item"><div class="fe-item-head"><span>Item ${idx + 1}</span><button type="button" class="fe-del" data-idx="${idx}" aria-label="Remove item ${idx + 1}">Remove</button></div><div class="fe-item-grid">${cells}</div></div>`;
+    return `<div class="fe-item"><div class="fe-item-head"><span>Item ${idx + 1}</span><button type="button" class="fe-del" data-idx="${idx}" aria-label="Remove item ${idx + 1}">Remove</button></div><div class="fe-item-grid" style="--tpl:${tpl}">${cells}</div></div>`;
   }).join("");
 }
 
@@ -328,6 +426,9 @@ export function syncFormEditor() {
     const on = !b.section || state.sections[b.section] !== false;
     if (b.wrap.hidden === on) b.wrap.hidden = !on;
   });
+  const cur = $("currency"), sym = cur ? (CURRENCY_SYMBOLS[cur.value] || cur.value || "") : "";
+  document.querySelectorAll('#formEditor .fe-aff[data-cur]').forEach(a => { if (a.textContent !== sym) a.textContent = sym; });
+  const ps = $("feProfileSum"), cn = $("companyName"); if (ps && cn) ps.textContent = (cn.value || "").trim();
   renderItems();
   renderColumns();
   syncLogo();
