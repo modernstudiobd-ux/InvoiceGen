@@ -83,7 +83,7 @@ if (systemDarkQuery) {
 
 function syncThemeControls() {
   const theme = getTheme();
-  document.querySelectorAll(".theme-switch .theme-btn").forEach(btn => {
+  document.querySelectorAll(".theme-switch .theme-btn[data-theme]").forEach(btn => {
     const active = btn.dataset.theme === theme;
     btn.classList.toggle("active", active);
     btn.setAttribute("aria-selected", String(active));
@@ -135,7 +135,7 @@ export function initSettings(onDateFormatChange) {
   }
 
   syncThemeControls();
-  document.querySelectorAll(".theme-switch .theme-btn").forEach(btn => {
+  document.querySelectorAll(".theme-switch .theme-btn[data-theme]").forEach(btn => {
     btn.addEventListener("click", () => {
       if (getTheme() === btn.dataset.theme) return;
       setTheme(btn.dataset.theme);
