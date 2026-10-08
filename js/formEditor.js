@@ -7,7 +7,7 @@
 // all behave exactly as before.
 
 import { $, esc } from "./dom.js";
-import { state } from "./state.js";
+import { state, sectionDefs } from "./state.js";
 import { itemValue } from "./calc.js";
 import { num, fmtCell } from "./format.js";
 
@@ -40,6 +40,7 @@ const GROUPS = [
     ["notesAlign", "Notes alignment", "select", "notes"],
     ["notes", "Notes", "area", "notes", "full"], ["paymentDetails", "Payment details", "area", "payment", "full"],
     ["terms", "Terms", "area", "terms", "full"]]],
+  ["DESIGN", []],
   ["LABELS", [
     ["labelTitle", "Document title", "text", null], ["labelBillTo", "Client heading", "text", "client"],
     ["labelInvoiceDate", "Issue date label", "text", "invoiceDate"], ["labelDueDate", "Due date label", "text", "dueDate"],
@@ -89,13 +90,15 @@ function build() {
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
     } else if (title === "COLUMNS") {
       sec.innerHTML = '<details class="fe-details" id="feColsDetails"><summary>Table columns</summary><p class="fe-hint">Rename, show/hide, reorder and set the type of each line-item column.</p><div id="feCols" class="fe-cols"></div><button type="button" class="fe-add" id="feAddCol">+ Add column</button></details>';
+    } else if (title === "DESIGN") {
+      buildDesign(sec);
     } else if (title === "LABELS") {
       sec.innerHTML = '<details class="fe-details"><summary>Labels &amp; headings</summary><p class="fe-hint">Rename the headings printed on the document. Leave blank for the default.</p><div class="fe-grid"></div></details>';
       const grid = sec.querySelector(".fe-grid");
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
     } else if (title === "ITEMS") {
       sec.id = "feItemsSec";
-      sec.innerHTML = '<h3>Line items</h3><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add" id="feImport">Import CSV / Excel</button></div>';
+      sec.innerHTML = '<h3>Line items</h3><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
     } else {
       sec.innerHTML = `<h3>${title}</h3><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
@@ -108,6 +111,8 @@ function build() {
     }
     root.appendChild(sec);
   });
+  const help = document.querySelector("#importPanel .importhelp"), hh = $("feImportHelp");
+  if (help && hh) hh.innerHTML = '<details class="fe-details fe-help">' + help.innerHTML.replace(/<summary>[\s\S]*?<\/summary>/, "<summary>How to set up your file</summary>") + "</details>";
   const foot = document.createElement("div"); foot.className = "fe-foot";
   foot.innerHTML = '<button type="button" class="btn primary" id="feSeePreview">See preview</button>';
   root.appendChild(foot);
@@ -257,6 +262,62 @@ function syncLogo() {
   document.querySelectorAll("#feLogoPos button").forEach(b => b.classList.toggle("active", b.dataset.pos === pos));
 }
 
+const COLOR_ROWS = [
+  ["balanceLabelColor", "Balance due label color"], ["totalColor", "Balance due amount color"],
+  ["headerColor", "Header background"], ["headerTextColor", "Header text color"], ["invoiceColor", "Invoice area background"]
+];
+const sectionToggles = [];
+const designMirrors = []; // { src, el }
+
+function mirrorSelect(id, label, host) {
+  const src = $(id); if (!src) return;
+  const wrap = document.createElement("div"); wrap.className = "fe-field";
+  const lab = document.createElement("label"); lab.htmlFor = "fe_" + id; lab.textContent = label;
+  const el = document.createElement("select"); el.id = "fe_" + id; el.className = "fe-input";
+  el.innerHTML = src.innerHTML;
+  el.addEventListener("change", () => { src.value = el.value; src.dispatchEvent(new Event("change", { bubbles: true })); src.dispatchEvent(new Event("input", { bubbles: true })); });
+  wrap.append(lab, el); host.appendChild(wrap); designMirrors.push({ src, el });
+}
+function colorRow(id, label, host, optional) {
+  const sw = $(id), hex = $(id + "Hex"); if (!sw || !hex) return;
+  const wrap = document.createElement("div"); wrap.className = "fe-field fe-full";
+  wrap.innerHTML = `<label for="fe_${id}Hex">${label}</label><div class="fe-colorrow"><input type="color" id="fe_${id}" class="fe-swatch" aria-label="${label} swatch"><input type="text" id="fe_${id}Hex" class="fe-input" autocomplete="off" spellcheck="false">${optional ? `<button type="button" class="btn small" data-clear="${id}">Reset</button>` : ""}</div>`;
+  const fs = wrap.querySelector(".fe-swatch"), fh = wrap.querySelector(".fe-input");
+  fs.addEventListener("input", () => { sw.value = fs.value; sw.dispatchEvent(new Event("input", { bubbles: true })); });
+  fh.addEventListener("input", () => { hex.value = fh.value; hex.dispatchEvent(new Event("input", { bubbles: true })); });
+  fh.addEventListener("change", () => { hex.dispatchEvent(new Event("change", { bubbles: true })); });
+  const clr = wrap.querySelector("[data-clear]");
+  if (clr) clr.addEventListener("click", () => { const b = $(id + "Clear"); if (b) b.click(); });
+  host.appendChild(wrap);
+  designMirrors.push({ src: sw, el: fs }, { src: hex, el: fh, placeholder: true });
+}
+function buildDesign(sec) {
+  sec.innerHTML = '<details class="fe-details" id="feDesignDetails"><summary>Design &amp; layout</summary><p class="fe-hint">Template, page size, colors and which sections appear on the document.</p>' +
+    '<div class="fe-grid" id="feDesignGrid"></div><h4 class="fe-sub">Colors</h4><div class="fe-grid" id="feColorGrid"></div><button type="button" class="btn small" id="feResetColors">Reset colors</button>' +
+    '<h4 class="fe-sub">Show / hide sections</h4><div class="fe-toggles" id="feToggles"></div></details>';
+  const g = sec.querySelector("#feDesignGrid");
+  mirrorSelect("template", "Template", g); mirrorSelect("paperSize", "Page size", g);
+  const cg = sec.querySelector("#feColorGrid");
+  colorRow("accent", "Accent color", cg, false);
+  COLOR_ROWS.forEach(([id, l]) => colorRow(id, l, cg, true));
+  sec.querySelector("#feResetColors").addEventListener("click", () => { const b = $("resetColorBtn"); if (b) b.click(); });
+  const t = sec.querySelector("#feToggles");
+  sectionDefs.forEach(([k, l]) => {
+    const row = document.createElement("div"); row.className = "fe-toggle";
+    row.innerHTML = `<span id="fe-tl-${k}">${l}</span><label class="switch"><input type="checkbox" data-fe-section="${k}" aria-labelledby="fe-tl-${k}"><span class="slider"></span></label>`;
+    const cb = row.querySelector("input");
+    cb.addEventListener("change", () => { state.sections[k] = cb.checked; api.renderPreview(); api.save(); });
+    t.appendChild(row); sectionToggles.push([k, cb]);
+  });
+}
+function syncDesign() {
+  designMirrors.forEach(m => {
+    if (m.el !== document.activeElement && m.el.value !== m.src.value) m.el.value = m.src.value;
+    if (m.placeholder && m.src.placeholder && m.el.placeholder !== m.src.placeholder) m.el.placeholder = m.src.placeholder;
+  });
+  sectionToggles.forEach(([k, cb]) => { const on = state.sections[k] !== false; if (cb.checked !== on && cb !== document.activeElement) cb.checked = on; });
+}
+
 /* Called after every renderPreview() and on mode entry. Cheap; skips fields being typed in. */
 export function syncFormEditor() {
   if (!built || !document.body.classList.contains("form-mode")) return;
@@ -270,6 +331,7 @@ export function syncFormEditor() {
   renderItems();
   renderColumns();
   syncLogo();
+  syncDesign();
   updateAmounts();
 }
 
