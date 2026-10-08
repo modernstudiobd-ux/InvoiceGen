@@ -146,7 +146,7 @@ compactQuery.addEventListener("change", e => {
   if (e.matches) {
     appRoot.classList.remove("design-closed");
   } else {
-    appRoot.classList.toggle("design-closed", localStorage.getItem("invoiceStudio.designPanelOpen") === "0");
+    appRoot.classList.toggle("design-closed", localStorage.getItem("invoiceStudio.designPanelOpen") !== "1");
   }
 });
 
@@ -208,7 +208,7 @@ export function setCanvasMode(mode) {
   // Form mode has its own Design section, so tuck the side panel away on desktop (not saved; restored on exit)
   if (!compactQuery.matches) {
     const root = appRoot;
-    if (root) root.classList.toggle("design-closed", isForm || localStorage.getItem("invoiceStudio.designPanelOpen") === "0");
+    if (root) root.classList.toggle("design-closed", isForm || localStorage.getItem("invoiceStudio.designPanelOpen") !== "1");
   }
   if (isForm) enterFormMode();
   renderPreview();
@@ -533,4 +533,4 @@ function setDesignPanelOpen(open) {
 }
 if (designCloseBtn) designCloseBtn.addEventListener("click", () => setDesignPanelOpen(false));
 if (designReopenBtn) designReopenBtn.addEventListener("click", () => setDesignPanelOpen(true));
-setDesignPanelOpen(!compactQuery.matches && localStorage.getItem("invoiceStudio.designPanelOpen") !== "0");
+setDesignPanelOpen(!compactQuery.matches && localStorage.getItem("invoiceStudio.designPanelOpen") === "1");

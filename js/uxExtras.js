@@ -160,3 +160,12 @@ export function confirmPrint() {
   if (!issues.length) return true;
   return confirm(`Before printing: ${issues.join(" and ")}.\n\nPrint anyway?`);
 }
+
+/* ---- Sidebar declutter: Calculators starts collapsed (remembered) ----------- */
+export function initNavDeclutter() {
+  const btn = $("calculatorsGroupBtn"); if (!btn) return;
+  const K = "invoiceStudio.calcNavOpen";
+  const want = (() => { try { return localStorage.getItem(K) === "1"; } catch { return false; } })();
+  if (!want && btn.getAttribute("aria-expanded") === "true") btn.click();
+  btn.addEventListener("click", () => setTimeout(() => { try { localStorage.setItem(K, btn.getAttribute("aria-expanded") === "true" ? "1" : "0"); } catch {} }, 0));
+}

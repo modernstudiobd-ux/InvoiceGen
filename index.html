@@ -83,7 +83,7 @@
          just implied by position. -->
     <div class="actions-primary">
       <div class="mt-total" id="mobileTotal"><span class="mt-label" id="mtLabel">Balance due</span><strong id="mtAmount">$0.00</strong></div>
-      <button class="btn small primary" id="saveInvoiceBtn" title="Save a reopenable snapshot to Saved Invoices (Ctrl+S)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span class="btn-label">Save</span></button>
+      <button class="btn small" id="saveInvoiceBtn" title="Save a reopenable snapshot to Saved Invoices (Ctrl+S)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span class="btn-label">Save</span></button>
       <button class="btn small primary" id="printBtn" title="Opens your browser's print dialog — choose a physical printer, or &quot;Save as PDF&quot; as the destination for a PDF copy"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="btn-label">Print</span></button>
       <span class="save-status" id="saveStatus" aria-live="polite"></span>
     </div>
@@ -209,6 +209,7 @@
         <button class="navitem navsubitem" type="button" id="calcMarkupNavBtn" data-calc="markup" aria-haspopup="true" aria-controls="calculatorsPanel"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg><span><strong>Markup Calculator</strong></span></button>
       </div>
     </div>
+    <div class="nav-label" aria-hidden="true">Documents</div>
     <button class="navitem" id="newInvoiceBtn" type="button" title="Start a new document — clears client and items; keeps company profile and design">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       <span><strong>New Document</strong><small>Start a new document</small></span>
@@ -243,7 +244,6 @@
       <!-- Panel lives in #floatingLayer — see the comment there. -->
     </div>
   </nav>
-  <div class="notice">Tip: click any field on the invoice to edit it. Your work is saved automatically on this device.</div>
  </div>
  <!-- App version (js/main.js fills this in from js/version.js — single
       source of truth) + credit link, opened in a new tab so it never
@@ -256,14 +256,7 @@
 
 <main class="workspace">
  <section class="first-run" id="firstRun" aria-labelledby="firstRunTitle" hidden>
-   <div>
-     <h2 id="firstRunTitle">Start your first invoice</h2>
-     <ol>
-       <li><strong>Your company</strong> — click the company name at the top of the invoice.</li>
-       <li><strong>Your client</strong> — fill in the Bill to section.</li>
-       <li><strong>Line items</strong> — use Add item, then press Print or Save.</li>
-     </ol>
-   </div>
+   <p><strong id="firstRunTitle">Start your first invoice:</strong> click any field to edit, add your line items, then Print or Save. Everything saves automatically.</p>
    <button class="btn small" id="firstRunDismiss" type="button">Got it</button>
  </section>
  <!-- Editor toolbar — rebuilt as flex groups so control order is explicit
@@ -784,6 +777,7 @@
     <span class="hint">A few things that aren't obvious at a glance:</span>
     <ul class="importhelp-list" style="margin-top:8px">
       <li><strong>Undo / Redo</strong><span class="importhelp-aliases">Ctrl+Z / Ctrl+Shift+Z (or Ctrl+Y), or the buttons in the toolbar</span></li>
+      <li><strong>Keyboard shortcuts</strong><span class="importhelp-aliases">Ctrl/Cmd+S save a copy · Ctrl+Z undo · Ctrl+Shift+Z or Ctrl+Y redo · In Form: Enter moves to the next field, and adds a new line item from the last one</span></li>
       <li><strong>Reorder or resize columns</strong><span class="importhelp-aliases">Drag a column header to reorder it, or its right edge to resize</span></li>
       <li><strong>Column settings</strong><span class="importhelp-aliases">Click the "⋮" on any column header — type, alignment, calculation role, hide or remove</span></li>
       <li><strong>Resize the Design panel</strong><span class="importhelp-aliases">Drag its left edge, or double-click to reset</span></li>

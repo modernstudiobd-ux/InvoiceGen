@@ -126,7 +126,7 @@ function build() {
     const sec = document.createElement("section"); sec.className = "fe-sec";
     if (SECID[title]) sec.id = SECID[title];
     if (title === "LOGO") {
-      sec.innerHTML = '<h3>Logo</h3><div class="fe-logo"><div class="fe-logo-thumb" id="feLogoThumb"><img alt="" id="feLogoImg" hidden><span id="feLogoLetter">Y</span></div><div class="fe-logo-actions"><label class="btn small primary" for="feLogoFile">Upload logo</label><input id="feLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="feLogoRemove">Remove</button><button type="button" class="btn small" id="feLogoReset">Reset size</button></div></div>' +
+      sec.innerHTML = '<h2>Logo</h2><div class="fe-logo"><div class="fe-logo-thumb" id="feLogoThumb"><img alt="" id="feLogoImg" hidden><span id="feLogoLetter">Y</span></div><div class="fe-logo-actions"><label class="btn small primary" for="feLogoFile">Upload logo</label><input id="feLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="feLogoRemove">Remove</button><button type="button" class="btn small" id="feLogoReset">Reset size</button></div></div>' +
         '<div class="fe-grid"><div class="fe-field"><label for="fe_logoHeightValue">Size (px)</label><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off"></div>' +
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
     } else if (title === "COLUMNS") {
@@ -139,9 +139,9 @@ function build() {
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
     } else if (title === "ITEMS") {
       sec.id = "feItemsSec";
-      sec.innerHTML = '<h3>Line items</h3><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost" id="feGoCols">Column settings</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
+      sec.innerHTML = '<h2>Line items</h2><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost" id="feGoCols">Column settings</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
     } else {
-      sec.innerHTML = `<h3>${title}</h3><div class="fe-grid"></div>`;
+      sec.innerHTML = `<h2>${title}</h2><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
       if (title === "Totals") grid.classList.add("fe-grid3");
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
@@ -401,8 +401,8 @@ function colorRow(id, label, host, optional) {
 }
 function buildDesign(sec) {
   sec.innerHTML = '<details class="fe-details" id="feDesignDetails"><summary>Design &amp; layout</summary><p class="fe-hint">Template, page size, colors and which sections appear on the document.</p>' +
-    '<div class="fe-grid" id="feDesignGrid"></div><h4 class="fe-sub">Colors</h4><div class="fe-grid" id="feColorGrid"></div><button type="button" class="btn small" id="feResetColors">Reset colors</button>' +
-    '<h4 class="fe-sub">Show / hide sections</h4><div class="fe-toggles" id="feToggles"></div></details>';
+    '<div class="fe-grid" id="feDesignGrid"></div><h3 class="fe-sub">Colors</h3><div class="fe-grid" id="feColorGrid"></div><button type="button" class="btn small" id="feResetColors">Reset colors</button>' +
+    '<h3 class="fe-sub">Show / hide sections</h3><div class="fe-toggles" id="feToggles"></div></details>';
   const g = sec.querySelector("#feDesignGrid");
   mirrorSelect("template", "Template", g); mirrorSelect("paperSize", "Page size", g);
   const cg = sec.querySelector("#feColorGrid");

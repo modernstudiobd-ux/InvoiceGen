@@ -695,3 +695,63 @@ body.fullscreen-preview .jump-nav{display:none}
 .template-modern .footer{color:var(--m-muted);font-size:8.5px;border-top:1px solid var(--m-hair);padding-top:8px}
 .template-modern .page-break-line{border-top-color:var(--m-hair)}
 .template-modern .invtitle h2 input::placeholder,.template-modern .clientname::placeholder{color:inherit;opacity:1}
+
+/* ============================================================================
+   v3.32.0 — Declutter + phone refinements
+   ========================================================================== */
+/* Sidebar: no tip card, small section label, quieter Save */
+.sidebar .notice{display:none}
+.nav-label{margin:14px 12px 4px;font:600 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ds-muted)}
+#saveInvoiceBtn{background:var(--ds-card);color:var(--ds-ink);border:1px solid var(--ds-hairline-strong)}
+#saveInvoiceBtn:hover{background:var(--ds-canvas-soft)}
+.save-status{opacity:0;transition:opacity 200ms var(--ds-ease)}
+.save-status.show{opacity:1}
+/* First-run: one slim line */
+.first-run{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;margin-bottom:10px}
+.first-run p{margin:0;font:400 13px/1.45 Inter,system-ui,sans-serif;color:var(--ds-body)}
+.first-run p strong{color:var(--ds-ink);font-weight:600}
+.first-run .btn{flex:none}
+/* Edit-mode chrome on the design system (never printed, never in the invoice itself) */
+.logo-settings-trigger{border:1px solid #d6d3d1;border-radius:8px;color:#0c0a09;background:#fff;font:500 10.5px/1 Inter,system-ui,sans-serif;box-shadow:none}
+.logo-settings-trigger:hover{background:#fafafa}
+.col-drag-handle{color:var(--ds-disabled)}
+.col-menu-btn{color:var(--ds-muted)}
+.col-add-btn,.add-item-btn{border:1px dashed #d6d3d1;border-radius:9999px;background:#fff;color:#0c0a09}
+.col-add-btn:hover,.add-item-btn:hover{background:#fafafa;border-color:#777169}
+body:not(.canvas-preview-mode) .invoice .metaText input::placeholder,body:not(.canvas-preview-mode) .invoice .metaText textarea::placeholder{opacity:.7}
+.fe-sec h2{margin:0 0 14px;font:600 15px/1.3 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+h3.fe-sub{margin:20px 0 10px;font:600 13px/1.3 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+/* Bigger touch targets for small Edit-canvas controls without moving anything (invisible hit area) */
+@media (pointer:coarse){
+  .col-menu-btn,.col-drag-handle,.item-remove-btn,.col-add-btn,.logo-settings-trigger{position:relative}
+  .col-menu-btn::after,.item-remove-btn::after,.col-add-btn::after,.logo-settings-trigger::after,.col-drag-handle::after{content:"";position:absolute;inset:-12px}
+  .col-drag-handle{position:absolute}
+}
+/* Phone: one slim, sticky mode bar; Form already has Design, so hide the button there */
+@media (max-width:640px){
+  .zoom-group,.canvasbar-left .toolbar-divider{display:none}
+  .canvasbar-left .btn .btn-label,.canvasbar-left .btn span:not(.icon){display:none}
+  .canvasbar-left .toolbar-btn-group .btn{min-width:44px;justify-content:center}
+  .currency-field{width:84px;max-width:84px}
+  .toolbar-row{position:sticky;top:56px;z-index:35;margin-bottom:10px}
+  .first-run{flex-direction:column;align-items:stretch}
+}
+@media (max-width:1080px){body.form-mode #designReopenBtn{display:none!important}}
+@media (max-width:640px){
+  .canvasbar-left .toolbar-btn-group .btn{font-size:0;gap:0;padding:0}
+  .canvasbar-left .toolbar-btn-group .btn .icon{width:18px;height:18px}
+  .toolbar-row{padding:6px 8px}
+  .canvasbar,.canvasbar-right{gap:6px}
+  .canvasbar-middle{display:none}
+  .canvasbar-right{margin-left:auto}
+  .fe-nav{top:112px}
+  .fe-sec,.fe-profile{scroll-margin-top:180px}
+}
+@media (max-width:640px){
+  .toolbar-row .canvasbar{flex-wrap:nowrap!important;width:100%}
+  .canvasbar-left{flex:none!important;width:auto!important}
+  .canvasbar-right{flex:1 1 auto!important;width:auto!important;justify-content:flex-end;flex-wrap:nowrap!important;min-width:0}
+  .canvasbar-left .toolbar-btn-group{gap:0}
+  .canvasbar-left .toolbar-btn-group .btn{min-width:36px;width:36px}
+  .canvasmode-btn{padding:0 8px}
+}

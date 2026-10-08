@@ -25,7 +25,7 @@ import { initSettings, getDefaultPaperSize } from "./settings.js";
 import { syncDocTypeUI } from "./docType.js";
 import { initCalculators } from "./calculators.js";
 import { initFormEditor } from "./formEditor.js";
-import { initMoreMenu, initPanelAccordion, initHistoryFilters, initFirstRun, confirmPrint, syncMobileTotal } from "./uxExtras.js";
+import { initNavDeclutter, initMoreMenu, initPanelAccordion, initHistoryFilters, initFirstRun, confirmPrint, syncMobileTotal } from "./uxExtras.js";
 // layout.js self-wires its own listeners on import (sidebar resize, mobile view switch, floating panels, etc.)
 import { setCanvasMode } from "./layout.js";
 
@@ -285,29 +285,33 @@ function formatSavedAgo(ts) {
   const h = Math.round(m / 60);
   return `Saved ${h}h ago`;
 }
+let savedTimer;
 function refreshSaveStatus() {
   const el = $("saveStatus");
   if (!el) return;
   const ts = Number(localStorage.getItem("invoiceStudio.lastSavedAt"));
-  if (!ts) { el.textContent = "Autosave on"; el.title = "Changes are saved automatically on this device"; el.classList.add("show"); return; }
-  const text = formatSavedAgo(ts);
-  el.textContent = text;
-  // On phones this indicator collapses to just its status dot (see
-  // .save-status in responsive.css) — the title attribute keeps the full
-  // "Saved 2 min ago" text reachable via a long-press/hover tooltip even
-  // though it's no longer visible as inline text there.
-  el.title = text;
-  el.classList.add("show");
+  el.title = ts ? formatSavedAgo(ts) : "Changes are saved automatically on this device";
 }
-window.addEventListener("invoicestudio:autosaved", refreshSaveStatus);
+function flashSaved() {
+  const el = $("saveStatus"); if (!el) return;
+  refreshSaveStatus();
+  el.textContent = "Saved"; el.classList.add("show");
+  clearTimeout(savedTimer); savedTimer = setTimeout(() => el.classList.remove("show"), 2500);
+}
+window.addEventListener("invoicestudio:autosaved", flashSaved);
 refreshSaveStatus();
 setInterval(refreshSaveStatus, 15000);
 
 /* --- UX helpers (js/uxExtras.js) --- */
 initMoreMenu();
+initNavDeclutter();
 initPanelAccordion();
 initFormEditor({ addItem, renderPreview, save, refreshItemRowAndTotals, handleLogoFile, addColumn, removeColumn, hideColumn, setRole });
-try { if (localStorage.getItem("invoiceStudio.canvasMode") === "form") setCanvasMode("form"); } catch {}
+try {
+  const cm = localStorage.getItem("invoiceStudio.canvasMode");
+  // Phones default to the Form editor (far easier than editing on a tiny page); Edit stays one tap away.
+  if (cm === "form" || (cm === null && window.matchMedia("(max-width:640px)").matches)) setCanvasMode("form");
+} catch {}
 initHistoryFilters(renderHistory);
 initFirstRun();
 syncMobileTotal();

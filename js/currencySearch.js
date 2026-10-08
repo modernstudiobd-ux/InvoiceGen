@@ -41,9 +41,12 @@ function labelFor(value) {
 let filtered = [];
 let activeIndex = -1;
 
+// Phones show just the code (USD) so the toolbar stays on one line; the full name is in the list.
+const phoneQ = window.matchMedia("(max-width:640px)");
+const shown = v => phoneQ.matches ? v : labelFor(v);
 export function syncCurrencyDisplay() {
   if (document.activeElement === input) return; // don't clobber while the user is actively searching
-  input.value = labelFor(select.value);
+  input.value = shown(select.value);
 }
 
 // Anchors the dropdown list below the combobox using fixed positioning
@@ -139,7 +142,7 @@ function chooseEntry(en) {
     select.value = en.value;
     select.dispatchEvent(new Event("change", { bubbles: true }));
   }
-  input.value = en.label;
+  input.value = shown(en.value);
   closeList();
 }
 
