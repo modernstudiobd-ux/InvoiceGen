@@ -17,7 +17,9 @@ export function initMoreMenu() {
   let lastW = window.innerWidth;
   const close = () => { panel.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); };
   const open = () => {
-    panel.style.setProperty("--more-top", Math.round(btn.getBoundingClientRect().bottom + 8) + "px");
+    const r = btn.getBoundingClientRect();
+    panel.style.setProperty("--more-top", Math.round(r.bottom + 8) + "px");
+    panel.style.setProperty("--more-right", Math.max(12, Math.round(window.innerWidth - r.right)) + "px");
     panel.classList.add("open"); btn.setAttribute("aria-expanded", "true");
   };
   btn.addEventListener("click", () => (panel.classList.contains("open") ? close() : open()));
@@ -28,8 +30,21 @@ export function initMoreMenu() {
     close();
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && panel.classList.contains("open")) { close(); btn.focus(); } });
-  window.addEventListener("resize", () => { if (window.innerWidth !== lastW) { lastW = window.innerWidth; close(); } });
-  phone.addEventListener("change", close);
+  window.addEventListener("resize", () => { if (window.innerWidth !== lastW) { lastW = window.innerWidth; close(); place(); } });
+  phone.addEventListener("change", () => { close(); place(); });
+  // Where the button lives: phone → merged top bar; larger screens → next to Save / Print.
+  const place = () => {
+    const bar = $("mobileViewToggle"), prim = document.querySelector(".actions-primary"), fs = $("expandPreviewBtn");
+    if (phone.matches && bar && fs) { if (btn.parentElement !== bar) bar.insertBefore(btn, fs); }
+    else if (prim) { if (btn.parentElement !== prim) prim.appendChild(btn); }
+  };
+  place();
+}
+
+/* ---- Design panel: only the template picker starts open (sections already
+   collapse on heading tap — see layout.js) ------------------------------- */
+export function initPanelAccordion() {
+  document.querySelectorAll("#rightSidebar > .panel").forEach((p, i) => { if (i > 0) p.classList.add("collapsed"); });
 }
 
 /* ---- Mobile balance strip (mirrors the invoice's balance due) -------------- */

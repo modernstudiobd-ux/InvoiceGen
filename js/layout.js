@@ -7,6 +7,7 @@ import { renderPreview, fitInvoiceCanvas } from "./preview.js";
 import { closeColSettings } from "./columnCanvas.js";
 import { setDocType } from "./docType.js";
 import { setCalcTab } from "./calculators.js";
+import { enterFormMode } from "./formEditor.js";
 
 // Resizes the Design panel (right sidebar) — moved here from the left nav
 // (see the comment on #sidebarResizer in index.html). Width is computed
@@ -195,28 +196,22 @@ function setInvoiceFieldsEditable(editable) {
 }
 
 export function setCanvasMode(mode) {
-  const isPreview = mode === "preview";
+  const isForm = mode === "form";
+  const isPreview = mode === "preview" || isForm;   // Form mode renders the invoice as Preview (read-only) beside the form
   document.body.classList.toggle("canvas-preview-mode", isPreview);
-  canvasModeEditBtn.classList.toggle("active", !isPreview);
-  canvasModeEditBtn.setAttribute("aria-selected", String(!isPreview));
-  canvasModePreviewBtn.classList.toggle("active", isPreview);
-  canvasModePreviewBtn.setAttribute("aria-selected", String(isPreview));
-  // Column editing (the per-header "⋮" popover) only makes sense in Edit
-  // mode — Preview shows the read-only, faithful dry run of the printed
-  // document, so close it the instant Preview turns on rather than leaving
-  // it floating over a now-uneditable table.
+  document.body.classList.toggle("form-mode", isForm);
+  const formBtn = $("canvasModeFormBtn");
+  const states = [[canvasModeEditBtn, mode === "edit" || !mode], [formBtn, isForm], [canvasModePreviewBtn, mode === "preview"]];
+  states.forEach(([b, on]) => { if (!b) return; b.classList.toggle("active", !!on); b.setAttribute("aria-selected", String(!!on)); });
+  try { localStorage.setItem("invoiceStudio.canvasMode", isForm ? "form" : "edit"); } catch {}
   if (isPreview) closeColSettings();
-  // Edit and Preview also render the line-items table differently (real
-  // <input>s + a remove column vs. plain formatted text — see preview.js),
-  // on top of sizing the canvas wrapper differently (auto-height form vs.
-  // fixed page multiples). renderPreview() rebuilds both and ends by
-  // calling fitInvoiceCanvas() itself, so it fully replaces the narrower
-  // fitInvoiceCanvas()-only call this used to make.
+  if (isForm) enterFormMode();
   renderPreview();
   setInvoiceFieldsEditable(!isPreview);
 }
 canvasModeEditBtn.addEventListener("click", () => setCanvasMode("edit"));
 canvasModePreviewBtn.addEventListener("click", () => setCanvasMode("preview"));
+if ($("canvasModeFormBtn")) $("canvasModeFormBtn").addEventListener("click", () => setCanvasMode("form"));
 
 // Anchors a .history-panel below its toggle button using fixed positioning
 // computed from the button's actual on-screen position, instead of relying

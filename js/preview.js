@@ -5,6 +5,7 @@ import { state, currentPaper, applyPaperSize, templateFooterInsetMm, templatePad
 import { money, alignClass, fmtCell, num, dateFmt } from "./format.js";
 import { calc, itemValue, isBlank } from "./calc.js";
 import { syncMobileTotal, syncTemplateGallery } from "./uxExtras.js";
+import { syncFormEditor } from "./formEditor.js";
 import { applyAllOptionalColors } from "./accent.js";
 import { syncCurrencyDisplay } from "./currencySearch.js";
 import { buildColumnHeaderHtml, buildAddColumnHeaderHtml } from "./columnCanvas.js";
@@ -251,6 +252,7 @@ export function renderPreview() {
   autoGrowAll();
   sizeInvoiceNumberInput();
   sizeMetaLabelInputs();
+  syncFormEditor();
   fitInvoiceCanvas();
 }
 
@@ -282,6 +284,7 @@ export function refreshItemRowAndTotals(idx) {
   $("discountRow").classList.toggle("print-hide-empty", !t.disc);
   $("taxRow").classList.toggle("print-hide-empty", !t.tax);
   $("shippingRow").classList.toggle("print-hide-empty", !t.ship);
+  syncFormEditor();
 }
 
 // Textareas living on the canvas (company/client address, notes, payment
@@ -652,6 +655,8 @@ export function fitInvoiceCanvas() {
   // scrolling*, and scrolling to see the rest of a document that's taller
   // than the window is completely ordinary, so there's nothing to trade
   // off by dropping it.
+  // Form mode (wide screens): the form takes the left half, the live preview the right.
+  if (document.body.classList.contains("form-mode") && window.innerWidth > 1080) available = Math.max(0, Math.floor((available - 24) / 2));
   const fit = Math.min(1, available / naturalW);
   const isPreviewMode = document.body.classList.contains("canvas-preview-mode");
   // ROOT CAUSE of the "Edit canvas never goes single-column" bug: the

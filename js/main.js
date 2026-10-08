@@ -24,9 +24,10 @@ import { naturalLogoHeight, handleLogoFile, removeLogo } from "./logo.js";
 import { initSettings, getDefaultPaperSize } from "./settings.js";
 import { syncDocTypeUI } from "./docType.js";
 import { initCalculators } from "./calculators.js";
-import { initMoreMenu, initHistoryFilters, initFirstRun, confirmPrint, syncMobileTotal } from "./uxExtras.js";
+import { initFormEditor } from "./formEditor.js";
+import { initMoreMenu, initPanelAccordion, initHistoryFilters, initFirstRun, confirmPrint, syncMobileTotal } from "./uxExtras.js";
 // layout.js self-wires its own listeners on import (sidebar resize, mobile view switch, floating panels, etc.)
-import "./layout.js";
+import { setCanvasMode } from "./layout.js";
 
 /* --- Form field bindings: any change to a tracked field re-renders +
    autosaves. This also covers the document-label fields living directly on
@@ -304,6 +305,9 @@ setInterval(refreshSaveStatus, 15000);
 
 /* --- UX helpers (js/uxExtras.js) --- */
 initMoreMenu();
+initPanelAccordion();
+initFormEditor({ addItem, renderPreview, save, refreshItemRowAndTotals });
+try { if (localStorage.getItem("invoiceStudio.canvasMode") === "form") setCanvasMode("form"); } catch {}
 initHistoryFilters(renderHistory);
 initFirstRun();
 syncMobileTotal();
@@ -318,6 +322,8 @@ $("clearTemplatesBtn").onclick = () => clearBrandTemplates();
 $("undoBtn").onclick = () => undo(load);
 $("redoBtn").onclick = () => redo(load);
 document.addEventListener("keydown", e => {
+  // Ctrl/Cmd+S → same as the Save button (works while typing too).
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") { e.preventDefault(); $("saveInvoiceBtn").click(); return; }
   const tag = (e.target.tagName || "").toLowerCase();
   if (tag === "input" || tag === "textarea" || tag === "select" || e.target.isContentEditable) return;
   if (!(e.ctrlKey || e.metaKey)) return;

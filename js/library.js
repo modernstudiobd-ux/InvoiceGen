@@ -82,7 +82,7 @@ export function renderHistory() {
   const filtering = !!(q || st);
   const lib = all.filter(e => (!q || `${e.invoiceNumber || ""} ${e.clientName || ""}`.toLowerCase().includes(q)) && (!st || (e.status || "Draft") === st));
   if (countEl) countEl.textContent = all.length ? (filtering ? `${lib.length} of ${all.length} shown` : all.length + (all.length === 1 ? " invoice saved" : " invoices saved")) : "";
-  if (!all.length) { root.innerHTML = '<p class="hint">No saved invoices yet — click Save above to add this one.</p>'; return; }
+  if (!all.length) { root.innerHTML = '<div class="history-empty"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><p class="hint">No saved invoices yet.</p><button class="btn small primary" type="button" data-first-save>Save this invoice</button></div>'; const fb = root.querySelector("[data-first-save]"); if (fb) fb.onclick = () => { const sb = $("saveInvoiceBtn"); if (sb) sb.click(); }; return; }
   if (!lib.length) { root.innerHTML = '<p class="hint">No saved invoices match your search.</p>'; return; }
   root.innerHTML = lib.map(e => `<div class="historycard${e.id === curId ? " current" : ""}" data-id="${esc(e.id)}">
    <div class="historytop"><div><strong>${esc(e.invoiceNumber || "Untitled")}</strong>${e.id === curId ? '<span class="tinybadge">Current</span>' : ""}</div><span class="historyamount">${esc(moneyFor(e.total, e.currency))}</span></div>
