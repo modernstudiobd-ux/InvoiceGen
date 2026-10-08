@@ -15,7 +15,7 @@
      catch it here so js/install.js (which adopts window.__installPromptEvent)
      never misses it. Only stores the event — all behavior lives in install.js. -->
 <script>window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__installPromptEvent=e;});</script>
-<meta name="theme-color" content="#4f46e5">
+<meta name="theme-color" content="#ffffff">
 <!-- Favicon — SVG master first (scales perfectly, every modern browser
      honors it over the PNG fallbacks below); favicon.ico covers legacy
      browsers/crawlers that always request /favicon.ico regardless of
@@ -40,6 +40,7 @@
 <link rel="stylesheet" href="css/invoice.css">
 <link rel="stylesheet" href="css/templates.css">
 <link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/design-system.css">
 <link rel="stylesheet" href="css/print.css">
 <style id="pageSizeCSS"></style>
 </head>

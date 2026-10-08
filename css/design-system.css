@@ -1,0 +1,182 @@
+/* === InvoGen Design System layer ==============================================
+   Restyles the APP CHROME ONLY (header, left nav, canvas toolbar, Design panel,
+   floating panels, controls) to the InvoGen Design System: off-white canvas,
+   white hairline cards, ink pill actions (no saturated brand colour), EB
+   Garamond for display/brand type, Inter for everything else, 1px hairlines,
+   one soft elevation, 150-200ms colour/border transitions.
+
+   Loaded after responsive.css and before print.css. Presentation only — no
+   structure, behaviour or data is touched. The invoice DOCUMENT (.invoice and
+   its templates) keeps its previous values for every shared token (pinned
+   below), so templates, Preview, Print and PDF render exactly as before. */
+
+/* ---- Fonts (self-hosted, OFL) ------------------------------------------- */
+@font-face{font-family:"EB Garamond";src:url("../fonts/EBGaramond-latin.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"EB Garamond";src:url("../fonts/EBGaramond-latin-ext.woff2") format("woff2");font-weight:400 800;font-style:normal;font-display:swap;unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+
+/* ---- Tokens ---------------------------------------------------------------- */
+:root{
+  --font-display:"EB Garamond","Times New Roman",serif;
+  --ds-ink:#0c0a09;--ds-primary:#292524;--ds-body:#4e4e4e;--ds-muted:#777169;--ds-disabled:#a8a29e;
+  --ds-hairline:#e7e5e4;--ds-hairline-soft:#f0efed;--ds-hairline-strong:#d6d3d1;
+  --ds-canvas:#f5f5f5;--ds-canvas-soft:#fafafa;--ds-card:#fff;--ds-strong:#f0efed;
+  --ds-success:#16a34a;--ds-error:#dc2626;
+  --ds-shadow:0 4px 16px rgba(0,0,0,.04);
+  --ds-ease:cubic-bezier(.2,0,0,1);
+
+  /* Re-point the app's existing tokens at the design system. */
+  --app-accent:#292524;--app-accent-rgb:41,37,36;--app-accent-dark:#0c0a09;
+  --bg:var(--ds-canvas);--ink:var(--ds-ink);--muted:var(--ds-muted);--line:var(--ds-hairline);
+  --line-strong:var(--ds-hairline-strong);--panel:var(--ds-card);--surface-2:var(--ds-canvas-soft);--surface-hover:var(--ds-strong);
+  --danger:var(--ds-error);
+  --radius:16px;--radius-card:16px;--radius-sm:8px;--ctrl-radius:8px;
+  --shadow-sm:none;--shadow-md:var(--ds-shadow);--shadow-lg:var(--ds-shadow);
+  --ctrl-h:36px;--ctrl-font:13px;
+}
+:root[data-theme="dark"]{
+  --ds-ink:#fafaf9;--ds-primary:#fafaf9;--ds-body:#d6d3d1;--ds-muted:#a8a29e;--ds-disabled:#78716c;
+  --ds-hairline:#292524;--ds-hairline-soft:#1f1b19;--ds-hairline-strong:#44403c;
+  --ds-canvas:#0c0a09;--ds-canvas-soft:#141110;--ds-card:#1c1917;--ds-strong:#292524;
+  --ds-shadow:0 4px 16px rgba(0,0,0,.35);
+  --app-accent:#fafaf9;--app-accent-rgb:250,250,249;--app-accent-dark:#ffffff;
+  --panel-alt:#26211f;--surface-2:#211d1b;--surface-hover:#292524;
+}
+
+/* The invoice document keeps its previous token values and text colour, so the
+   restyle can never leak into templates, Preview, Print or PDF. :where() = zero
+   specificity, so every template/invoice rule still wins as before. */
+:where(.invoice){
+  --ink:#1a1d29;--muted:#6b7280;--line:#e3e6ee;--panel:#fff;--bg:#eef0f6;--radius:14px;--radius-sm:9px;
+  --danger:#b42318;--line-strong:#c9cfdb;--surface-2:#f7f8fb;--surface-hover:#f1f3f9;--radius-card:14px;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.06);--shadow-md:0 6px 20px rgba(16,24,40,.08);--shadow-lg:0 18px 40px rgba(16,24,40,.14);
+  color:#1a1d29;
+}
+:root[data-theme="dark"] :where(.invoice){--line-strong:#c9cfdb;--surface-2:#f7f8fb;--surface-hover:#f1f3f9}
+
+/* ---- Page ------------------------------------------------------------------ */
+body{background:var(--ds-canvas);color:var(--ds-body)}
+:root[data-theme="dark"] body{background:var(--ds-canvas)}
+.workspace{background:transparent}
+:root[data-theme="dark"] .workspace{--ink:#1a1d29;--muted:#6b7280;--line:#e3e6ee;--panel:#fff;--bg:#eef0f6;--app-accent:#292524;--app-accent-rgb:41,37,36;--app-accent-dark:#0c0a09;color:#1a1d29}
+/* Controls that sit on the white paper in edit mode keep the light-theme look in dark mode too. */
+:root[data-theme="dark"] .invoice .btn:not(.primary){background:#fff;border-color:#d6d3d1;color:#0c0a09}
+:root[data-theme="dark"] .invoice .btn.primary{background:#292524;border-color:#292524;color:#fff}
+
+/* Focus: 2px ink ring, offset 2px (inputs thicken their border instead). */
+.appheader :focus-visible,.sidebar :focus-visible,.right-sidebar :focus-visible,.toolbar-row :focus-visible,
+.mobileview-toggle :focus-visible,.actions-primary :focus-visible,.history-panel :focus-visible,
+.logo-settings-panel :focus-visible,.col-settings-panel :focus-visible,.install-banner :focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible,
+.history-panel input:focus-visible,.history-panel select:focus-visible{outline:0;border-color:var(--ds-ink);box-shadow:inset 0 0 0 1px var(--ds-ink)}
+
+/* ---- Header & brand --------------------------------------------------------- */
+.appheader{background:var(--ds-card);border-bottom:1px solid var(--ds-hairline);box-shadow:none;padding:12px 24px}
+.brand h1{font-family:var(--font-display);font-size:26px;font-weight:400;letter-spacing:0;line-height:1.1;color:var(--ds-ink)}
+.brand p{font-size:12.5px;color:var(--ds-muted);letter-spacing:.01em}
+.mark{box-shadow:none;border-radius:12px}
+
+/* ---- Buttons: pills --------------------------------------------------------- */
+.btn{border-radius:9999px;background:var(--ds-card);border:1px solid var(--ds-hairline-strong);color:var(--ds-ink);font-weight:500;letter-spacing:0;box-shadow:none;transition:background-color 150ms var(--ds-ease),border-color 150ms var(--ds-ease),color 150ms var(--ds-ease),box-shadow 200ms var(--ds-ease)}
+.btn:not(.primary):not(.danger):hover{background:var(--ds-card);border-color:var(--ds-ink);box-shadow:none}
+.btn:not(.primary):not(.danger):active{background:var(--ds-strong)}
+.btn.primary{background:var(--ds-primary);border-color:var(--ds-primary);color:#fff;box-shadow:none;background-image:none}
+.btn.primary:hover{background:var(--ds-ink);border-color:var(--ds-ink);box-shadow:none}
+.btn.primary:active{background:var(--ds-ink)}
+.btn.danger{background:var(--ds-card);border-color:var(--ds-hairline-strong);color:var(--ds-error)}
+.btn.danger:hover{border-color:var(--ds-error);background:var(--ds-card);box-shadow:none}
+@media (min-width:641px){.header-actions .btn{min-height:var(--ctrl-h);padding:0 16px;font-size:13px}}
+.btn.small{font-size:12.5px}
+.toolbar-row .btn{border-color:transparent;background:transparent}
+.toolbar-row .btn:hover{border-color:var(--ds-ink)!important;box-shadow:none}
+.toolbar-row .btn.primary{background:var(--ds-primary);box-shadow:none}
+@media (min-width:641px){.actions-secondary{border-left:1px solid var(--ds-hairline)}}
+:root[data-theme="dark"] .btn.primary{background:#fafaf9;border-color:#fafaf9;color:#0c0a09}
+:root[data-theme="dark"] .btn.primary:hover{background:#fff;border-color:#fff}
+:root[data-theme="dark"] .appheader .btn:not(.primary),:root[data-theme="dark"] .sidebar .btn:not(.primary),
+:root[data-theme="dark"] .right-sidebar .btn:not(.primary),:root[data-theme="dark"] .history-panel .btn:not(.primary),
+:root[data-theme="dark"] .logo-settings-panel .btn:not(.primary),:root[data-theme="dark"] .col-settings-panel .btn:not(.primary){background:transparent;border-color:var(--ds-hairline-strong);color:var(--ds-ink)}
+:root[data-theme="dark"] .appheader .btn:not(.primary):hover,:root[data-theme="dark"] .right-sidebar .btn:not(.primary):hover,
+:root[data-theme="dark"] .history-panel .btn:not(.primary):hover{border-color:var(--ds-ink)}
+:root[data-theme="dark"] .btn.danger{color:#f87171}
+
+/* ---- Left navigation -------------------------------------------------------- */
+.sidebar,.right-sidebar{background:var(--ds-card);border-color:var(--ds-hairline)}
+.navitem{border-radius:12px;color:var(--ds-ink)}
+.navitem .icon{color:var(--ds-muted)}
+.navitem strong{font-weight:500;letter-spacing:0}
+.navitem small{color:var(--ds-muted)}
+.navitem:hover{background:var(--ds-canvas-soft)}
+.navitem.active,.navitem[aria-current="page"]{background:var(--ds-strong)}
+.navitem.active .icon,.navitem[aria-current="page"] .icon,.navitem.active strong,.navitem[aria-current="page"] strong{color:var(--ds-ink)}
+.navitem.active strong,.navitem[aria-current="page"] strong{font-weight:600}
+.navgroup-toggle strong{font-weight:500}
+.navsub{border-left-color:var(--ds-hairline)}
+.sidebar .notice,.notice{background:var(--ds-canvas-soft);border:1px solid var(--ds-hairline);color:var(--ds-muted);border-radius:12px}
+.sidebar-footer{border-top-color:var(--ds-hairline);color:var(--ds-muted)}
+:root[data-theme="dark"] .navitem:hover{background:var(--ds-canvas-soft)}
+:root[data-theme="dark"] .navitem.active,:root[data-theme="dark"] .navitem[aria-current="page"]{background:var(--ds-strong)}
+:root[data-theme="dark"] .notice{background:var(--ds-canvas-soft);border-color:var(--ds-hairline);color:var(--ds-muted)}
+.install-banner{background:var(--ds-strong);border-bottom:1px solid var(--ds-hairline)}
+.install-banner .icon{color:var(--ds-ink)}
+:root[data-theme="dark"] .install-banner{background:var(--ds-strong);border-color:var(--ds-hairline)}
+
+/* ---- Canvas toolbar --------------------------------------------------------- */
+.toolbar-row{background:var(--ds-card);border:1px solid var(--ds-hairline);border-radius:16px;box-shadow:none}
+.toolbar-divider{background:var(--ds-hairline)}
+.zoom-group,.canvasmode-switch,.theme-switch,.logo-position-switch{background:var(--ds-strong);border-radius:9999px}
+.zoom-btn{border-radius:9999px;color:var(--ds-ink)}
+.zoom-btn:hover{background:var(--ds-card);box-shadow:none}
+.zoom-label{color:var(--ds-ink);font-weight:500}
+.canvasmode-btn,.theme-btn,.logo-position-btn{border-radius:9999px;color:#57534e;font-weight:500}
+.canvasmode-btn:not(.active):hover,.theme-btn:not(.active):hover,.logo-position-btn:not(.active):hover{color:var(--ds-ink)}
+.canvasmode-btn.active,.theme-btn.active,.logo-position-btn.active{background:var(--ds-card);color:var(--ds-ink);box-shadow:none;font-weight:600}
+:root[data-theme="dark"] .theme-btn.active,:root[data-theme="dark"] .logo-position-btn.active,:root[data-theme="dark"] .canvasmode-btn.active{background:var(--ds-canvas)}
+:root[data-theme="dark"] .toolbar-row,:root[data-theme="dark"] .zoom-group,:root[data-theme="dark"] .canvasmode-switch{background:var(--ds-card)}
+:root[data-theme="dark"] .zoom-group,:root[data-theme="dark"] .canvasmode-switch{background:var(--ds-strong)}
+.canvasmode-btn:not(.active){color:#57534e}
+:root[data-theme="dark"] .canvasmode-btn:not(.active),:root[data-theme="dark"] .theme-btn:not(.active),:root[data-theme="dark"] .logo-position-btn:not(.active){color:var(--ds-body)}
+
+/* ---- Design panel & cards ---------------------------------------------------- */
+.right-sidebar-head h2{font-family:var(--font-display);font-size:26px;font-weight:400;letter-spacing:0;color:var(--ds-ink)}
+.panel{background:var(--ds-card);border:1px solid var(--ds-hairline);border-radius:16px;box-shadow:none}
+.panelhead h2{font-size:14px;font-weight:500;letter-spacing:0;color:var(--ds-ink)}
+.panelhead{border-bottom-color:var(--ds-hairline-soft);background:transparent}
+.panelhead::after{color:var(--ds-muted)}
+.field label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ds-muted)}
+.field input,.field select,.field textarea{min-height:var(--ctrl-h);font-size:var(--ctrl-font);border:1px solid var(--ds-hairline-strong);border-radius:8px;background:var(--ds-card);color:var(--ds-ink);transition:border-color 150ms var(--ds-ease),box-shadow 150ms var(--ds-ease)}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:var(--ds-muted)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ds-muted);opacity:1}
+.field .colorrow input[type=color]{border-radius:8px;border-color:var(--ds-hairline-strong)}
+.field .hint,.panel .hint,.hint{color:var(--ds-muted)}
+.toggleline{color:var(--ds-body)}
+:root[data-theme="dark"] .field label{color:var(--ds-muted)}
+:root[data-theme="dark"] .field input,:root[data-theme="dark"] .field select,:root[data-theme="dark"] .field textarea{background:var(--ds-canvas-soft);border-color:var(--ds-hairline-strong);color:var(--ds-ink)}
+
+/* Currency combobox, floating panels, toast */
+.combobox .combobox-input{border-radius:8px;border-color:var(--ds-hairline-strong);background:var(--ds-card);color:var(--ds-ink)}
+.combobox-list{background:var(--ds-card);border:1px solid var(--ds-hairline-strong);border-radius:12px;box-shadow:var(--ds-shadow)}
+.combobox-option:hover,.combobox-option[aria-selected="true"],.combobox-option.active{background:var(--ds-strong)}
+.history-panel,.logo-settings-panel,.col-settings-panel{background:var(--ds-card);border:1px solid var(--ds-hairline-strong);border-radius:16px;box-shadow:var(--ds-shadow)}
+.history-panel-head h2{font-size:14px;font-weight:500;color:var(--ds-ink)}
+.history-panel-close:hover{background:var(--ds-strong)}
+.historycard{border:1px solid var(--ds-hairline);border-radius:12px;background:var(--ds-card)}
+.historycard.current{border-color:var(--ds-ink)}
+:root[data-theme="dark"] .historycard{background:var(--ds-canvas-soft);border-color:var(--ds-hairline)}
+.toast{background:var(--ds-primary);color:#fff;border-radius:12px;box-shadow:var(--ds-shadow)}
+:root[data-theme="dark"] .toast{background:#fafaf9;color:#0c0a09}
+.save-status{color:var(--ds-success);font-weight:600}
+.save-status::before{background:var(--ds-success);box-shadow:none}
+.panel-overlay,.drawer-overlay{background:rgba(12,10,9,.4)}
+
+/* ---- Phone chrome ------------------------------------------------------------- */
+.mobileview-toggle{background:var(--ds-card);border-color:var(--ds-hairline)}
+.mobileview-title{font-family:var(--font-display);font-size:20px!important;font-weight:400;letter-spacing:0;color:var(--ds-ink)}
+.sidebar-drawer-head h2{font-family:var(--font-display);font-size:22px;font-weight:400;letter-spacing:0}
+@media (max-width:640px){
+  .actions-primary{background:var(--ds-card);border-top:1px solid var(--ds-hairline);box-shadow:none}
+  .actions-primary .btn{min-height:44px}
+}
+@media (pointer:coarse){
+  .field input,.field select,.field textarea{min-height:44px;font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){.btn,.field input{transition-duration:.01ms!important}}
