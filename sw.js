@@ -1,7 +1,7 @@
 // InvoGen - Invoice Generator — Service Worker
 // Bump this version string whenever index.html (or any cached asset) changes,
 // so returning users automatically pick up the new version.
-const VERSION = "v3.27.0";
+const VERSION = "v3.27.1";
 const SHELL_CACHE = `invoice-studio-shell-${VERSION}`;
 const RUNTIME_CACHE = `invoice-studio-runtime-${VERSION}`;
 
@@ -61,8 +61,8 @@ const SHELL_ASSETS = [
   "./js/main.js",
   "./js/vendor/xlsx.full.min.js",
   "./fonts/inter-variable.woff2",
-  "./fonts/EBGaramond-latin.woff2",
-  "./fonts/EBGaramond-latin-ext.woff2",
+  "./fonts/SpaceGrotesk-700-latin.woff2",
+  "./fonts/SpaceGrotesk-700-latin-ext.woff2",
   "./fonts/currency-latinext.woff2",
   "./fonts/currency-thai.woff2",
   "./fonts/currency-bengali.woff2",
