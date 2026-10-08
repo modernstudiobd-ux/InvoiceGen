@@ -57,13 +57,13 @@ export function buildAddColumnHeaderHtml() {
 
 /* ------------------------------ shared logic ----------------------------- */
 
-function addColumn() {
+export function addColumn() {
   const i = state.columns.length + 1;
   state.columns.push({ id: uid(), key: "column_" + Date.now(), label: "Column " + i, type: "text", width: 15, align: "left", visible: true, role: "none" });
   renderPreview(); save();
 }
 
-function removeColumn(key) {
+export function removeColumn(key) {
   if (state.columns.length <= 1) { toast("At least one column is required."); return; }
   const idx = state.columns.findIndex(c => c.key === key);
   if (idx === -1) return;
@@ -71,7 +71,7 @@ function removeColumn(key) {
   renderPreview(); save();
 }
 
-function hideColumn(key) {
+export function hideColumn(key) {
   const c = state.columns.find(c => c.key === key);
   if (!c) return;
   const visibleCount = state.columns.filter(x => x.visible).length;
@@ -80,7 +80,7 @@ function hideColumn(key) {
   renderPreview(); save();
 }
 
-function setRole(c, role) {
+export function setRole(c, role) {
   if (role !== "none") state.columns.forEach(x => { if (x !== c && x.role === role) x.role = "none"; });
   c.role = role;
 }

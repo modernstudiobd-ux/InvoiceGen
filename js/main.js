@@ -10,7 +10,7 @@ import { today, plusDays, num } from "./format.js";
 import { toast } from "./toast.js";
 import { setAccent, applyOptionalColor, clearOptionalColor, applyAllOptionalColors } from "./accent.js";
 import { renderPreview, fitInvoiceCanvas, refreshItemRowAndTotals } from "./preview.js";
-import { initColumnCanvas } from "./columnCanvas.js";
+import { initColumnCanvas, addColumn, removeColumn, hideColumn, setRole } from "./columnCanvas.js";
 import { addItem } from "./items.js";
 import { renderToggles } from "./toggles.js";
 import { save, undo, redo, pushEditHistory, updateUndoRedoButtons } from "./persistence.js";
@@ -306,7 +306,7 @@ setInterval(refreshSaveStatus, 15000);
 /* --- UX helpers (js/uxExtras.js) --- */
 initMoreMenu();
 initPanelAccordion();
-initFormEditor({ addItem, renderPreview, save, refreshItemRowAndTotals });
+initFormEditor({ addItem, renderPreview, save, refreshItemRowAndTotals, handleLogoFile, addColumn, removeColumn, hideColumn, setRole });
 try { if (localStorage.getItem("invoiceStudio.canvasMode") === "form") setCanvasMode("form"); } catch {}
 initHistoryFilters(renderHistory);
 initFirstRun();
