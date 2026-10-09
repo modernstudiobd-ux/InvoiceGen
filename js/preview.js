@@ -9,7 +9,7 @@ import { syncFormEditor } from "./formEditor.js";
 import { applyAllOptionalColors } from "./accent.js";
 import { syncCurrencyDisplay } from "./currencySearch.js";
 import { buildColumnHeaderHtml, buildAddColumnHeaderHtml } from "./columnCanvas.js";
-import { renderExtras } from "./features.js";
+import { renderExtras, docNounL } from "./features.js";
 
 // Writes text into a preview element — a thin wrapper kept mainly so every
 // preview text update goes through one place (guards against a missing
@@ -75,7 +75,7 @@ export function renderPreview() {
   // header's companyName/invoiceNumber input, so it stays a plain mirrored
   // display kept in sync here.
   setText($("pFooterCompany"), $("companyName").value.trim() || "Your Company");
-  setText($("pFooterInvoice"), docNoun() + " #" + no);
+  setText($("pFooterInvoice"), docNounL() + " #" + no);
 
   // Status select styled as a colored badge (border/background/text)
   // matching the chosen status, same palette as before.
@@ -593,7 +593,7 @@ export function applyPrintTableWrap() {
   if (footerClone) {
     const invNo = ($("invoiceNumber") && $("invoiceNumber").value.trim()) || "Untitled";
     const invoiceSpan = footerClone.querySelector("#pFooterInvoice");
-    if (invoiceSpan) invoiceSpan.textContent = pageCount > 1 ? `${docNoun()} #${invNo}  ·  ${pageCount} pages` : `${docNoun()} #${invNo}`;
+    if (invoiceSpan) invoiceSpan.textContent = pageCount > 1 ? `${docNounL()} #${invNo}  ·  ${pageCount} pages` : `${docNounL()} #${invNo}`;
   }
 
   printWrapCtx = { table, footer, originalChildren };
@@ -770,7 +770,7 @@ export function fitInvoiceCanvas() {
   const footerInvoiceEl = $("pFooterInvoice");
   if (footerInvoiceEl) {
     const invNo = ($("invoiceNumber") && $("invoiceNumber").value.trim()) || "Untitled";
-    footerInvoiceEl.textContent = docNoun() + " #" + invNo + (pageCount > 1 ? `  ·  ${pageCount} pages` : "");
+    footerInvoiceEl.textContent = docNounL() + " #" + invNo + (pageCount > 1 ? `  ·  ${pageCount} pages` : "");
   }
 
   $("zoomLabel").textContent = Math.round(state.zoom * 100) + "%";

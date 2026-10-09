@@ -403,9 +403,9 @@ function buildDesign(sec) {
     '<h3 class="fe-sub">Show / hide sections</h3><div class="fe-toggles" id="feToggles"></div></details>';
   const g = sec.querySelector("#feDesignGrid");
   mirrorSelect("template", "Template", g); mirrorSelect("paperSize", "Page size", g);
-  mirrorSelect("invoiceFont", "Font", g); mirrorSelect("docLanguage", "Document language", g); mirrorSelect("watermark", "Watermark", g);
+  mirrorSelect("colorStyle", "Color style", g); mirrorSelect("invoiceFont", "Font", g); mirrorSelect("docLanguage", "Document language", g); mirrorSelect("watermark", "Watermark", g);
   const cg = sec.querySelector("#feColorGrid");
-  colorRow("accent", "Accent color", cg, false);
+  colorRow("accent", "Brand color", cg, false);
   COLOR_ROWS.forEach(([id, l]) => colorRow(id, l, cg, true));
   sec.querySelector("#feResetColors").addEventListener("click", () => { const b = $("resetColorBtn"); if (b) b.click(); });
   const t = sec.querySelector("#feToggles");
@@ -419,6 +419,7 @@ function buildDesign(sec) {
 }
 function syncDesign() {
   designMirrors.forEach(m => {
+    if (m.el.tagName === "SELECT" && m.el.options.length !== m.src.options.length) m.el.innerHTML = m.src.innerHTML;
     if (m.el !== document.activeElement && m.el.value !== m.src.value) m.el.value = m.src.value;
     if (m.placeholder && m.src.placeholder && m.el.placeholder !== m.src.placeholder) m.el.placeholder = m.src.placeholder;
   });

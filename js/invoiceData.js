@@ -3,7 +3,7 @@
 
 import { $, uid, safeLogo } from "./dom.js";
 import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, DOC_TYPES, setFieldVal } from "./state.js";
-const NEW_FIELD_DEFAULTS = { paymentTerms: "", tax2: "0", amountPaid: "0", watermark: "", watermarkText: "", signName: "", footerText: "", payLink: "", useLetterhead: "", lhTop: "30", lhBottom: "25" };
+const NEW_FIELD_DEFAULTS = { paymentTerms: "", tax2: "0", amountPaid: "0", watermark: "", watermarkText: "", signName: "", footerText: "", payLink: "", useLetterhead: "", lhTop: "30", lhBottom: "25", colorStyle: "" };
 import { syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
 import { renderToggles } from "./toggles.js";
@@ -38,4 +38,5 @@ export function load(d) {
   state.items = Array.isArray(d.items) ? d.items.filter(i => i && typeof i === "object") : [];
   state.sections = { ...defaultSections(), ...(d.sections && typeof d.sections === "object" ? d.sections : {}) };
   setAccent($("accentHex").value); applyAllOptionalColors(); syncDocTypeUI(); renderPreview(); save();
+  window.dispatchEvent(new Event("invoicestudio:loaded"));
 }

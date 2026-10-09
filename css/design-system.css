@@ -1227,7 +1227,7 @@ body.canvas-preview-mode .invoice #paidRow .ship-view{display:inline}
 #feSum [hidden]{display:none}
 @media (max-width:640px){.fe-client-bar .btn{flex:1;min-height:44px}}
 #lhSpacing[hidden]{display:none}
-#brandPanel .field-lab,#brandPanel .sub-lab{display:block;font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ds-muted);margin:0 0 6px}
+.right-sidebar .field-lab,#brandPanel .sub-lab{display:block;font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ds-muted);margin:0 0 6px}
 #brandPanel .sub-lab{margin:10px 0 2px}
 #brandPanel .brand-upload-acts label.btn{display:inline-flex;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--ds-ink)}
 #brandPanel .check-row{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ds-ink);margin:10px 0 6px}
@@ -1239,3 +1239,100 @@ body.canvas-preview-mode .invoice #paidRow .ship-view{display:inline}
 body.canvas-preview-mode .invoice .extras-row:not(:has(> :not(.print-hide-empty):not(.section-hidden))){display:none}
 .invoice .extras-row:not(:has(> :not(.section-hidden))){display:none}
 @media print{.invoice .extras-row:not(:has(> :not(.print-hide-empty):not(.section-hidden))){display:none!important}}
+
+/* ==== v3.38.0 — Colors panel: Brand color + Color style ==== */
+.brand-colors{display:flex;align-items:center;gap:6px}
+.brand-colors .preset-row{flex:1;grid-template-columns:repeat(8,1fr)}
+.preset-custom{position:relative;flex:none;width:26px;height:26px;margin:0;background:conic-gradient(#ef4444,#f59e0b,#22c55e,#06b6d4,#3b82f6,#a855f7,#ef4444);overflow:hidden}
+.preset-custom.is-on{background:var(--c);box-shadow:0 0 0 2px var(--ds-ink)}
+.preset-custom input{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);opacity:0;cursor:pointer;border:0;padding:0}
+.preset-custom:focus-within{outline:2px solid var(--ds-ink);outline-offset:2px}
+.hex-row{margin-top:8px}
+.hex-row input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;font-size:13px}
+.cstyle{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cstyle button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px 7px;min-height:64px;border:1px solid var(--ds-hairline-strong);border-radius:10px;background:var(--ds-card);color:var(--ds-ink);font:500 12px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.cstyle button[aria-checked="true"]{border-color:var(--ds-ink);box-shadow:inset 0 0 0 1px var(--ds-ink);font-weight:600}
+.cstyle button:focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px}
+.cstyle-sw{display:block;width:44px;height:30px;border-radius:5px;border:1px solid var(--ds-hairline-strong);background:#fff;position:relative;overflow:hidden}
+.cstyle-sw::before{content:"";position:absolute;left:5px;right:5px;top:5px;height:3px;border-radius:2px;background:#d4d4d8}
+.cstyle-sw::after{content:"";position:absolute;right:5px;bottom:5px;width:16px;height:4px;border-radius:2px;background:#52525b}
+.s-accent::after{background:var(--brand,#1d4ed8)}
+.s-bold{background:linear-gradient(var(--brand,#1d4ed8) 0 45%,#fff 45%)}
+.s-bold::before{background:rgba(255,255,255,.8)}
+.s-bold::after{background:var(--brand,#1d4ed8)}
+#colorStyleHint{display:block;margin-top:6px}
+.invoice .sign-img img[hidden]{display:none!important}
+.brand-colors{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;align-items:center}
+.brand-colors .preset-row{display:contents}
+.brand-colors .preset,.preset-custom{width:auto;height:auto;aspect-ratio:1;min-width:0}
+
+/* ==== v3.38.0 — Device fonts dialog ==== */
+.font-access{margin-top:14px;padding:14px;border:1px dashed var(--ds-hairline-strong);border-radius:12px;background:var(--ds-canvas-soft)}
+.font-access .btn{min-height:44px}
+.font-access .hint{display:block;margin-top:6px}
+.font-status{min-height:20px;margin:8px 0 0;font-size:13px;color:var(--ds-muted)}
+.font-status.ok{color:var(--ds-success)}
+.font-status.bad{color:var(--ds-error)}
+.font-list{margin-top:8px;max-height:240px}
+.font-item strong{font-size:16px;font-weight:400}
+.font-preview{margin:12px 0 8px;padding:14px 16px;border:1px solid var(--ds-hairline);border-radius:12px;background:#fff;color:#111;font-size:22px;font-weight:700;line-height:1.3}
+.font-preview span{font-size:14px;font-weight:400}
+.font-preview::before{content:"Preview";display:block;font:600 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#71717a;margin-bottom:8px}
+
+/* ==== v3.38.0 — POS / thermal receipt ==== */
+#posReceipt{display:none}
+#posBtn{display:inline-flex;align-items:center;gap:6px}
+#posBtn[hidden]{display:none!important}
+.pos-layout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;margin:14px 0 4px;align-items:start}
+.pos-opts{display:flex;flex-direction:column;gap:10px}
+.pos-preview-wrap{max-height:min(58dvh,520px);overflow:auto;padding:12px;border-radius:12px;background:var(--ds-strong)}
+.pos-preview{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.pos-preview .pr-58{width:58mm}.pos-preview .pr-80{width:80mm}
+.pos-preview .pr{zoom:.82}
+.pr{box-sizing:border-box;padding:3mm 3mm 5mm;color:#000;background:#fff;font:400 11.5px/1.35 "InvCurSym",Inter,"Segoe UI",Arial,"InvScript",sans-serif;font-variant-numeric:tabular-nums;word-break:break-word}
+.pr-58{padding:2.5mm 2mm 5mm;font-size:10px}
+.pr-logo{display:block;max-width:60%;max-height:16mm;margin:0 auto 2mm;object-fit:contain;filter:grayscale(1) contrast(1.2)}
+.pr-co{text-align:center;font-weight:800;font-size:1.25em;line-height:1.2}
+.pr-c{text-align:center;font-size:.92em}
+.pr-title{text-align:center;font-weight:800;letter-spacing:.12em;margin:1mm 0}
+.pr-rule{border-top:1px dashed #000;margin:2mm 0}
+.pr-row{display:flex;justify-content:space-between;gap:2mm}
+.pr-row b{font-weight:600;white-space:nowrap;text-align:right}
+.pr-row span{min-width:0}
+.pr-item{margin:0 0 1.2mm}
+.pr-name{font-weight:600}
+.pr-total{font-size:1.25em;font-weight:800;margin-top:1mm;padding-top:1mm;border-top:1px solid #000}
+.pr-total b{font-weight:800}
+.pr-strong,.pr-strong b{font-weight:800}
+.pr-qr{text-align:center;margin:1mm 0 2mm}
+.pr-qr svg{width:30mm;height:30mm;display:block;margin:0 auto 1mm}
+.pr-note{margin-top:1mm}
+.pr-thanks{margin-top:2mm;font-weight:600}
+@media print{
+  body.pos-print > *:not(#posReceipt){display:none!important}
+  body.pos-print{margin:0!important;padding:0!important;background:#fff!important;display:block!important;min-height:0!important}
+  body.pos-print #posReceipt{display:block!important;margin:0;padding:0}
+  body.pos-print #posReceipt .pr{width:100%}
+}
+@media (max-width:640px){.pos-layout{grid-template-columns:1fr}.pos-preview-wrap{justify-self:center}}
+.cs-seg button[aria-checked="true"]{background:var(--ds-card);color:var(--ds-ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+@media (max-width:640px){
+  .actions-primary:has(#posBtn:not([hidden])){grid-template-columns:repeat(4,minmax(0,1fr))}
+  .actions-primary:has(#posBtn:not([hidden])) .mt-total{grid-column:1/4}
+  .actions-primary:has(#posBtn:not([hidden])) .save-status{grid-column:4}
+  .actions-primary:has(#posBtn:not([hidden])) .btn{padding:0 6px;font-size:12px}
+  .actions-primary:has(#posBtn:not([hidden])) .btn .icon{display:none}
+}
+
+/* ==== v3.38.0 — Edit mode: Form-style fields that keep the template's layout ====
+   Outlines (not borders/padding) so nothing moves: the page looks exactly like the
+   final document, but every editable spot is clearly a field. currentColor keeps the
+   boxes visible on light AND coloured/dark template headers. */
+body:not(.canvas-preview-mode) #invoice :is(input:not([type=checkbox]):not([type=color]):not([type=range]):not([type=file]),textarea,select):not(.col-label-input){
+  outline:1px solid color-mix(in srgb,currentColor 18%,transparent);outline-offset:1px;border-radius:5px;
+  background-color:color-mix(in srgb,currentColor 3%,transparent);transition:outline-color 120ms ease,background-color 120ms ease}
+body:not(.canvas-preview-mode) #invoice :is(input,textarea,select):not(.col-label-input):hover{outline-color:color-mix(in srgb,currentColor 40%,transparent)}
+body:not(.canvas-preview-mode) #invoice :is(input,textarea,select):not(.col-label-input):focus,
+body:not(.canvas-preview-mode) #invoice :is(input,textarea,select):not(.col-label-input):focus-visible{outline:2px solid color-mix(in srgb,currentColor 75%,transparent);outline-offset:1px;background-color:color-mix(in srgb,currentColor 5%,transparent)}
+body:not(.canvas-preview-mode) #invoice .metaText :is(input,textarea){margin:2px 0}
+body:not(.canvas-preview-mode) #invoice #clientName:placeholder-shown{background-image:none}

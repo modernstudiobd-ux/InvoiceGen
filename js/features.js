@@ -11,7 +11,7 @@ import { $, esc, safeLogo } from "./dom.js";
 import { state, letterheadInsetsMm, templatePaddingMm } from "./state.js";
 import { num, plusDays, today, dateFmt } from "./format.js";
 import { amountInWords } from "./words.js";
-import { applyLanguage, tr } from "./i18n.js";
+import { applyLanguage, tr, netTerms } from "./i18n.js";
 import { toast } from "./toast.js";
 import qrcode from "./vendor/qrcode.js";
 
@@ -35,10 +35,6 @@ const FONT_STACK = {
   "Lora": '"InvCurSym","Lora","InvScript",Georgia,serif', "Playfair Display": '"InvCurSym","Playfair Display","InvScript",Georgia,serif',
   "IBM Plex Mono": '"InvCurSym","IBM Plex Mono","InvScript",ui-monospace,monospace'
 };
-export const COLOR_PRESETS = [
-  ["Ink", "#18181b"], ["Ocean", "#1d4ed8"], ["Teal", "#0f766e"], ["Forest", "#166534"],
-  ["Burgundy", "#9f1239"], ["Gold", "#a16207"], ["Violet", "#6d28d9"], ["Slate", "#334155"]
-];
 const PAY_PLACEHOLDER = {
   PayPal: "https://paypal.me/yourname", Stripe: "https://buy.stripe.com/…", Wise: "https://wise.com/pay/me/yourname",
   Payoneer: "https://link.payoneer.com/…", Square: "https://square.link/u/…", Revolut: "https://revolut.me/yourname", other: "https://…"
@@ -102,6 +98,9 @@ function fitInput(el) {
 const FIT_IDS = ["labelInvoiceDate", "labelDueDate", "labelReference", "labelPayTerms", "labelTax", "labelTax2", "labelPaid"];
 export function fitLabels() { FIT_IDS.forEach(id => fitInput($(id))); }
 
+/* Document noun ("Invoice", "請求書", …) in the chosen document language. */
+export function docNounL() { return tr(lang(), "noun", state.docType || "invoice"); }
+
 /* ------------------------------ render ------------------------------ */
 export function renderExtras(t) {
   const inv = $("invoice"); if (!inv) return;
@@ -117,7 +116,7 @@ export function renderExtras(t) {
 
   // Payment terms (shown as text in Preview/print).
   const pt = $("paymentTerms"), ptv = pt ? pt.value : "";
-  setText("paymentTermsDisplay", ptv === "" ? "" : ptv === "0" ? tr(L, "receipt") : tr(L, "net") + " " + ptv);
+  setText("paymentTermsDisplay", ptv === "" ? "" : ptv === "0" ? tr(L, "receipt") : netTerms(L, ptv));
   const ptRow = document.querySelector('[data-section="payTerms"]'); if (ptRow) ptRow.classList.toggle("print-hide-empty", ptv === "");
 
   // Amount in words.
@@ -136,7 +135,8 @@ export function renderExtras(t) {
 
   // Brand font.
   const f = $("invoiceFont").value;
-  if (FONT_STACK[f]) { inv.style.setProperty("--inv-font", FONT_STACK[f]); inv.classList.add("has-font"); }
+  const stack = FONT_STACK[f] || (f.startsWith("local:") && f.length > 6 ? `"InvCurSym","${f.slice(6).replace(/["\\;{}<>]/g, "")}","InvScript",system-ui,sans-serif` : "");
+  if (stack) { inv.style.setProperty("--inv-font", stack); inv.classList.add("has-font"); }
   else { inv.style.removeProperty("--inv-font"); inv.classList.remove("has-font"); }
 
   // Signature / stamp.
@@ -193,17 +193,6 @@ function wireLanguage() {
     applyLanguage(lang(), state.docType || "invoice", $, state.columns);
     api.renderPreview(); api.save();
     toast("Document labels translated. You can still edit any of them.");
-  });
-}
-
-function wirePresets() {
-  const host = $("colorPresets"); if (!host) return;
-  host.innerHTML = COLOR_PRESETS.map(([n, c]) => `<button type="button" class="preset" data-c="${c}" style="--c:${c}" title="${n}" aria-label="${n} color preset"></button>`).join("");
-  host.addEventListener("click", e => {
-    const b = e.target.closest(".preset"); if (!b) return;
-    const rb = $("resetColorBtn"); if (rb) rb.click();         // clear custom header/total colours first
-    const hx = $("accentHex"); hx.value = b.dataset.c; fire(hx);
-    host.querySelectorAll(".preset").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
   });
 }
 
@@ -296,7 +285,7 @@ function wireShare() {
 
 export function initFeatures(callbacks) {
   api = callbacks;
-  wirePaymentTerms(); wireLanguage(); wirePresets(); wireSignature(); wireLetterhead(); wirePayLink(); wireShare();
+  wirePaymentTerms(); wireLanguage(); wireSignature(); wireLetterhead(); wirePayLink(); wireShare();
   // Switching Invoice / Estimate / Receipt resets labels to English defaults — re-apply the chosen language.
   document.querySelectorAll("[data-doctype]").forEach(b => b.addEventListener("click", () => setTimeout(() => {
     if (lang() !== "en") { applyLanguage(lang(), state.docType || "invoice", $, state.columns); api.renderPreview(); api.save(); }

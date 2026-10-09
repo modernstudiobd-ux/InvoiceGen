@@ -68,7 +68,7 @@ const OPTIONAL_COLOR_DEFAULT_KEY = { totalColor: "total", headerColor: "headerBg
 const AA = 4.5, AA_TARGET = 4.6; // small margin so rounding to hex never dips below 4.5
 const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
 const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+export const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
 function parseRgba(str) {
   const m = String(str).match(/rgba?\(([^)]+)\)/);
   if (!m) return null;
@@ -78,7 +78,7 @@ function parseRgba(str) {
 const over = (fg, bg) => [0, 1, 2].map(i => fg[i] * fg[3] + bg[i] * (1 - fg[3]));
 // The colour the label really sits on: its box's background composited over
 // every ancestor's (backgrounds can be translucent, e.g. rgba(accent, .16)).
-function effectiveBackground(el) {
+export function effectiveBackground(el) {
   const layers = [];
   for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
     const c = parseRgba(getComputedStyle(n).backgroundColor);
@@ -88,11 +88,11 @@ function effectiveBackground(el) {
   for (let i = layers.length - 1; i >= 0; i--) base = over(layers[i], base);
   return base;
 }
-const toHex = rgb => "#" + rgb.map(v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("");
+export const toHex = rgb => "#" + rgb.map(v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("");
 // Keep the template's own label colour when it is already readable; otherwise
 // move it (keeping its hue) toward black or white, whichever reaches the
 // target ratio with the smallest change.
-function readable(fg, bg) {
+export function readable(fg, bg) {
   if (ratio(fg, bg) >= AA) return fg;
   let best = null;
   for (const target of [[0, 0, 0], [255, 255, 255]]) {

@@ -92,11 +92,20 @@ export const fields = [
   // v3.37.0
   "paymentTerms", "labelPayTerms", "labelTax", "labelTax2", "tax2", "amountPaid", "labelPaid",
   "signName", "signHeight", "footerText", "watermark", "watermarkText", "invoiceFont", "docLanguage",
-  "payProvider", "payLink", "useLetterhead", "lhTop", "lhBottom"
+  "payProvider", "payLink", "useLetterhead", "lhTop", "lhBottom", "colorStyle"
 ];
 // Checkbox-aware read/write for the `fields` above (everything else is a plain .value).
 export function getFieldVal(id) { const el = $(id); if (!el) return ""; return el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; }
-export function setFieldVal(id, v) { const el = $(id); if (!el) return; if (el.type === "checkbox") el.checked = v === "1" || v === true; else el.value = v; }
+export function setFieldVal(id, v) {
+  const el = $(id); if (!el) return;
+  if (el.type === "checkbox") { el.checked = v === "1" || v === true; return; }
+  // A font from the device ("local:Name") needs its <option> before it can be selected.
+  if (el.tagName === "SELECT" && typeof v === "string" && v.startsWith("local:") && ![...el.options].some(o => o.value === v)) {
+    const grp = el.querySelector("optgroup[data-local-fonts]") || el, o = document.createElement("option");
+    o.value = v; o.textContent = v.slice(6) + " (this device)"; grp.appendChild(o);
+  }
+  el.value = v;
+}
 
 export const DEFAULT_ACCENT = "#18181b";
 

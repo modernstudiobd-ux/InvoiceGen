@@ -85,6 +85,7 @@
       <div class="mt-total" id="mobileTotal"><span class="mt-label" id="mtLabel">Balance due</span><strong id="mtAmount">$0.00</strong></div>
       <button class="btn small" id="saveInvoiceBtn" title="Save a reopenable snapshot to Saved Invoices (Ctrl+S)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span class="btn-label">Save</span></button>
       <button class="btn small" id="pdfBtn" title="Save this document as a PDF file — uses your browser's print engine, so the PDF looks exactly like the printout"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><polyline points="9 15 12 18 15 15"/></svg><span class="pdf-lab-long">Download </span>PDF</button>
+      <button class="btn small" id="posBtn" hidden title="Print this receipt on a 58 mm or 80 mm thermal (POS) printer"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg>POS print</button>
       <button class="btn small primary" id="printBtn" title="Opens your browser's print dialog — choose a physical printer, or &quot;Save as PDF&quot; as the destination for a PDF copy"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="btn-label">Print</span></button>
       <span class="save-status" id="saveStatus" aria-live="polite"></span>
     </div>
@@ -593,12 +594,24 @@
   </section>
   <section class="panel">
     <div class="panelhead"><h2>Colors</h2><button class="btn small" id="resetColorBtn" type="button">Reset colors</button></div>
-    <div class="grid2">
-      <div class="field"><label for="accent">Accent color</label><input id="accent" type="color" value="#18181b"></div>
-      <div class="field"><label for="accentHex">Accent HEX</label><input id="accentHex" value="#18181b"></div>
+    <div class="field"><span class="field-lab" id="brandColorLab">Brand color</span>
+      <div class="brand-colors" role="group" aria-labelledby="brandColorLab">
+        <div class="preset-row" id="colorPresets"></div>
+        <label class="preset preset-custom" title="Pick any color"><input id="accent" type="color" value="#18181b" aria-label="Custom brand color"></label>
+      </div>
+      <div class="hex-row"><label for="accentHex" class="visually-hidden">Brand color HEX</label><input id="accentHex" value="#18181b" spellcheck="false" autocomplete="off"></div>
+    </div>
+    <div class="field"><span class="field-lab" id="colorStyleLab">Color style</span>
+      <div class="cstyle" role="radiogroup" aria-labelledby="colorStyleLab" id="colorStyleSeg">
+        <button type="button" role="radio" data-style="subtle"><span class="cstyle-sw s-subtle" aria-hidden="true"></span>Subtle</button>
+        <button type="button" role="radio" data-style="accent"><span class="cstyle-sw s-accent" aria-hidden="true"></span>Accent</button>
+        <button type="button" role="radio" data-style="bold"><span class="cstyle-sw s-bold" aria-hidden="true"></span>Bold</button>
+      </div>
+      <select id="colorStyle" class="visually-hidden" tabindex="-1" aria-hidden="true"><option value="subtle">Subtle</option><option value="accent">Accent</option><option value="bold">Bold</option><option value="custom">Custom</option></select>
+      <span class="hint" id="colorStyleHint"></span>
     </div>
     <details class="advanced-colors" id="advancedColors">
-    <summary>Advanced colors</summary>
+    <summary>Custom colors (advanced)</summary>
     <div class="hint" style="margin:8px 0 10px">The settings below are optional overrides — leave the HEX field empty to keep the template's own default (the Balance due label color is chosen automatically for readability).</div>
     <div class="field">
       <label for="balanceLabelColorHex">Balance due label color</label>
@@ -644,11 +657,10 @@
   </section>
   <section class="panel" id="brandPanel">
     <div class="panelhead"><h2>Brand</h2></div>
-    <div class="field"><span class="field-lab" id="presetLab">Color presets</span><div class="preset-row" id="colorPresets" role="group" aria-labelledby="presetLab"></div></div>
     <div class="field"><label for="invoiceFont">Font</label>
-      <select id="invoiceFont"><option value="">Template default</option><option value="Inter">Inter (modern sans)</option><option value="Noto Sans">Noto Sans (clean sans)</option><option value="Montserrat">Montserrat (geometric)</option><option value="PT Serif">PT Serif (classic serif)</option><option value="Lora">Lora (elegant serif)</option><option value="Playfair Display">Playfair Display (luxury)</option><option value="IBM Plex Mono">IBM Plex Mono (technical)</option></select></div>
+      <select id="invoiceFont"><option value="">Template default</option><option value="Inter">Inter (modern sans)</option><option value="Noto Sans">Noto Sans (clean sans)</option><option value="Montserrat">Montserrat (geometric)</option><option value="PT Serif">PT Serif (classic serif)</option><option value="Lora">Lora (elegant serif)</option><option value="Playfair Display">Playfair Display (luxury)</option><option value="IBM Plex Mono">IBM Plex Mono (technical)</option><optgroup label="On this device" data-local-fonts></optgroup><option value="__local">Use a font installed on this device…</option></select></div>
     <div class="field"><label for="docLanguage">Document language</label>
-      <select id="docLanguage"><option value="en">English</option><option value="bn">বাংলা (Bangla)</option><option value="ar">العربية (Arabic)</option><option value="hi">हिन्दी (Hindi)</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option></select>
+      <select id="docLanguage"><option value="en">English</option><option value="zh">中文 (Chinese, Simplified)</option><option value="es">Español (Spanish)</option><option value="hi">हिन्दी (Hindi)</option><option value="ar">العربية (Arabic)</option><option value="bn">বাংলা (Bangla)</option><option value="pt">Português (Portuguese)</option><option value="ru">Русский (Russian)</option><option value="ja">日本語 (Japanese)</option><option value="de">Deutsch (German)</option><option value="fr">Français (French)</option><option value="ur">اردو (Urdu)</option><option value="id">Bahasa Indonesia (Indonesian)</option><option value="tr">Türkçe (Turkish)</option><option value="ko">한국어 (Korean)</option><option value="vi">Tiếng Việt (Vietnamese)</option><option value="it">Italiano (Italian)</option><option value="fa">فارسی (Persian)</option><option value="th">ไทย (Thai)</option><option value="pl">Polski (Polish)</option><option value="uk">Українська (Ukrainian)</option><option value="nl">Nederlands (Dutch)</option><option value="ms">Bahasa Melayu (Malay)</option><option value="sw">Kiswahili (Swahili)</option></select>
       <span class="hint">Translates the headings and labels printed on the document.</span></div>
     <div class="field"><label for="footerText">Footer text</label><input id="footerText" placeholder="e.g. www.yourstudio.com · Thank you for your business" autocomplete="off"></div>
     <div class="grid2">
@@ -920,7 +932,9 @@
         <li><strong>Clients and products</strong><span>Save clients and the things you sell once, then use <em>Choose saved client</em> and <em>Add saved item</em> on any invoice.</span></li>
         <li><strong>Payments</strong><span>Add an online payment link (PayPal, Stripe, Wise, Payoneer, Square or Revolut) to print a QR code, and record <em>Amount paid</em> to show the balance due.</span></li>
         <li><strong>Taxes</strong><span>Rename the tax (VAT, GST…), switch on a second tax under Show / Hide Sections, or add a column with the <em>Tax % for this line</em> calculation for per-item tax.</span></li>
-        <li><strong>Brand</strong><span>In the Design panel: colour presets, font, document language, footer text, watermark, signature or stamp, and your letterhead.</span></li>
+        <li><strong>Colors</strong><span>Pick a brand color, then a style: Subtle, Accent or Bold. Text colors are adjusted automatically so everything stays readable.</span></li>
+        <li><strong>Brand</strong><span>Font (including fonts installed on your computer), document language (24 languages), footer text, watermark, signature or stamp, and letterhead.</span></li>
+        <li><strong>POS receipts</strong><span>Switch to <em>Receipts</em>, then use <em>POS print</em> to print on a 58 mm or 80 mm thermal receipt printer.</span></li>
         <li><strong>Back up your data</strong><span>Everything is stored only on this device. Use Settings → Download backup regularly, and Restore to move to a new device.</span></li>
         <li><strong>Brand templates</strong><span>Save your company details and design once, then reuse them for every new invoice or another business.</span></li>
         <li><strong>Currency</strong><span>Click the currency box to choose from the list, click it again to type and search.</span></li>
@@ -1064,6 +1078,39 @@
     <footer class="cs-foot"><button type="button" class="btn" id="pickerManage">Manage list</button><button type="button" class="btn primary" data-close id="pickerDone">Done</button></footer>
   </div>
 </dialog>
+<dialog class="cs-dialog small-dialog" id="fontDialog" aria-labelledby="fontDlgTitle">
+  <div class="cs-inner">
+    <header class="cs-head"><div><h2 id="fontDlgTitle">Use a font from this device</h2><p class="cs-sub">Any font installed on your computer can be used. PDFs and prints include it automatically.</p></div>
+      <button type="button" class="cs-icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></header>
+    <div id="fontAccessBox" class="font-access" hidden>
+      <button type="button" class="btn primary" id="fontAccessBtn">Show my installed fonts</button>
+      <p class="hint">Your browser will ask for permission once. The list never leaves this device.</p>
+    </div>
+    <div class="cs-field" style="margin-top:14px"><label for="fontSearch" id="fontSearchLab">Font name</label><input id="fontSearch" class="fe-input" autocomplete="off" spellcheck="false" placeholder="e.g. Calibri, Helvetica Neue, Roboto"></div>
+    <p class="font-status" id="fontStatus" role="status" aria-live="polite"></p>
+    <ul class="picker-list font-list" id="fontList" role="listbox" aria-labelledby="fontSearchLab" hidden></ul>
+    <div class="font-preview" id="fontPreview" aria-hidden="true">INVOICE  #INV-1001<br><span>Website design · Qty 2 · $1,250.00</span></div>
+    <p class="hint">Tip: a font only shows on devices where it is installed. For documents others will edit, a built-in font is safer.</p>
+    <footer class="cs-foot"><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn primary" id="fontUseBtn" disabled>Use this font</button></footer>
+  </div>
+</dialog>
+<dialog class="cs-dialog small-dialog" id="posDialog" aria-labelledby="posTitle">
+  <div class="cs-inner">
+    <header class="cs-head"><div><h2 id="posTitle">POS receipt</h2><p class="cs-sub">For thermal receipt printers. Choose your printer in the next window and set margins to "None".</p></div>
+      <button type="button" class="cs-icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></header>
+    <div class="pos-layout">
+      <div class="pos-opts">
+        <div class="cs-field"><span class="cs-lab" id="posWidthLab">Paper width</span><div class="cs-seg" role="radiogroup" aria-labelledby="posWidthLab" id="posWidthSeg"><button type="button" role="radio" data-w="58">58 mm</button><button type="button" role="radio" data-w="80">80 mm</button></div></div>
+        <label class="cs-switch"><input type="checkbox" id="posLogo"><span>Logo</span></label>
+        <label class="cs-switch"><input type="checkbox" id="posQr"><span>Payment QR code</span></label>
+        <label class="cs-switch"><input type="checkbox" id="posClient" checked><span>Customer details</span></label>
+      </div>
+      <div class="pos-preview-wrap"><div class="pos-preview" id="posPreview"></div></div>
+    </div>
+    <footer class="cs-foot"><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn primary" id="posPrintBtn">Print receipt</button></footer>
+  </div>
+</dialog>
+<div id="posReceipt" aria-hidden="true"></div>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

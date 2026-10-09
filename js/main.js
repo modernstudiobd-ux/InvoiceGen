@@ -30,6 +30,9 @@ import { initNavDeclutter, initMoreMenu, initPanelAccordion, initHistoryFilters,
 // layout.js self-wires its own listeners on import (sidebar resize, mobile view switch, floating panels, etc.)
 import { setCanvasMode, openPage, closePage } from "./layout.js";
 import { initFeatures } from "./features.js";
+import { initColorStudio } from "./colorStudio.js";
+import { initFonts } from "./fonts.js";
+import { initPos } from "./pos.js";
 import { initCatalog } from "./catalog.js";
 import { initReports } from "./reports.js";
 import { initBackup } from "./backup.js";
@@ -319,6 +322,9 @@ initNavDeclutter();
 initPanelAccordion();
 initFormEditor({ addItem, renderPreview, save, refreshItemRowAndTotals, handleLogoFile, addColumn, removeColumn, hideColumn, setRole });
 initFeatures({ renderPreview, save, printPdf: () => $("pdfBtn").click() });
+initColorStudio({ renderPreview, save });
+initFonts({ renderPreview, save });
+initPos();
 initCatalog({ renderPreview, save, openPage, closePage });
 initReports();
 initBackup();
