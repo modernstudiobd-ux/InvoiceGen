@@ -164,7 +164,7 @@ function build() {
     if (title === "Notes & terms") root.appendChild(prof);
   });
   const help = document.querySelector("#importPanel .importhelp"), hh = $("feImportHelp");
-  if (help && hh) { const body = help.querySelector(".importhelp-body"); hh.innerHTML = '<p class="fe-import-help-title">Set up your CSV / Excel file</p>' + (body ? body.innerHTML : ""); }
+  if (help && hh) { const body = help.querySelector(".importhelp-body"); hh.innerHTML = '<p class="fe-import-help-title">How to import items from a spreadsheet</p>' + (body ? body.innerHTML : ""); }
   const foot = document.createElement("div"); foot.className = "fe-foot";
   foot.innerHTML = '<button type="button" class="btn primary" id="feSeePreview">See preview</button>';
   root.appendChild(foot);

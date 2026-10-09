@@ -598,3 +598,8 @@ body.canvas-preview-mode .table-toolbar{display:none}
 .invoice.has-balance-label .balance span,
 .invoice.has-balance-label .balance span input{color:var(--balance-label-color)}
 .invoice.has-balance-label .balance span input::placeholder{color:var(--balance-label-color);opacity:1}
+/* v3.35.0 — Shipping shows as a formatted amount (e.g. $45.00) in Preview and print, like every other total. */
+.invoice .ship-view{display:none}
+body.canvas-preview-mode .invoice #shippingRow .money-input{display:none!important}
+body.canvas-preview-mode .invoice #shippingRow .ship-view{display:inline}
+@media print{.invoice #shippingRow .money-input{display:none!important}.invoice #shippingRow .ship-view{display:inline!important}}

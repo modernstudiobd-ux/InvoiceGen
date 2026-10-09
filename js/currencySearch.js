@@ -12,6 +12,7 @@
 // (loading a saved invoice, undo/redo, applying a brand template, etc).
 
 import { $ } from "./dom.js";
+import { CURRENCY_SYMBOLS } from "./format.js";
 
 const select = $("currency");
 const input = $("currencySearchInput");
@@ -129,7 +130,9 @@ function renderList(query) {
     li.setAttribute("aria-selected", en.value === select.value ? "true" : "false");
     li.dataset.value = en.value;
     li.dataset.index = String(i);
-    li.textContent = en.label;
+    const t = document.createElement("span"); t.className = "combobox-opt-label"; t.textContent = en.label;
+    const sy = document.createElement("span"); sy.className = "combobox-opt-sym"; sy.textContent = CURRENCY_SYMBOLS[en.value] || ""; sy.setAttribute("aria-hidden", "true");
+    li.append(t, sy);
     // mousedown (not click) fires before the input's blur, so the outside-
     // click handler below never gets a chance to close the list first.
     li.addEventListener("mousedown", ev => { ev.preventDefault(); chooseEntry(en); });

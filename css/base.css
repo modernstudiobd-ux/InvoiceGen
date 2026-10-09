@@ -13,14 +13,25 @@
    installed. Each is restricted via unicode-range to only the handful of
    codepoints it actually contains, so the browser loads it only when one of
    those specific characters is used. See fonts/LICENSE-CurrencySymbols.txt. */
-@font-face{font-family:"Inter";src:url("../fonts/currency-latinext.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+20A6,U+20A9,U+20AA,U+20AB,U+20B1,U+20B4,U+20B5,U+20B9,U+20BA,U+20BD,U+0142,U+010D}
+@font-face{font-family:"Inter";src:url("../fonts/currency-latinext.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0142,U+010D}
+@font-face{font-family:"Inter";src:url("../fonts/currency-symbols.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+20A0-20AB,U+20AD-20C0}
+/* v3.35.0 — "InvCurSym": the full currency-sign block (₨ ₸ ₼ ₾ ₮ …) plus ฿ ৳, listed FIRST in every invoice
+   template font stack so currency symbols look identical in every template, online or offline.
+   "InvScript": the letters of native Arabic/Devanagari/Sinhala currency symbols (د.إ ر.س रू රු …),
+   listed LAST so it is only used when the device has no font for that script. */
+@font-face{font-family:"InvCurSym";src:url("../fonts/currency-symbols.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+20A0-20AB,U+20AD-20C0}
+@font-face{font-family:"InvCurSym";src:url("../fonts/currency-thai.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0E3F}
+@font-face{font-family:"InvCurSym";src:url("../fonts/currency-bengali.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+09F3}
+@font-face{font-family:"InvScript";src:url("../fonts/currency-arabic.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0625,U+0628,U+062C,U+062F,U+0631,U+0633,U+0639,U+0642,U+0643,U+0645}
+@font-face{font-family:"InvScript";src:url("../fonts/currency-devanagari.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0930,U+0942}
+@font-face{font-family:"InvScript";src:url("../fonts/currency-sinhala.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0DBB,U+0DD4}
 @font-face{font-family:"Inter";src:url("../fonts/currency-thai.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0E3F}
 @font-face{font-family:"Inter";src:url("../fonts/currency-bengali.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+09F3}
 /* --app-accent is the app's OWN UI color (tabs, primary buttons, focus rings,
    switches, badges) — fixed, independent of --accent which is set on #invoice
    and only affects the invoice design itself. Changing the invoice's Accent
    color must never restyle the editor chrome. */
-:root{--app-accent:#4f46e5;--app-accent-rgb:79,70,229;--app-accent-dark:#4338ca;--accent:#18181b;--accent-rgb:24,24,27;--ink:#1a1d29;--font-modern:"Inter","Segoe UI",Arial,sans-serif;--muted:#6b7280;--line:#e3e6ee;--panel:#fff;--danger:#b42318;--radius:14px;--radius-sm:9px;--sidebar-width:232px;--right-sidebar-width:280px;--page-w:210mm;--page-h:297mm;--shadow-sm:0 1px 2px rgba(16,24,40,.06);--shadow-md:0 6px 20px rgba(16,24,40,.08);--shadow-lg:0 18px 40px rgba(16,24,40,.14);--bg:#eef0f6}
+:root{--app-accent:#4f46e5;--app-accent-rgb:79,70,229;--app-accent-dark:#4338ca;--accent:#18181b;--accent-rgb:24,24,27;--ink:#1a1d29;--font-modern:"Inter","Segoe UI",Arial,"InvScript",sans-serif;--muted:#6b7280;--line:#e3e6ee;--panel:#fff;--danger:#b42318;--radius:14px;--radius-sm:9px;--sidebar-width:232px;--right-sidebar-width:280px;--page-w:210mm;--page-h:297mm;--shadow-sm:0 1px 2px rgba(16,24,40,.06);--shadow-md:0 6px 20px rgba(16,24,40,.08);--shadow-lg:0 18px 40px rgba(16,24,40,.14);--bg:#eef0f6}
 *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
 body{margin:0;font-family:var(--font-modern);background:radial-gradient(1100px 620px at 14% -8%,#eef1fb 0%,var(--bg) 46%) fixed,var(--bg);color:var(--ink);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
 button,input,select,textarea{font:inherit}button{cursor:pointer}

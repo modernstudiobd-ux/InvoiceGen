@@ -459,7 +459,7 @@
         <div class="sumrow"><span>Subtotal</span><strong id="pSubtotal">£0.00</strong></div>
         <div class="sumrow" id="discountRow" data-section="discount"><span>Discount <input id="discount" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Discount percentage">%</span><strong id="pDiscount">−£0.00</strong></div>
         <div class="sumrow" id="taxRow" data-section="tax"><span>Tax <input id="tax" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Tax percentage">%</span><strong id="pTax">£0.00</strong></div>
-        <div class="sumrow" id="shippingRow" data-section="shipping"><span>Shipping</span><input id="shipping" type="number" class="money-input" min="0" step=".01" value="0" aria-label="Shipping amount"></div>
+        <div class="sumrow" id="shippingRow" data-section="shipping"><span>Shipping</span><input id="shipping" type="number" class="money-input" min="0" step=".01" value="0" aria-label="Shipping amount"><strong id="pShipping" class="ship-view" aria-hidden="true"></strong></div>
         <div class="sumrow total"><span>Total</span><span id="pTotal">£0.00</span></div>
       </div>
     </section>
@@ -658,7 +658,8 @@
       <button class="btn small danger" id="clearHistoryBtn" type="button">Clear all</button>
     </div>
     <div class="history-filters">
-      <input type="search" id="historySearch" placeholder="Search client or number" aria-label="Search saved invoices" autocomplete="off">
+      <div class="pg-search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="search" id="historySearch" placeholder="Search by client or number" aria-label="Search saved invoices" autocomplete="off"></div>
+      <label class="pg-sort"><span>Sort</span><select id="historySort" aria-label="Sort saved invoices"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="amount">Highest amount</option><option value="client">Client name (A–Z)</option></select></label>
     </div>
     <span class="hint" id="historyCount"></span>
     <div id="historyList" style="margin-top:8px"></div>
@@ -669,31 +670,48 @@
       <h2>Brand templates</h2>
       <button class="btn small danger" id="clearTemplatesBtn" type="button">Clear all</button>
     </div>
-    <span class="hint">Save your company info, logo, colors and layout as a reusable template, then load it to quickly start an invoice for a different company or personal brand. Client, items and invoice numbers are left untouched.</span>
-    <button class="btn small primary" id="saveTemplateBtn" type="button" style="width:100%;margin-top:8px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>Save current as template</button>
+    <div class="pg-intro">
+      <div><h3>Save your current design</h3><p class="hint">Keeps your company details, logo, colors, layout and table columns. Clients, items and invoice numbers are never saved in a template.</p></div>
+      <button class="btn small primary" id="saveTemplateBtn" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>Save current as template</button>
+    </div>
     <span class="hint" id="templatesCount"></span>
     <div id="templatesList" style="margin-top:8px"></div>
   </div>
 
   <div class="history-panel" id="importPanel" role="dialog" aria-label="Import line items">
     <div class="history-panel-head">
-      <h2>Import line items</h2>
+      <h2>Import items</h2>
     </div>
-    <span class="hint">Import a CSV or Excel spreadsheet — its columns are matched to your current table columns (and common aliases) automatically.</span>
+    <span class="hint">Add many items at once from an Excel, Google Sheets or CSV file.</span>
     <button class="btn small primary" id="importSheetBtn" type="button" style="width:100%;margin-top:8px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV / Excel</button>
     <input id="sheetFile" class="hidden" type="file" accept=".csv,.xlsx,.xls">
     <details class="importhelp">
-      <summary>How to set up your CSV / Excel file ▸</summary>
+      <summary>How to prepare your file</summary>
       <div class="importhelp-body">
-        <p>One line item per row, with a header row on top. Headers are matched by name, plus these aliases:</p>
-        <ul class="importhelp-list">
-          <li><strong>SKU</strong><span class="importhelp-aliases">Item code, Product code, Code</span></li>
-          <li><strong>Description</strong><span class="importhelp-aliases">Name, Item, Product, Course name</span></li>
-          <li><strong>Quantity</strong><span class="importhelp-aliases">Qty, Net qty, Net quantity — defaults to 1</span></li>
-          <li><strong>Rate</strong><span class="importhelp-aliases">Unit price, Price, Unit rate — or Amount ÷ Quantity</span></li>
-          <li><strong>Amount</strong><span class="importhelp-aliases">Total, Line total</span></li>
-        </ul>
-        <p class="hint" style="margin:6px 0 0">Column order and extra columns don't matter. Accepted: .csv, .xlsx, .xls</p>
+        <ol class="imp-steps">
+          <li><span class="imp-n" aria-hidden="true">1</span><span>Open Excel, Google Sheets or Numbers and put <strong>one item on each row</strong>.</span></li>
+          <li><span class="imp-n" aria-hidden="true">2</span><span>Type the <strong>column names in the first row</strong>, like the example below.</span></li>
+          <li><span class="imp-n" aria-hidden="true">3</span><span>Save it as <strong>.xlsx</strong>, <strong>.xls</strong> or <strong>.csv</strong>, then click <strong>Import</strong>.</span></li>
+        </ol>
+        <div class="imp-example" role="group" aria-label="Example spreadsheet">
+          <table>
+            <thead><tr><th scope="col">Description</th><th scope="col">Quantity</th><th scope="col">Rate</th></tr></thead>
+            <tbody><tr><td>Website design</td><td>1</td><td>500</td></tr><tr><td>Monthly hosting</td><td>12</td><td>10</td></tr></tbody>
+          </table>
+        </div>
+        <p class="imp-note">The <strong>Amount</strong> is worked out for you (Quantity × Rate). If there's no quantity, it counts as 1.</p>
+        <details class="imp-names">
+          <summary>Other column names that also work</summary>
+          <ul>
+            <li><strong>Description</strong>: Item, Name, Product</li>
+            <li><strong>Quantity</strong>: Qty, Hours</li>
+            <li><strong>Rate</strong>: Price, Unit price</li>
+            <li><strong>Amount</strong>: Total, Line total</li>
+            <li><strong>SKU</strong>: Code, Item code, Product code</li>
+          </ul>
+          <p>Capital letters, column order and extra columns don't matter.</p>
+        </details>
+        <button type="button" class="btn small imp-sample" data-import-sample><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download a sample file</button>
       </div>
     </details>
     <div class="danger-zone">
@@ -718,38 +736,30 @@
        current documentation of this app's own less-obvious interactions. -->
   <div class="history-panel" id="settingsPanel" role="dialog" aria-label="Settings">
     <div class="history-panel-head"><h2>Settings</h2></div>
-    <div class="grid2">
-      <div class="field">
-        <label for="settingPaperSize">Default paper size</label>
-        <select id="settingPaperSize">
-          <option value="a4">A4</option>
-          <option value="letter">US Letter</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="settingDateFormat">Default date format</label>
-        <select id="settingDateFormat">
-          <option value="dmy">DD/MM/YYYY</option>
-          <option value="mdy">MM/DD/YYYY</option>
-        </select>
-      </div>
-    </div>
-    <div class="field" style="margin-top:8px">
-      <label id="settingThemeLabel">Theme</label>
-      <div class="theme-switch" role="tablist" aria-labelledby="settingThemeLabel">
-        <button type="button" class="theme-btn" data-theme="light" role="tab" title="Light theme">Light</button>
-        <button type="button" class="theme-btn" data-theme="dark" role="tab" title="Dark theme">Dark</button>
-        <button type="button" class="theme-btn" data-theme="system" role="tab" title="Match your device setting">System</button>
-      </div>
-    </div>
-    <span class="hint" style="display:block;margin-top:8px">Saved on this device. Default paper size applies immediately and stays in sync with Page size in the Design panel; date format updates every date rendered through the app. Alignment, template, currency and table columns stay per-invoice in the Design panel.</span>
-    <div class="danger-zone">
-      <div class="danger-zone-label">Danger zone</div>
-      <button class="btn small danger" id="resetSettingsBtn" type="button" style="width:100%">Reset settings to default</button>
-      <span class="hint danger-hint">Paper size, date format and theme only. Your invoices and templates are not touched.</span>
-      <button class="btn small danger" id="fullResetBtn" type="button" style="width:100%;margin-top:10px">Full reset — erase everything</button>
-      <span class="hint danger-hint">Deletes the current draft, all Saved Invoices and Brand Templates, and restores every setting. Cannot be undone. To clear just this document's fields, use Reset Fields above the canvas.</span>
-    </div>
+    <section class="set-group" aria-labelledby="setDocH">
+      <h3 id="setDocH">Documents</h3>
+      <div class="set-row"><div class="set-text"><label for="settingPaperSize">Paper size</label><p>Used for the page, printing and PDF.</p></div>
+        <select id="settingPaperSize"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">US Letter (8.5 × 11 in)</option></select></div>
+      <div class="set-row"><div class="set-text"><label for="settingDateFormat">Date format</label><p>How dates are written on your documents.</p></div>
+        <select id="settingDateFormat"><option value="dmy">31/12/2026 (day first)</option><option value="mdy">12/31/2026 (month first)</option></select></div>
+    </section>
+    <section class="set-group" aria-labelledby="settingThemeLabel">
+      <h3>Appearance</h3>
+      <div class="set-row"><div class="set-text"><span class="set-label" id="settingThemeLabel">Theme</span><p>Changes the app only — your printed documents always stay light.</p></div>
+        <div class="theme-switch" role="tablist" aria-labelledby="settingThemeLabel">
+          <button type="button" class="theme-btn" data-theme="light" role="tab" title="Light theme">Light</button>
+          <button type="button" class="theme-btn" data-theme="dark" role="tab" title="Dark theme">Dark</button>
+          <button type="button" class="theme-btn" data-theme="system" role="tab" title="Match your device setting">Auto</button>
+        </div></div>
+    </section>
+    <p class="hint set-note">Settings are saved on this device. Template, colors, currency and columns are set per document in the Design panel.</p>
+    <section class="set-group danger-zone" aria-labelledby="setDangerH">
+      <h3 id="setDangerH" class="danger-zone-label">Reset</h3>
+      <div class="set-row"><div class="set-text"><span class="set-label">Reset settings</span><p>Restores paper size, date format and theme. Your invoices and templates are not touched.</p></div>
+        <button class="btn small" id="resetSettingsBtn" type="button">Reset settings</button></div>
+      <div class="set-row"><div class="set-text"><span class="set-label">Erase everything</span><p>Deletes the current document, all saved invoices and brand templates on this device. This can't be undone.</p></div>
+        <button class="btn small danger" id="fullResetBtn" type="button">Erase everything</button></div>
+    </section>
   </div>
 
   <div class="history-panel calc-panel" id="calculatorsPanel" role="dialog" aria-label="Calculators">
@@ -786,8 +796,8 @@
 
   <div class="history-panel" id="helpPanel" role="dialog" aria-label="Help and support">
     <div class="history-panel-head"><h2>Help &amp; Support</h2></div>
-    <section class="help-block help-start">
-      <h3>Getting started</h3>
+    <section class="help-block help-start" aria-labelledby="helpStartH">
+      <h3 id="helpStartH">Getting started</h3>
       <ol class="help-steps">
         <li><strong>Add your business details</strong><span>Click any field on the invoice, or use <em>Form</em> → Business profile. Upload your logo there too.</span></li>
         <li><strong>Fill in the client and line items</strong><span>Totals, tax and discount update as you type.</span></li>
@@ -795,18 +805,27 @@
         <li><strong>Save or print</strong><span>Everything autosaves on this device. Use Save to keep a copy under Saved Invoices, and Print to print or save as PDF.</span></li>
       </ol>
     </section>
-    <h3 class="help-h">Tips &amp; shortcuts</h3>
-    <span class="hint">A few things that aren't obvious at a glance:</span>
-    <ul class="importhelp-list" style="margin-top:8px">
-      <li><strong>Undo / Redo</strong><span class="importhelp-aliases">Ctrl+Z / Ctrl+Shift+Z (or Ctrl+Y), or the buttons in the toolbar</span></li>
-      <li><strong>Keyboard shortcuts</strong><span class="importhelp-aliases">Ctrl/Cmd+S save a copy · Ctrl+Z undo · Ctrl+Shift+Z or Ctrl+Y redo · In Form: Enter moves to the next field, and adds a new line item from the last one</span></li>
-      <li><strong>Reorder or resize columns</strong><span class="importhelp-aliases">Drag a column header to reorder it, or its right edge to resize</span></li>
-      <li><strong>Column settings</strong><span class="importhelp-aliases">Click the "⋮" on any column header — type, alignment, calculation role, hide or remove</span></li>
-      <li><strong>Resize the Design panel</strong><span class="importhelp-aliases">Drag its left edge, or double-click to reset</span></li>
-      <li><strong>Import line items</strong><span class="importhelp-aliases">"Import CSV" above the table — see its own "How to set up your file" guide</span></li>
-      <li><strong>Install as an app</strong><span class="importhelp-aliases">Works fully offline once installed — look for the install banner or your browser's install icon</span></li>
-      <li><strong>Table columns in Form</strong><span class="importhelp-aliases">Items → Edit columns: drag the cards to reorder, tap one to rename, hide, resize or change its type</span></li>
-    </ul>
+    <section class="help-block" aria-labelledby="helpKeysH">
+      <h3 id="helpKeysH">Keyboard shortcuts</h3>
+      <dl class="help-keys">
+        <div><dt><kbd>Ctrl</kbd> + <kbd>S</kbd></dt><dd>Save a copy to Saved invoices</dd></div>
+        <div><dt><kbd>Ctrl</kbd> + <kbd>Z</kbd></dt><dd>Undo</dd></div>
+        <div><dt><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></dt><dd>Redo (or <kbd>Ctrl</kbd> + <kbd>Y</kbd>)</dd></div>
+        <div><dt><kbd>Enter</kbd></dt><dd>In Form: go to the next field. On the last item it adds a new line.</dd></div>
+      </dl>
+      <p class="hint">On a Mac, use <kbd>⌘ Cmd</kbd> instead of <kbd>Ctrl</kbd>.</p>
+    </section>
+    <section class="help-block" aria-labelledby="helpTipsH">
+      <h3 id="helpTipsH">Good to know</h3>
+      <ul class="help-tips">
+        <li><strong>Edit, Form or Preview</strong><span>Edit lets you type straight onto the page. Form shows simple fields. Preview shows exactly what will print.</span></li>
+        <li><strong>Table columns</strong><span>Use <em>Edit columns</em> (or the ⋮ on a column) to rename, hide, reorder or resize columns. Drag the cards to change the order.</span></li>
+        <li><strong>Import items</strong><span>Add many items at once from Excel, Google Sheets or a CSV file. Open “How to prepare your file” for an example and a sample file.</span></li>
+        <li><strong>Brand templates</strong><span>Save your company details and design once, then reuse them for every new invoice or another business.</span></li>
+        <li><strong>Currency</strong><span>Click the currency box to choose from the list, click it again to type and search.</span></li>
+        <li><strong>Install as an app</strong><span>Install it from your browser's menu or the install banner. It then works fully offline.</span></li>
+      </ul>
+    </section>
     <section class="help-block">
       <h3>Your data</h3>
       <p class="hint">Invoices, templates and settings are stored only in this browser on this device — nothing is uploaded. Clearing your browser data removes them, so print or save important invoices as PDF.</p>

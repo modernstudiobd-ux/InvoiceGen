@@ -21,6 +21,7 @@ import { save } from "./persistence.js";
 import { toast } from "./toast.js";
 import { dateFmt } from "./format.js";
 import { closeTemplatesPanel, setMobileView } from "./layout.js";
+import { ICON_EDIT, ICON_TRASH } from "./library.js";
 
 export const BRAND_KEY = "invoiceStudio.brandTemplates.v1";
 
@@ -151,13 +152,20 @@ export function renderBrandTemplates() {
   const root = $("templatesList"), countEl = $("templatesCount");
   if (!root) return;
   const list = loadBrandTemplates().slice().sort((a, b) => b.updatedAt - a.updatedAt);
+  const clr = $("clearTemplatesBtn"); if (clr) clr.hidden = !list.length;
   if (countEl) countEl.textContent = list.length ? list.length + (list.length === 1 ? " template saved" : " templates saved") : "";
-  if (!list.length) { root.innerHTML = '<p class="hint">No templates yet — save your current company info, logo and design above, then reuse it for the next brand.</p>'; return; }
-  root.innerHTML = list.map(e => `<div class="historycard" data-id="${esc(e.id)}">
-   <div class="historytop"><div><strong>${esc(e.name)}</strong></div></div>
-   <div class="historymeta"><span>${esc((e.snapshot && e.snapshot.fields && e.snapshot.fields.companyName) || "No company name")}</span><span>${esc(dateFmt(e.updatedAt))}</span></div>
-   <div class="historyactions"><button class="btn small" data-act="apply" type="button">Load</button><button class="btn small" data-act="rename" type="button">Rename</button><button class="btn small danger" data-act="delete" type="button">Delete</button></div>
- </div>`).join("");
+  if (!list.length) { root.innerHTML = '<div class="history-empty pg-empty"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 13V7a2 2 0 0 0-2-2h-6L3 14l7 7 9-9Z"/><circle cx="13" cy="9" r="1.3"/></svg><h3>No brand templates yet</h3><p class="hint">Set up your company details, logo, colors and design once, then save them here. Next time, apply the template in one click — client, items and invoice number stay as they are.</p></div>'; return; }
+  const tplLabel = v => { const o = [...($("template") ? $("template").options : [])].find(x => x.value === v); return o ? o.textContent : ""; };
+  root.innerHTML = list.map(e => {
+    const f = (e.snapshot && e.snapshot.fields) || {}, logo = safeLogo(e.snapshot && e.snapshot.logo);
+    const accent = /^#[0-9a-f]{3,8}$/i.test(f.accentHex || "") ? f.accentHex : "#18181b";
+    const company = f.companyName || "", initial = (company.trim()[0] || e.name.trim()[0] || "B").toUpperCase();
+    return `<article class="historycard pg-card pg-brand" data-id="${esc(e.id)}" aria-label="${esc(e.name)}">
+   <div class="pg-brand-head"><span class="pg-brand-logo" style="--b:${esc(accent)}">${logo ? `<img src="${esc(logo)}" alt="">` : esc(initial)}</span>
+     <div class="pg-card-title"><strong>${esc(e.name)}</strong><span class="${company ? "" : "pg-muted"}">${esc(company || "No company name")}</span></div></div>
+   <div class="pg-brand-meta"><span class="pg-swatch" style="background:${esc(accent)}" title="Accent color ${esc(accent)}"></span><span>${esc(tplLabel(f.template) || "Design")}</span><span aria-hidden="true">·</span><span>Updated ${esc(dateFmt(e.updatedAt))}</span></div>
+   <div class="historyactions pg-actions"><button class="btn small primary" data-act="apply" type="button">Use this template</button><button class="btn small icon" data-act="rename" type="button" title="Rename" aria-label="Rename ${esc(e.name)}">${ICON_EDIT}</button><button class="btn small icon danger" data-act="delete" type="button" title="Delete" aria-label="Delete ${esc(e.name)}">${ICON_TRASH}</button></div>
+ </article>`; }).join("");
   root.querySelectorAll(".historycard").forEach(card => {
     const id = card.dataset.id;
     card.querySelector('[data-act="apply"]').onclick = () => applyBrandTemplate(id);

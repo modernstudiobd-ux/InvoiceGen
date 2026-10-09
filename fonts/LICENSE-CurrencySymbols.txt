@@ -1,7 +1,9 @@
 currency-latinext.woff2, currency-thai.woff2 and currency-bengali.woff2 are
 minimal glyph subsets (a handful of currency-symbol characters each — see
 js/format.js) extracted from Google's Noto Sans, Noto Sans Thai and Noto
-Sans Bengali, used here as offline fallback glyphs for currency symbols not
+Sans Bengali, plus (v3.35.0) currency-symbols.woff2 (Noto Sans, U+20A0–20C0), currency-arabic.woff2
+(Noto Sans Arabic), currency-devanagari.woff2 (Noto Sans Devanagari) and currency-sinhala.woff2
+(Noto Sans Sinhala), used here as offline fallback glyphs for currency symbols not
 present in the bundled Inter font (₹ ₩ ₪ ₦ ₴ ₺ ₽ ₱ ₫ ₵ ł č ฿ ৳).
 
 Copyright 2022 The Noto Project Authors

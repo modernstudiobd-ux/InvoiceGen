@@ -120,6 +120,7 @@ export function initHistoryFilters(rerender) {
   const search = $("historySearch");
   if (!search) return;
   search.addEventListener("input", () => rerender());
+  const sort = $("historySort"); if (sort) sort.addEventListener("change", () => rerender());
 }
 
 /* ---- First-run guidance ------------------------------------------------------ */

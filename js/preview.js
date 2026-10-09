@@ -218,6 +218,7 @@ export function renderPreview() {
   setText($("pSubtotal"), money(t.subtotal));
   setText($("pDiscount"), "−" + money(t.disc));
   setText($("pTax"), money(t.tax));
+  setText($("pShipping"), money(t.ship));
   setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total)); syncMobileTotal();
   $("discountRow").classList.toggle("print-hide-empty", !t.disc);
   $("taxRow").classList.toggle("print-hide-empty", !t.tax);
@@ -280,6 +281,7 @@ export function refreshItemRowAndTotals(idx) {
   setText($("pSubtotal"), money(t.subtotal));
   setText($("pDiscount"), "−" + money(t.disc));
   setText($("pTax"), money(t.tax));
+  setText($("pShipping"), money(t.ship));
   setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total)); syncMobileTotal();
   $("discountRow").classList.toggle("print-hide-empty", !t.disc);
   $("taxRow").classList.toggle("print-hide-empty", !t.tax);
@@ -293,6 +295,9 @@ export function refreshItemRowAndTotals(idx) {
 // there's no way to size a <textarea> to its content in CSS alone.
 function autoGrow(el) { if (!el) return; el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
 function autoGrowAll() { document.querySelectorAll("#invoice textarea").forEach(autoGrow); }
+// Web fonts (e.g. PT Serif on Luxury) can finish loading after a textarea was
+// measured, which left multi-line company names clipped. Re-measure then.
+if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", () => { autoGrowAll(); });
 
 // #invoiceNumber next to the "#" prefix (see .invno in invoice.css) has the
 // same problem textareas do: a plain text <input> has no CSS-only way to

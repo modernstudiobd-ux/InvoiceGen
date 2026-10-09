@@ -71,6 +71,12 @@ export function saveToHistory() {
   }
 }
 
+const SVG = (d) => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${d}</svg>`;
+export const ICON_COPY = SVG('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
+export const ICON_EDIT = SVG('<path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>');
+export const ICON_TRASH = SVG('<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>');
+const ICON_DOC = SVG('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>');
+
 export function renderHistory() {
   const root = $("historyList"), countEl = $("historyCount");
   if (!root) return;
@@ -78,17 +84,27 @@ export function renderHistory() {
   const curId = getCurrentId();
   // Search (client name / invoice number) — display filtering only.
   const q = ($("historySearch") ? $("historySearch").value : "").trim().toLowerCase();
-  const st = "";   // status filter chips removed in v3.33.0 (search only)
-  const filtering = !!(q || st);
-  const lib = all.filter(e => (!q || `${e.invoiceNumber || ""} ${e.clientName || ""}`.toLowerCase().includes(q)) && (!st || (e.status || "Draft") === st));
+    const filtering = !!q;
+  const sortBy = ($("historySort") || {}).value || "new";
+  const lib = all.filter(e => !q || `${e.invoiceNumber || ""} ${e.clientName || ""}`.toLowerCase().includes(q));
+  const cmp = { new: (a, b) => b.updatedAt - a.updatedAt, old: (a, b) => a.updatedAt - b.updatedAt,
+    amount: (a, b) => (Number(b.total) || 0) - (Number(a.total) || 0),
+    client: (a, b) => String(a.clientName || "￿").localeCompare(String(b.clientName || "￿")) }[sortBy];
+  if (cmp) lib.sort(cmp);
   if (countEl) countEl.textContent = all.length ? (filtering ? `${lib.length} of ${all.length} shown` : all.length + (all.length === 1 ? " invoice saved" : " invoices saved")) : "";
-  if (!all.length) { root.innerHTML = '<div class="history-empty"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg><p class="hint">No saved invoices yet.</p><button class="btn small primary" type="button" data-first-save>Save this invoice</button></div>'; const fb = root.querySelector("[data-first-save]"); if (fb) fb.onclick = () => { const sb = $("saveInvoiceBtn"); if (sb) sb.click(); }; return; }
-  if (!lib.length) { root.innerHTML = '<p class="hint">No saved invoices match your search.</p>'; return; }
-  root.innerHTML = lib.map(e => `<div class="historycard${e.id === curId ? " current" : ""}" data-id="${esc(e.id)}">
-   <div class="historytop"><div><strong>${esc(e.invoiceNumber || "Untitled")}</strong>${e.id === curId ? '<span class="tinybadge">Current</span>' : ""}</div><span class="historyamount">${esc(moneyFor(e.total, e.currency))}</span></div>
-   <div class="historymeta"><span>${esc(e.clientName || "No client")}</span><span>${esc(dateFmt(e.updatedAt))}</span></div>
-   <div class="historyactions"><button class="btn small" data-act="open" type="button">Open</button><button class="btn small" data-act="rename" type="button">Rename</button><button class="btn small" data-act="duplicate" type="button">Duplicate</button><button class="btn small danger" data-act="delete" type="button">Delete</button></div>
- </div>`).join("");
+  const tools = document.querySelector("#historyPanel .history-filters"); if (tools) tools.hidden = !all.length;
+  const clr = $("clearHistoryBtn"); if (clr) clr.hidden = !all.length;
+  if (!all.length) { root.innerHTML = `<div class="history-empty pg-empty">${ICON_DOC}<h3>No saved invoices yet</h3><p class="hint">Use <strong>Save</strong> at the top of the editor to keep a copy of an invoice here. You can reopen, copy or delete it any time.</p><button class="btn small primary" type="button" data-first-save>Save the current invoice</button></div>`; const fb = root.querySelector("[data-first-save]"); if (fb) fb.onclick = () => { const sb = $("saveInvoiceBtn"); if (sb) sb.click(); }; return; }
+  if (!lib.length) { root.innerHTML = '<p class="hint pg-nomatch">No saved invoices match your search.</p>'; return; }
+  const DOC = { invoice: "Invoice", estimate: "Estimate", receipt: "Receipt" };
+  root.innerHTML = lib.map(e => {
+    const cur = e.id === curId, kind = DOC[e.snapshot && e.snapshot.docType] || "Invoice";
+    return `<article class="historycard pg-card${cur ? " current" : ""}" data-id="${esc(e.id)}" aria-label="${esc(kind + " " + (e.invoiceNumber || "Untitled"))}">
+   <div class="pg-card-top"><span class="pg-kind">${esc(kind)}</span>${cur ? '<span class="tinybadge">Open now</span>' : ""}</div>
+   <div class="pg-card-main"><div class="pg-card-title"><strong>${esc(e.invoiceNumber || "Untitled")}</strong><span class="${e.clientName ? "" : "pg-muted"}">${esc(e.clientName || "No client name")}</span></div><span class="historyamount">${esc(moneyFor(e.total, e.currency))}</span></div>
+   <div class="historymeta"><span>Saved ${esc(dateFmt(e.updatedAt))}</span></div>
+   <div class="historyactions pg-actions"><button class="btn small primary" data-act="open" type="button">${cur ? "Go to invoice" : "Open"}</button><button class="btn small icon" data-act="duplicate" type="button" title="Make a copy" aria-label="Make a copy of ${esc(e.invoiceNumber || "this invoice")}">${ICON_COPY}</button><button class="btn small icon" data-act="rename" type="button" title="Rename" aria-label="Rename ${esc(e.invoiceNumber || "this invoice")}">${ICON_EDIT}</button><button class="btn small icon danger" data-act="delete" type="button" title="Delete" aria-label="Delete ${esc(e.invoiceNumber || "this invoice")}">${ICON_TRASH}</button></div>
+ </article>`; }).join("");
   root.querySelectorAll(".historycard").forEach(card => {
     const id = card.dataset.id;
     card.querySelector('[data-act="open"]').onclick = () => openInvoiceById(id);

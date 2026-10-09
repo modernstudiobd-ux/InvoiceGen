@@ -96,12 +96,32 @@ export const CURRENCY_LOCALE = { USD: "en-US", CAD: "en-CA", MXN: "es-MX", BRL: 
 // number ("$1,234.50", "₹1,234.50"); multi-letter abbreviations get a space
 // ("CHF 1,234.50", "Rs 1,234.50") — used where no single universal symbol
 // exists (Gulf currencies, PKR/LKR/NPR all sharing "Rs", etc).
-export const CURRENCY_SYMBOLS = { USD: "$", CAD: "$", MXN: "$", BRL: "R$", ARS: "$", CLP: "$", COP: "$", PEN: "S/", UYU: "$", JMD: "J$", EUR: "€", GBP: "£", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr", PLN: "zł", CZK: "Kč", HUF: "Ft", RON: "lei", UAH: "₴", RUB: "₽", TRY: "₺", AED: "AED", SAR: "SAR", QAR: "QAR", KWD: "KWD", BHD: "BHD", OMR: "OMR", ILS: "₪", EGP: "EGP", ZAR: "R", NGN: "₦", KES: "KSh", GHS: "₵", AUD: "$", NZD: "$", JPY: "¥", CNY: "¥", HKD: "HK$", TWD: "NT$", KRW: "₩", SGD: "S$", INR: "₹", PKR: "Rs", BDT: "৳", LKR: "Rs", NPR: "Rs", IDR: "Rp", MYR: "RM", PHP: "₱", THB: "฿", VND: "₫" };
+export const CURRENCY_SYMBOLS = {
+  USD: "$", CAD: "$", MXN: "$", BRL: "R$", ARS: "$", CLP: "$", COP: "$", PEN: "S/", UYU: "$U", JMD: "J$",
+  EUR: "€", GBP: "£", CHF: "CHF", SEK: "kr", NOK: "kr", DKK: "kr", PLN: "zł", CZK: "Kč", HUF: "Ft", RON: "lei",
+  UAH: "₴", RUB: "₽", TRY: "₺",
+  // Native Arabic-script symbols (dirham, riyal, dinar, pound).
+  AED: "د.إ", SAR: "ر.س", QAR: "ر.ق", KWD: "د.ك", BHD: "د.ب", OMR: "ر.ع.", EGP: "ج.م",
+  ILS: "₪", ZAR: "R", NGN: "₦", KES: "KSh", GHS: "₵",
+  AUD: "$", NZD: "$", JPY: "¥", CNY: "¥", HKD: "HK$", TWD: "NT$", KRW: "₩", SGD: "S$",
+  INR: "₹", PKR: "₨", BDT: "৳", LKR: "රු", NPR: "रू", IDR: "Rp", MYR: "RM", PHP: "₱", THB: "฿", VND: "₫"
+};
+// Minor-unit digits per ISO 4217 / CLDR (e.g. ¥1,235 and د.ك 1,234.500), so
+// every currency is written the way it is written natively. Default: 2.
+export const CURRENCY_DECIMALS = { CLP: 0, JPY: 0, KRW: 0, VND: 0, KWD: 3, BHD: 3, OMR: 3 };
+const RTL_SYMBOL = /[\u0590-\u08FF]/;
 
+const NF = {};
 function formatAmount(v, code) {
   const symbol = CURRENCY_SYMBOLS[code] || code;
-  const n = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num(v));
-  return symbol + ([...symbol].length === 1 ? "" : " ") + n;
+  const d = CURRENCY_DECIMALS[code] ?? 2;
+  const nf = NF[d] || (NF[d] = new Intl.NumberFormat("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }));
+  let n = nf.format(num(v));
+  if (n === "-0" || /^-0[.,]?0*$/.test(n)) n = n.slice(1);
+  // Arabic/Hebrew-script symbols are followed by an invisible left-to-right
+  // mark so the amount always stays to the right of the symbol.
+  const sep = [...symbol].length === 1 ? "" : RTL_SYMBOL.test(symbol) ? "\u200E " : " ";
+  return symbol + sep + n;
 }
 
 export function money(v) {

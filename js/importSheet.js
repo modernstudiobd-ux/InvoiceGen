@@ -26,8 +26,8 @@ function norm(s) {
 export function mapRows(rows) {
   if (!rows.length) return [];
   let best = 0, score = -1;
-  rows.slice(0, 30).forEach((r, i) => { let s = r.reduce((n, x) => n + (["sku", "description", "name", "item", "quantity", "qty", "net qty", "rate", "unit price", "amount", "royalty"].includes(norm(x)) ? 1 : 0), 0); if (s > score) { score = s; best = i; } });
-  let h = rows[best].map(x => String(x ?? "").trim()), data = rows.slice(best + 1), aliases = { sku: ["sku", "item code", "product code", "code"], description: ["description", "name", "item", "product", "course name"], quantity: ["quantity", "qty", "net qty", "net quantity"], rate: ["rate", "unit price", "price", "unit rate"], amount: ["amount", "total", "royalty", "line total"] };
+  rows.slice(0, 30).forEach((r, i) => { let s = r.reduce((n, x) => n + (["sku", "code", "item code", "product code", "description", "name", "item", "product", "quantity", "qty", "hours", "net qty", "rate", "price", "unit price", "amount", "total", "line total", "royalty"].includes(norm(x)) ? 1 : 0), 0); if (s > score) { score = s; best = i; } });
+  let h = rows[best].map(x => String(x ?? "").trim()), data = rows.slice(best + 1), aliases = { sku: ["sku", "item code", "product code", "code"], description: ["description", "name", "item", "product", "course name"], quantity: ["quantity", "qty", "hours", "net qty", "net quantity"], rate: ["rate", "unit price", "price", "unit rate"], amount: ["amount", "total", "royalty", "line total"] };
   return data.map(r => {
     let o = {}; h.forEach((x, i) => o[x] = r[i]); let item = {};
     state.columns.forEach(c => { let candidates = [norm(c.label), norm(c.key), ...(aliases[c.key] || [])], key = Object.keys(o).find(k => candidates.includes(norm(k))); if (key != null) item[c.key] = o[key]; });
@@ -51,3 +51,21 @@ export async function ensureXLSX() {
     document.head.appendChild(s);
   });
 }
+
+/* Sample CSV built from the current table columns, so it always imports cleanly. */
+export function sampleCSV() {
+  const cols = state.columns.filter(c => c.visible && c.role !== "amount");
+  const rows = [["WEB-01", "Website design", 1, 500], ["HOST-12", "Monthly hosting", 12, 10]];
+  const val = (c, r) => c.role === "quantity" ? r[2] : c.role === "rate" ? r[3]
+    : c.key === "sku" ? r[0] : c.key === "description" ? r[1] : c.type === "date" ? "2026-01-31" : ["number", "currency", "percentage"].includes(c.type) ? 0 : "";
+  const q = v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : String(v);
+  return [cols.map(c => q(c.label)).join(","), ...rows.map(r => cols.map(c => q(val(c, r))).join(","))].join("\r\n") + "\r\n";
+}
+export function downloadSampleCSV() {
+  const blob = new Blob(["\ufeff" + sampleCSV()], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "invoice-items-sample.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+document.addEventListener("click", e => { if (e.target.closest("[data-import-sample]")) { e.preventDefault(); downloadSampleCSV(); } });
