@@ -1,7 +1,7 @@
 // InvoGen - Invoice Generator — Service Worker
 // Bump this version string whenever index.html (or any cached asset) changes,
 // so returning users automatically pick up the new version.
-const VERSION = "v3.35.0";
+const VERSION = "v3.36.0";
 const SHELL_CACHE = `invoice-studio-shell-${VERSION}`;
 const RUNTIME_CACHE = `invoice-studio-runtime-${VERSION}`;
 
@@ -18,6 +18,7 @@ const SHELL_ASSETS = [
   "./js/uxExtras.js",
   "./js/formEditor.js",
   "./js/columnDialog.js",
+  "./js/pdfExport.js",
   "./img/templates/agency.webp",
   "./img/templates/apple.webp",
   "./img/templates/classic.webp",

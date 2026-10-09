@@ -84,6 +84,7 @@
     <div class="actions-primary">
       <div class="mt-total" id="mobileTotal"><span class="mt-label" id="mtLabel">Balance due</span><strong id="mtAmount">$0.00</strong></div>
       <button class="btn small" id="saveInvoiceBtn" title="Save a reopenable snapshot to Saved Invoices (Ctrl+S)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span class="btn-label">Save</span></button>
+      <button class="btn small" id="pdfBtn" title="Save this document as a PDF file — uses your browser's print engine, so the PDF looks exactly like the printout"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><polyline points="9 15 12 18 15 15"/></svg><span class="pdf-lab-long">Download </span>PDF</button>
       <button class="btn small primary" id="printBtn" title="Opens your browser's print dialog — choose a physical printer, or &quot;Save as PDF&quot; as the destination for a PDF copy"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span class="btn-label">Print</span></button>
       <span class="save-status" id="saveStatus" aria-live="polite"></span>
     </div>
@@ -755,7 +756,7 @@
     <p class="hint set-note">Settings are saved on this device. Template, colors, currency and columns are set per document in the Design panel.</p>
     <section class="set-group danger-zone" aria-labelledby="setDangerH">
       <h3 id="setDangerH" class="danger-zone-label">Reset</h3>
-      <div class="set-row"><div class="set-text"><span class="set-label">Reset settings</span><p>Restores paper size, date format and theme. Your invoices and templates are not touched.</p></div>
+      <div class="set-row"><div class="set-text"><span class="set-label">Reset settings</span><p>Restores paper size, date format and theme, and shows the PDF guide again. Your invoices and templates are not touched.</p></div>
         <button class="btn small" id="resetSettingsBtn" type="button">Reset settings</button></div>
       <div class="set-row"><div class="set-text"><span class="set-label">Erase everything</span><p>Deletes the current document, all saved invoices and brand templates on this device. This can't be undone.</p></div>
         <button class="btn small danger" id="fullResetBtn" type="button">Erase everything</button></div>
@@ -821,6 +822,7 @@
         <li><strong>Edit, Form or Preview</strong><span>Edit lets you type straight onto the page. Form shows simple fields. Preview shows exactly what will print.</span></li>
         <li><strong>Table columns</strong><span>Use <em>Edit columns</em> (or the ⋮ on a column) to rename, hide, reorder or resize columns. Drag the cards to change the order.</span></li>
         <li><strong>Import items</strong><span>Add many items at once from Excel, Google Sheets or a CSV file. Open “How to prepare your file” for an example and a sample file.</span></li>
+        <li><strong>Download PDF</strong><span>Opens the print window set up for saving. Choose <em>Save as PDF</em> and the file looks exactly like the printout. The file is named after the invoice number and client.</span></li>
         <li><strong>Brand templates</strong><span>Save your company details and design once, then reuse them for every new invoice or another business.</span></li>
         <li><strong>Currency</strong><span>Click the currency box to choose from the list, click it again to type and search.</span></li>
         <li><strong>Install as an app</strong><span>Install it from your browser's menu or the install banner. It then works fully offline.</span></li>
@@ -916,6 +918,18 @@
   </div>
 </div>
 
+<!-- v3.36.0 — First-time "Download PDF" guide. Shown before the print dialog
+     opens, with steps for this device; "Don't show again" is remembered. -->
+<dialog class="cs-dialog pdf-guide" id="pdfGuide" aria-labelledby="pdfGuideTitle">
+  <div class="cs-inner">
+    <header class="cs-head"><div><h2 id="pdfGuideTitle">Save as PDF</h2><p class="cs-sub">Your browser's print window opens next. Follow these steps to save the PDF:</p></div>
+      <button type="button" class="cs-icon-btn" data-pdf="cancel" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></header>
+    <ol class="imp-steps pdf-steps" id="pdfGuideSteps"></ol>
+    <p class="imp-note" id="pdfGuideFile"></p>
+    <label class="cs-switch pdf-dontshow"><input type="checkbox" id="pdfGuideHide"><span>Don't show this again</span></label>
+    <footer class="cs-foot"><button type="button" class="btn" data-pdf="cancel">Cancel</button><button type="button" class="btn primary" data-pdf="go">Continue</button></footer>
+  </div>
+</dialog>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

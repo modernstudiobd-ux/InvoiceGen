@@ -19,6 +19,7 @@ import { LIBRARY_KEY, CURRENT_ID_KEY, getCurrentId, setCurrentId, saveToHistory,
 import { BRAND_KEY, saveCurrentAsTemplate, renderBrandTemplates, clearBrandTemplates } from "./brandTemplates.js";
 import { parseCSV, mapRows, ensureXLSX } from "./importSheet.js";
 import { printInvoice } from "./print.js";
+import { withPdfGuide, pdfFileName, resetPdfGuide } from "./pdfExport.js";
 import { initInstallPrompt, registerServiceWorker } from "./install.js";
 import { naturalLogoHeight, handleLogoFile, removeLogo } from "./logo.js";
 import { initSettings, getDefaultPaperSize } from "./settings.js";
@@ -166,9 +167,15 @@ $("resetColorBtn").onclick = () => { setAccent(DEFAULT_ACCENT); OPTIONAL_COLOR_I
 /* --- Print / JSON export-import / reset --- */
 $("printBtn").onclick = () => {
   if (!confirmPrint()) return;
-  const filename = ($("invoiceNumber").value || "invoice").trim().replace(/[\\/:*?"<>|]+/g, "-");
-  printInvoice(filename);
+  printInvoice(pdfFileName());
 };
+// Download PDF — same print engine as Print (pixel-identical output), with a
+// clear file name and a one-time, device-specific "Save as PDF" guide.
+$("pdfBtn").onclick = () => {
+  if (!confirmPrint()) return;
+  withPdfGuide(() => printInvoice(pdfFileName()));
+};
+{ const r = $("resetSettingsBtn"); if (r) r.addEventListener("click", resetPdfGuide); }
 function download(name, text) { let b = new Blob([text], { type: "application/json" }), u = URL.createObjectURL(b), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 500); }
 $("exportBtn").onclick = () => download(($("invoiceNumber").value || "invoice") + ".json", JSON.stringify(serialize(), null, 2));
 $("importBtn").onclick = () => $("jsonFile").click();
