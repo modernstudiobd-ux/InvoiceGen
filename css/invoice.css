@@ -28,6 +28,8 @@
    generic field style. */
 .combobox .combobox-input{min-height:34px;padding:5px 28px 5px 10px;font-size:12px;width:100%;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-family:inherit;cursor:text;text-overflow:ellipsis}
 .combobox .combobox-input:hover{border-color:#c2c9d6}
+.combobox .combobox-input[readonly]{cursor:pointer;caret-color:transparent;user-select:none;-webkit-user-select:none}
+.combobox.editing .combobox-input{cursor:text}
 .combobox .combobox-input:focus{outline:2px solid var(--app-accent);outline-offset:1px;border-color:var(--app-accent)}
 .combobox.open .combobox-input{border-color:var(--app-accent)}
 .combobox-caret{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);cursor:pointer;transition:transform .15s ease;pointer-events:none}

@@ -19,6 +19,7 @@
 // at all), and print.css separately hides this chrome by class, the same
 // way it already hides the per-row remove buttons and the "+ Add item" row.
 
+import { openColumnsDialog } from "./columnDialog.js";
 import { $, esc, uid } from "./dom.js";
 import { state } from "./state.js";
 import { num, alignClass } from "./format.js";
@@ -39,7 +40,7 @@ export function buildColumnHeaderHtml(c) {
     + `<svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true" focusable="false"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg></span>`
     + `<div class="col-head-row">`
     + `<input type="text" class="col-label-input" data-key="${esc(c.key)}" value="${esc(c.label)}" aria-label="Heading for ${esc(c.label)} column" autocomplete="off" spellcheck="false">`
-    + `<button type="button" class="col-menu-btn" data-key="${esc(c.key)}" title="Column settings" aria-label="Settings for ${esc(c.label)} column" aria-haspopup="true" aria-expanded="false">⋮</button>`
+    + `<button type="button" class="col-menu-btn" data-key="${esc(c.key)}" title="Column settings" aria-label="Settings for ${esc(c.label)} column" aria-haspopup="dialog">⋮</button>`
     + `</div>`
     + `<span class="col-resize-handle" data-key="${esc(c.key)}" title="Drag to resize" aria-hidden="true"></span>`
     + `</th>`;
@@ -280,8 +281,11 @@ export function initColumnCanvas() {
     const menuBtn = e.target.closest(".col-menu-btn");
     if (menuBtn) {
       e.stopPropagation();
-      if (colSettingsKey === menuBtn.dataset.key && $("colSettingsPanel").classList.contains("open")) closeColSettings();
-      else { closeColSettings(); openColSettings(menuBtn); menuBtn.setAttribute("aria-expanded", "true"); }
+      // v3.33.0: the "⋮" on a header opens the same "Table columns" popup the
+      // Form editor uses (compact horizontal cards, drag to reorder), with
+      // this column selected — one place to manage columns in every mode.
+      closeColSettings();
+      openColumnsDialog(menuBtn, menuBtn.dataset.key);
       return;
     }
     if (!e.target.closest("#colSettingsPanel")) closeColSettings();

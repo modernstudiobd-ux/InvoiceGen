@@ -96,7 +96,12 @@ export function printInvoice(suggestedName) {
   // dialog opens — one frame is enough in Chrome, but Firefox can otherwise
   // open the print dialog against a stale layout (still mid-transform/mid
   // old-size), which is a likely source of Firefox-only print glitches.
-  requestAnimationFrame(() => requestAnimationFrame(() => {
+  // Wait for web fonts (e.g. PT Serif on the Luxury template) so the print
+  // never captures fallback glyphs; capped so a stalled font can't block it.
+  const fontsReady = document.fonts && document.fonts.ready
+    ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 1500))])
+    : Promise.resolve();
+  fontsReady.then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
     setTimeout(() => {
       window.print();
       // Only listen for refocus *after* print() is actually called — a
@@ -106,5 +111,5 @@ export function printInvoice(suggestedName) {
       window.addEventListener("focus", restore);
       setTimeout(restore, 30000);
     }, 60);
-  }));
+  })));
 }

@@ -117,19 +117,8 @@ export function syncTemplateGallery() {
 
 /* ---- Saved invoices: search + status chips ---------------------------------- */
 export function initHistoryFilters(rerender) {
-  const chips = $("historyChips"), search = $("historySearch"), status = $("status");
-  if (!chips || !search) return;
-  if (status) {
-    const seen = new Set();
-    chips.innerHTML = '<button type="button" class="chip active" data-status="" aria-pressed="true">All</button>' +
-      [...status.options].map(o => o.value).filter(v => v && !seen.has(v) && seen.add(v))
-        .map(v => `<button type="button" class="chip" data-status="${v.replace(/"/g, "&quot;")}" aria-pressed="false">${v}</button>`).join("");
-  }
-  chips.addEventListener("click", e => {
-    const c = e.target.closest(".chip"); if (!c) return;
-    chips.querySelectorAll(".chip").forEach(x => { const on = x === c; x.classList.toggle("active", on); x.setAttribute("aria-pressed", on ? "true" : "false"); });
-    rerender();
-  });
+  const search = $("historySearch");
+  if (!search) return;
   search.addEventListener("input", () => rerender());
 }
 

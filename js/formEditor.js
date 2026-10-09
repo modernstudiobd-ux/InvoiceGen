@@ -10,6 +10,7 @@ import { $, esc } from "./dom.js";
 import { state, sectionDefs } from "./state.js";
 import { itemValue } from "./calc.js";
 import { num, fmtCell, CURRENCY_SYMBOLS } from "./format.js";
+import { initColumnsDialog, openColumnsDialog, syncColumnsDialog } from "./columnDialog.js";
 
 let api = null;          // { addItem, renderPreview, save, refreshItemRowAndTotals }
 let built = false;
@@ -127,10 +128,11 @@ function build() {
     if (SECID[title]) sec.id = SECID[title];
     if (title === "LOGO") {
       sec.innerHTML = '<h2>Logo</h2><div class="fe-logo"><div class="fe-logo-thumb" id="feLogoThumb"><img alt="" id="feLogoImg" hidden><span id="feLogoLetter">Y</span></div><div class="fe-logo-actions"><label class="btn small primary" for="feLogoFile">Upload logo</label><input id="feLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="feLogoRemove">Remove</button><button type="button" class="btn small" id="feLogoReset">Reset size</button></div></div>' +
-        '<div class="fe-grid"><div class="fe-field"><label for="fe_logoHeightValue">Size (px)</label><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off"></div>' +
+        '<div class="fe-grid"><div class="fe-field fe-full"><label for="fe_logoHeight">Size</label><div class="fe-wrow fe-logo-size"><input class="fe-range" id="fe_logoHeight" type="range" min="24" max="160" step="1" aria-describedby="feLogoSizeHint"><span class="fe-affix fe-suffix"><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off" aria-label="Logo height in pixels"><span class="fe-aff" aria-hidden="true">px</span></span></div><p class="fe-hint" id="feLogoSizeHint">Drag to resize. Proportions stay locked.</p></div>' +
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
     } else if (title === "COLUMNS") {
-      sec.innerHTML = '<details class="fe-details" id="feColsDetails"><summary><span>Column settings</span><small id="feColCount"></small></summary><p class="fe-hint">Rename, show or hide, reorder, resize and set the type, alignment and calculation role of each line-item column.</p><div id="feCols" class="fe-cols"></div><button type="button" class="fe-add" id="feAddCol">+ Add column</button></details>';
+      sec.className += " fe-colsec"; sec.id = "feColsSec";
+      sec.innerHTML = '<div class="fe-colsum"><div class="fe-colsum-head"><div><h3>Table columns</h3><small id="feColCount"></small></div><button type="button" class="btn small" id="feEditCols" aria-haspopup="dialog">Edit columns</button></div><div class="fe-colstrip" id="feCols" role="list" aria-label="Columns in table order"></div></div>';
     } else if (title === "DESIGN") {
       buildDesign(sec);
     } else if (title === "LABELS") {
@@ -139,7 +141,7 @@ function build() {
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
     } else if (title === "ITEMS") {
       sec.id = "feItemsSec";
-      sec.innerHTML = '<h2>Line items</h2><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost" id="feGoCols">Column settings</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
+      sec.innerHTML = '<h2>Line items</h2><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
     } else {
       sec.innerHTML = `<h2>${title}</h2><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
@@ -151,6 +153,7 @@ function build() {
         sec.appendChild(sum);
       }
     }
+    if (title === "COLUMNS") { const imp = root.querySelector("#feImportBox"); if (imp) { imp.before(sec); return; } }
     (PROFILE.has(title) ? profBody : root).appendChild(sec);
     if (title === "Notes & terms") root.appendChild(prof);
   });
@@ -183,7 +186,8 @@ function build() {
       return;
     }
     if (e.target.closest("#feAddItem")) { api.addItem(); return; }
-    if (e.target.closest("#feGoCols")) { const d = $("feColsDetails"); d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    const oc = e.target.closest("#feGoCols, #feEditCols, .fe-colpill");
+    if (oc) { openColumnsDialog(oc, oc.dataset.key); return; }
     if (e.target.closest("#feClearAll")) { const b = $("clearItemsBtn"); if (b) b.click(); return; }
     const dup = e.target.closest(".fe-dup");
     if (dup) {
@@ -197,9 +201,6 @@ function build() {
     if (e.target.closest("#feLogoReset")) { $("resetLogoSizeBtn").click(); return; }
     const pos = e.target.closest("#feLogoPos button");
     if (pos) { const b = document.querySelector('.logo-position-btn[data-pos="' + pos.dataset.pos + '"]'); if (b) b.click(); return; }
-    if (e.target.closest("#feAddCol")) { api.addColumn(); return; }
-    const cb = e.target.closest(".fe-col button[data-act]");
-    if (cb) { colAction(cb.dataset.act, cb.closest(".fe-col").dataset.key); return; }
     const rm = e.target.closest(".fe-del");
     if (rm) {
       const idx = Number(rm.dataset.idx);
@@ -221,14 +222,14 @@ function build() {
   };
   root.addEventListener("input", onCell); root.addEventListener("change", onCell);
   root.addEventListener("change", e => {
-    if (e.target.id === "feLogoFile") { const file = e.target.files && e.target.files[0]; if (file) api.handleLogoFile(file, e.target); return; }
-    const cf = e.target.closest(".fe-col [data-f]");
-    if (cf) colFieldChange(cf);
+    if (e.target.id === "feLogoFile") { const file = e.target.files && e.target.files[0]; if (file) api.handleLogoFile(file, e.target); }
   });
   root.addEventListener("input", e => {
-    const cf = e.target.closest(".fe-col [data-f]");
-    if (cf && cf.dataset.f === "width" && cf.type === "range") { colFieldChange(cf); return; }
-    if (cf && cf.dataset.f === "label") { const c = state.columns.find(x => x.key === cf.closest(".fe-col").dataset.key); if (c) { c.label = cf.value; api.save(); } }
+    if (e.target.id === "fe_logoHeight") {
+      const r = $("logoHeight"); r.value = e.target.value; r.dispatchEvent(new Event("input", { bubbles: true }));
+      const n = $("fe_logoHeightValue"); if (n) n.value = e.target.value;
+      return;
+    }
     if (e.target.id === "fe_logoHeightValue") {
       const n = $("logoHeightValue"); n.value = e.target.value; n.dispatchEvent(new Event("input", { bubbles: true }));
     }
@@ -310,55 +311,15 @@ function renderItems() {
   }).join("");
 }
 
-const TYPES = [["text", "Text"], ["number", "Number"], ["currency", "Currency"], ["percentage", "Percentage"], ["date", "Date"]];
-const ALIGNS = [["left", "Left"], ["center", "Center"], ["right", "Right"]];
-const ROLES = [["none", "None"], ["quantity", "Quantity"], ["rate", "Rate / price"], ["amount", "Amount (calculated)"]];
-const opts = (list, v) => list.map(([k, t]) => `<option value="${k}"${k === v ? " selected" : ""}>${t}</option>`).join("");
 let colsSig = "";
-
-function colAction(act, key) {
-  const i = state.columns.findIndex(c => c.key === key); if (i < 0) return;
-  if (act === "remove") api.removeColumn(key);
-  else if (act === "up" && i > 0) { [state.columns[i - 1], state.columns[i]] = [state.columns[i], state.columns[i - 1]]; api.renderPreview(); api.save(); }
-  else if (act === "down" && i < state.columns.length - 1) { [state.columns[i + 1], state.columns[i]] = [state.columns[i], state.columns[i + 1]]; api.renderPreview(); api.save(); }
-}
-function colFieldChange(el) {
-  const c = state.columns.find(x => x.key === el.closest(".fe-col").dataset.key); if (!c) return;
-  const f = el.dataset.f;
-  if (f === "label") { if (!c.label.trim()) { c.label = "Column"; el.value = "Column"; } }
-  else if (f === "type") c.type = el.value;
-  else if (f === "align") c.align = el.value;
-  else if (f === "role") api.setRole(c, el.value);
-  else if (f === "width") c.width = Math.max(5, Math.min(80, num(el.value) || c.width));
-  else if (f === "visible") {
-    if (!el.checked && state.columns.filter(x => x.visible).length <= 1) { el.checked = true; return; }
-    c.visible = el.checked;
-  }
-  api.renderPreview(); api.save();
-}
+/* Compact, read-only summary of the table columns (in order). Editing happens in the Table columns popup. */
 function renderColumns() {
   const host = $("feCols"); if (!host) return;
-  const sig = state.columns.map(c => c.key + (c.visible ? "1" : "0") + c.role).join(",");
   const cc = $("feColCount"); if (cc) cc.textContent = state.columns.filter(c => c.visible).length + " of " + state.columns.length + " shown";
-  if (sig === colsSig) {
-    host.querySelectorAll(".fe-col").forEach(row => {
-      const c = state.columns.find(x => x.key === row.dataset.key); if (!c) return;
-      [["label", c.label], ["type", c.type], ["align", c.align], ["role", c.role], ["width", String(Math.round(num(c.width)))]].forEach(([f, v]) => {
-        row.querySelectorAll(`[data-f="${f}"]`).forEach(el => { if (el !== document.activeElement && el.value !== v) el.value = v; });
-      });
-    });
-    return;
-  }
+  const sig = state.columns.map(c => [c.key, c.label, c.visible ? 1 : 0, Math.round(num(c.width))].join("|")).join(";");
+  if (sig === colsSig) return;
   colsSig = sig;
-  host.innerHTML = state.columns.map((c, i) => `<div class="fe-col" data-key="${esc(c.key)}">
-    <div class="fe-col-top"><input class="fe-input" data-f="label" value="${esc(c.label)}" aria-label="Column name">
-      <label class="fe-chk"><input type="checkbox" data-f="visible"${c.visible ? " checked" : ""}> Show</label></div>
-    <div class="fe-col-grid">
-      <label>Type<select class="fe-input" data-f="type">${opts(TYPES, c.type)}</select></label>
-      <label>Align<select class="fe-input" data-f="align">${opts(ALIGNS, c.align)}</select></label>
-      <label>Role<select class="fe-input" data-f="role">${opts(ROLES, c.role)}</select></label>
-      <label class="fe-wlab">Width %<span class="fe-wrow"><input class="fe-range" data-f="width" type="range" min="5" max="80" step="1" value="${Math.round(num(c.width))}" aria-label="Column width"><input class="fe-input fe-num" data-f="width" type="text" inputmode="numeric" value="${Math.round(num(c.width))}" aria-label="Column width percent"></span></label></div>
-    <div class="fe-col-actions"><button type="button" data-act="up" aria-label="Move column up"${i === 0 ? " disabled" : ""}>↑ Up</button><button type="button" data-act="down" aria-label="Move column down"${i === state.columns.length - 1 ? " disabled" : ""}>↓ Down</button><button type="button" class="fe-del" data-act="remove" aria-label="Remove column">Remove</button></div></div>`).join("");
+  host.innerHTML = state.columns.map(c => `<button type="button" role="listitem" class="fe-colpill${c.visible ? "" : " is-off"}" data-key="${esc(c.key)}" style="--w:${Math.max(5, Math.round(num(c.width)))}" aria-label="Edit ${esc(c.label)} column${c.visible ? "" : " (hidden)"}"><span>${esc(c.label)}</span></button>`).join("");
 }
 function syncLogo() {
   const img = $("feLogoImg"), letter = $("feLogoLetter"); if (!img) return;
@@ -366,6 +327,8 @@ function syncLogo() {
   else { img.removeAttribute("src"); img.hidden = true; letter.hidden = false; letter.textContent = (($("companyName").value || "").trim()[0] || "Y").toUpperCase(); }
   const n = $("fe_logoHeightValue"), v = $("logoHeightValue");
   if (n && v && n !== document.activeElement && n.value !== v.value) n.value = v.value;
+  const fr = $("fe_logoHeight"), lr = $("logoHeight");
+  if (fr && lr && fr !== document.activeElement && fr.value !== lr.value) fr.value = lr.value;
   const pos = $("logoPosition") ? $("logoPosition").value : "";
   document.querySelectorAll("#feLogoPos button").forEach(b => b.classList.toggle("active", b.dataset.pos === pos));
 }
@@ -441,6 +404,7 @@ export function syncFormEditor() {
   const ps = $("feProfileSum"), cn = $("companyName"); if (ps && cn) ps.textContent = (cn.value || "").trim();
   renderItems();
   renderColumns();
+  syncColumnsDialog();
   syncLogo();
   syncDesign();
   updateAmounts();
@@ -448,6 +412,7 @@ export function syncFormEditor() {
 
 export function initFormEditor(callbacks) {
   api = callbacks;
+  initColumnsDialog(callbacks);
   build();
 }
 

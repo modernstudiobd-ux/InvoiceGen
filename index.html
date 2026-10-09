@@ -477,6 +477,24 @@
   </article>
  </div>
 </main>
+<!-- Full in-app pages for Saved Invoices, Brand Templates, Settings and Help
+     (v3.33.0) — opened from the left nav instead of floating popups. The
+     existing panels are moved in here by js/layout.js (same elements, same
+     handlers), and each page has its own URL hash (#saved, #brands,
+     #settings, #help) so the browser Back button returns to the editor. -->
+<section class="app-page" id="appPage" hidden aria-labelledby="appPageTitle">
+  <div class="app-page-inner">
+    <button type="button" class="app-page-back" id="appPageBack"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg>Back to editor</button>
+    <header class="app-page-head">
+      <div>
+        <h1 id="appPageTitle" tabindex="-1"></h1>
+        <p id="appPageSub"></p>
+      </div>
+      <div class="app-page-actions" id="appPageActions"></div>
+    </header>
+    <div class="app-page-body" id="appPageBody"></div>
+  </div>
+</section>
 <!-- Right Sidebar — "Design": every canvas/document setting (Template, Color,
      Layout, Show/Hide Sections) in one place, matching the reference UI's
      right-hand Design panel. Currency lives in the canvas toolbar instead
@@ -641,12 +659,6 @@
     </div>
     <div class="history-filters">
       <input type="search" id="historySearch" placeholder="Search client or number" aria-label="Search saved invoices" autocomplete="off">
-      <div class="history-chips" id="historyChips" role="group" aria-label="Filter by status">
-        <button type="button" class="chip active" data-status="" aria-pressed="true">All</button>
-        <button type="button" class="chip" data-status="Draft" aria-pressed="false">Draft</button>
-        <button type="button" class="chip" data-status="Due" aria-pressed="false">Due</button>
-        <button type="button" class="chip" data-status="Paid" aria-pressed="false">Paid</button>
-      </div>
     </div>
     <span class="hint" id="historyCount"></span>
     <div id="historyList" style="margin-top:8px"></div>
@@ -774,6 +786,16 @@
 
   <div class="history-panel" id="helpPanel" role="dialog" aria-label="Help and support">
     <div class="history-panel-head"><h2>Help &amp; Support</h2></div>
+    <section class="help-block help-start">
+      <h3>Getting started</h3>
+      <ol class="help-steps">
+        <li><strong>Add your business details</strong><span>Click any field on the invoice, or use <em>Form</em> → Business profile. Upload your logo there too.</span></li>
+        <li><strong>Fill in the client and line items</strong><span>Totals, tax and discount update as you type.</span></li>
+        <li><strong>Choose a design</strong><span>Pick a template, colors and page size in the Design panel.</span></li>
+        <li><strong>Save or print</strong><span>Everything autosaves on this device. Use Save to keep a copy under Saved Invoices, and Print to print or save as PDF.</span></li>
+      </ol>
+    </section>
+    <h3 class="help-h">Tips &amp; shortcuts</h3>
     <span class="hint">A few things that aren't obvious at a glance:</span>
     <ul class="importhelp-list" style="margin-top:8px">
       <li><strong>Undo / Redo</strong><span class="importhelp-aliases">Ctrl+Z / Ctrl+Shift+Z (or Ctrl+Y), or the buttons in the toolbar</span></li>
@@ -783,7 +805,12 @@
       <li><strong>Resize the Design panel</strong><span class="importhelp-aliases">Drag its left edge, or double-click to reset</span></li>
       <li><strong>Import line items</strong><span class="importhelp-aliases">"Import CSV" above the table — see its own "How to set up your file" guide</span></li>
       <li><strong>Install as an app</strong><span class="importhelp-aliases">Works fully offline once installed — look for the install banner or your browser's install icon</span></li>
+      <li><strong>Table columns in Form</strong><span class="importhelp-aliases">Items → Edit columns: drag the cards to reorder, tap one to rename, hide, resize or change its type</span></li>
     </ul>
+    <section class="help-block">
+      <h3>Your data</h3>
+      <p class="hint">Invoices, templates and settings are stored only in this browser on this device — nothing is uploaded. Clearing your browser data removes them, so print or save important invoices as PDF.</p>
+    </section>
   </div>
 
   <!-- Per-column settings popover — opened from the "⋮" button rendered on

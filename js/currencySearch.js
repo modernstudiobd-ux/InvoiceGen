@@ -157,15 +157,43 @@ function openList() {
   if (idx >= 0) setActive(idx);
 }
 
+// Two-step interaction: the first click only opens the list (the field stays
+// read-only, so no text cursor and no on-screen keyboard); clicking the field
+// again while the list is open switches it into search/typing mode. Typing a
+// character from the keyboard also switches straight into search mode.
+let refocusing = false;
+function setEditable(on) {
+  input.readOnly = !on;
+  combo.classList.toggle("editing", on);
+}
+function enableEdit() {
+  if (!input.readOnly) return;
+  setEditable(true);
+  // Re-focus inside the same user gesture so mobile browsers raise the keyboard.
+  refocusing = true; input.blur(); input.focus(); refocusing = false;
+  input.select();
+}
+
 function closeList() {
+  setEditable(false);
   combo.classList.remove("open");
   input.setAttribute("aria-expanded", "false");
   input.removeAttribute("aria-activedescendant");
   syncCurrencyDisplay();
 }
 
-input.addEventListener("focus", () => { openList(); input.select(); });
-input.addEventListener("click", () => { if (!combo.classList.contains("open")) openList(); });
+setEditable(false);
+let openAtPointerDown = false;
+input.addEventListener("pointerdown", () => { openAtPointerDown = combo.classList.contains("open"); });
+input.addEventListener("focus", () => { if (!refocusing) openList(); });
+input.addEventListener("click", () => {
+  if (!combo.classList.contains("open")) { openList(); return; }
+  if (openAtPointerDown) enableEdit();
+});
+input.addEventListener("blur", e => {
+  if (refocusing) return;
+  setTimeout(() => { if (!combo.contains(document.activeElement)) closeList(); }, 0);
+});
 input.addEventListener("input", () => { if (!combo.classList.contains("open")) openList(); else renderList(input.value); });
 
 // Caret icon acts as an explicit open/close toggle (mousedown, so it fires
@@ -174,10 +202,14 @@ const caret = combo.querySelector(".combobox-caret");
 if (caret) caret.addEventListener("mousedown", e => {
   e.preventDefault();
   if (combo.classList.contains("open")) { input.blur(); closeList(); }
-  else { openList(); input.focus(); input.select(); }
+  else { openList(); input.focus(); }
 });
 
 input.addEventListener("keydown", e => {
+  if (input.readOnly && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (!combo.classList.contains("open")) openList();
+    setEditable(true); input.select();   // the key's default action now types into the field
+  }
   if (e.key === "ArrowDown") {
     e.preventDefault();
     if (!combo.classList.contains("open")) { openList(); return; }

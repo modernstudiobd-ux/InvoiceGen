@@ -76,9 +76,9 @@ export function renderHistory() {
   if (!root) return;
   const all = loadLibrary().slice().sort((a, b) => b.updatedAt - a.updatedAt);
   const curId = getCurrentId();
-  // Search (client name / invoice number) + status chip — display filtering only.
+  // Search (client name / invoice number) — display filtering only.
   const q = ($("historySearch") ? $("historySearch").value : "").trim().toLowerCase();
-  const st = (document.querySelector("#historyChips .chip.active") || {}).dataset?.status || "";
+  const st = "";   // status filter chips removed in v3.33.0 (search only)
   const filtering = !!(q || st);
   const lib = all.filter(e => (!q || `${e.invoiceNumber || ""} ${e.clientName || ""}`.toLowerCase().includes(q)) && (!st || (e.status || "Draft") === st));
   if (countEl) countEl.textContent = all.length ? (filtering ? `${lib.length} of ${all.length} shown` : all.length + (all.length === 1 ? " invoice saved" : " invoices saved")) : "";
@@ -86,7 +86,7 @@ export function renderHistory() {
   if (!lib.length) { root.innerHTML = '<p class="hint">No saved invoices match your search.</p>'; return; }
   root.innerHTML = lib.map(e => `<div class="historycard${e.id === curId ? " current" : ""}" data-id="${esc(e.id)}">
    <div class="historytop"><div><strong>${esc(e.invoiceNumber || "Untitled")}</strong>${e.id === curId ? '<span class="tinybadge">Current</span>' : ""}</div><span class="historyamount">${esc(moneyFor(e.total, e.currency))}</span></div>
-   <div class="historymeta"><span>${esc(e.clientName || "No client")} · ${esc(e.status || "Draft")}</span><span>${esc(dateFmt(e.updatedAt))}</span></div>
+   <div class="historymeta"><span>${esc(e.clientName || "No client")}</span><span>${esc(dateFmt(e.updatedAt))}</span></div>
    <div class="historyactions"><button class="btn small" data-act="open" type="button">Open</button><button class="btn small" data-act="rename" type="button">Rename</button><button class="btn small" data-act="duplicate" type="button">Duplicate</button><button class="btn small danger" data-act="delete" type="button">Delete</button></div>
  </div>`).join("");
   root.querySelectorAll(".historycard").forEach(card => {

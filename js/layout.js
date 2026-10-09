@@ -318,15 +318,13 @@ function registerDropdown(toggleBtn, panel, { maxWidth = 360, bindToggle = true 
 
 // Saved-invoices "History" dropdown, positioned above the preview alongside
 // Save/Duplicate/New document (replaces the old sidebar History tab).
-const historyEntry = registerDropdown($("historyToggleBtn"), $("historyPanel"));
-const historyToggleBtn = historyEntry.toggleBtn, historyPanel = historyEntry.panel;
-export function closeHistoryPanel() { historyEntry.close(); }
+// v3.33.0: Saved Invoices, Brand Templates, Settings and Help open as full
+// in-app pages (see "In-app pages" below) instead of floating popups.
+export function closeHistoryPanel() { closePage(); }
 
 // Brand "Templates" dropdown — same pattern, for saving/reusing company
 // info + design across different companies/personal brands.
-const templatesEntry = registerDropdown($("templatesToggleBtn"), $("templatesPanel"));
-const templatesToggleBtn = templatesEntry.toggleBtn, templatesPanel = templatesEntry.panel;
-export function closeTemplatesPanel() { templatesEntry.close(); }
+export function closeTemplatesPanel() { closePage(); }
 
 // "Import Items" dropdown (CSV/Excel import + its how-to tutorial + the
 // destructive "Clear all line items" action) — lives in the line-items
@@ -369,8 +367,87 @@ export function closeLogoSettingsPanel() { logoEntry.close(); }
 // is real, current documentation of this app's own less-obvious
 // interactions — not a placeholder link to a support channel that doesn't
 // exist.
-registerDropdown($("settingsToggleBtn"), $("settingsPanel"), { maxWidth: 300 });
-registerDropdown($("helpToggleBtn"), $("helpPanel"), { maxWidth: 320 });
+/* ---- In-app pages ---------------------------------------------------------
+   Each nav row shows its page in place of the editor. The existing panel
+   element is moved into the page (same ids, same event handlers), so every
+   feature inside keeps working unchanged. A URL hash per page makes Back /
+   deep links work; anything that returns to the document closes the page. */
+const PAGES = {
+  saved:    { btn: "historyToggleBtn",   panel: "historyPanel",   title: "Saved invoices",  sub: "Open, rename, duplicate or delete invoices saved on this device." },
+  brands:   { btn: "templatesToggleBtn", panel: "templatesPanel", title: "Brand templates", sub: "Save and apply your company details, logo and invoice design." },
+  settings: { btn: "settingsToggleBtn",  panel: "settingsPanel",  title: "Settings",        sub: "Application preferences, saved on this device." },
+  help:     { btn: "helpToggleBtn",      panel: "helpPanel",      title: "Help & support",  sub: "How to get the most out of the invoice generator." }
+};
+const pageEl = $("appPage"), pageBody = $("appPageBody"), pageActions = $("appPageActions");
+let currentPage = null;
+Object.entries(PAGES).forEach(([name, p]) => {
+  const btn = $(p.btn), panel = $(p.panel);
+  if (!btn || !panel) return;
+  p.el = panel;
+  panel.classList.add("page-panel");
+  panel.removeAttribute("role");
+  panel.setAttribute("aria-label", p.title);
+  panel.hidden = true;
+  pageBody.appendChild(panel);
+  btn.removeAttribute("aria-haspopup"); btn.removeAttribute("aria-expanded"); btn.removeAttribute("aria-controls");
+  btn.addEventListener("click", e => { e.stopPropagation(); openPage(name); });
+});
+function pageFromHash() { const h = (location.hash || "").replace(/^#\/?/, ""); return PAGES[h] && PAGES[h].el ? h : null; }
+function showPage(name) {
+  const p = name && PAGES[name];
+  if (currentPage && PAGES[currentPage].el) {
+    const prev = PAGES[currentPage];
+    prev.el.hidden = true;
+    const head = prev.el.querySelector(".history-panel-head");
+    pageActions.querySelectorAll("[data-page-action]").forEach(b => { b.removeAttribute("data-page-action"); if (head) head.appendChild(b); });
+    $(prev.btn).removeAttribute("aria-current");
+  }
+  currentPage = p ? name : null;
+  appRoot.classList.toggle("page-open", !!p);
+  document.body.classList.toggle("page-open", !!p);
+  pageEl.hidden = !p;
+  const docItem = document.querySelector("[data-doctype].nav-held, [data-doctype][aria-current]");
+  if (p) {
+    if (docItem && docItem.getAttribute("aria-current")) { docItem.classList.add("nav-held"); docItem.removeAttribute("aria-current"); }
+    $("appPageTitle").textContent = p.title;
+    $("appPageSub").textContent = p.sub;
+    // Header-row actions (e.g. "Clear all") move up into the page header.
+    p.el.querySelectorAll(".history-panel-head .btn").forEach(b => { b.dataset.pageAction = "1"; pageActions.appendChild(b); });
+    p.el.hidden = false;
+    $(p.btn).setAttribute("aria-current", "page");
+    closeAllFloatingPanels();
+    setMobileView("preview");
+    document.title = p.title + " · InvoGen";
+    window.scrollTo(0, 0); pageEl.scrollTop = 0;
+    requestAnimationFrame(() => $("appPageTitle").focus({ preventScroll: true }));
+  } else {
+    if (docItem && docItem.classList.contains("nav-held")) { docItem.classList.remove("nav-held"); if (!document.querySelector("[data-doctype][aria-current]")) docItem.setAttribute("aria-current", "page"); }
+    document.title = baseTitle;
+    requestAnimationFrame(() => { try { fitInvoiceCanvas(); } catch {} });
+  }
+}
+const baseTitle = document.title;
+export function openPage(name) {
+  if (!PAGES[name] || !PAGES[name].el) return;
+  if (currentPage === name) { setMobileView("preview"); return; }
+  if (pageFromHash()) history.replaceState({ page: name, pushed: !!(history.state && history.state.pushed) }, "", "#" + name);
+  else history.pushState({ page: name, pushed: true }, "", "#" + name);
+  showPage(name);
+}
+export function closePage() {
+  if (!currentPage) return;
+  const pushed = history.state && history.state.pushed;
+  showPage(null);
+  if (pushed) history.back();                 // pops our own page entry → editor URL
+  else history.replaceState(null, "", location.pathname + location.search);
+}
+export function isPageOpen() { return !!currentPage; }
+$("appPageBack").addEventListener("click", closePage);
+window.addEventListener("popstate", () => showPage(pageFromHash()));
+// Anything that goes back to the document itself closes the page first.
+["newInvoiceBtn"].forEach(id => { const b = $(id); if (b) b.addEventListener("click", closePage); });
+document.querySelectorAll("[data-doctype]").forEach(b => b.addEventListener("click", closePage));
+if (pageFromHash()) showPage(pageFromHash());
 
 // Calculators — one panel, two nav entries (Revenue Forecast, Markup
 // Calculator), both children of the top-level Calculators group. The panel is
