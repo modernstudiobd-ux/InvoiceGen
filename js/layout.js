@@ -376,7 +376,10 @@ const PAGES = {
   saved:    { btn: "historyToggleBtn",   panel: "historyPanel",   title: "Saved invoices",  sub: "Open, rename, duplicate or delete invoices saved on this device." },
   brands:   { btn: "templatesToggleBtn", panel: "templatesPanel", title: "Brand templates", sub: "Save and apply your company details, logo and invoice design." },
   settings: { btn: "settingsToggleBtn",  panel: "settingsPanel",  title: "Settings",        sub: "Application preferences, saved on this device." },
-  help:     { btn: "helpToggleBtn",      panel: "helpPanel",      title: "Help & support",  sub: "How to get the most out of the invoice generator." }
+  help:     { btn: "helpToggleBtn",      panel: "helpPanel",      title: "Help & support",  sub: "How to get the most out of the invoice generator." },
+  clients:  { btn: "clientsToggleBtn",   panel: "clientsPanel",   title: "Clients",         sub: "Save client details once and add them to any invoice in one click." },
+  products: { btn: "productsToggleBtn",  panel: "productsPanel",  title: "Products & services", sub: "The things you sell, with their prices — insert them into any invoice." },
+  reports:  { btn: "reportsToggleBtn",   panel: "reportsPanel",   title: "Reports",         sub: "What you've billed, received and are still owed, from your saved invoices." }
 };
 const pageEl = $("appPage"), pageBody = $("appPageBody"), pageActions = $("appPageActions");
 let currentPage = null;
@@ -420,6 +423,7 @@ function showPage(name) {
     document.title = p.title + " · InvoGen";
     window.scrollTo(0, 0); pageEl.scrollTop = 0;
     requestAnimationFrame(() => $("appPageTitle").focus({ preventScroll: true }));
+    window.dispatchEvent(new CustomEvent("invoicestudio:page", { detail: name }));
   } else {
     if (docItem && docItem.classList.contains("nav-held")) { docItem.classList.remove("nav-held"); if (!document.querySelector("[data-doctype][aria-current]")) docItem.setAttribute("aria-current", "page"); }
     document.title = baseTitle;

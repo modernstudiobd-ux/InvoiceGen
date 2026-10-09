@@ -17,10 +17,10 @@ let selKey = null;
 let lastTrigger = null;
 
 const TYPES = [["text", "Text"], ["number", "Number"], ["currency", "Currency"], ["percentage", "Percent"], ["date", "Date"]];
-const ROLES = [["none", "None"], ["quantity", "Quantity"], ["rate", "Rate / price"], ["amount", "Amount (calculated)"]];
+const ROLES = [["none", "None"], ["quantity", "Quantity"], ["rate", "Rate / price"], ["amount", "Amount (calculated)"], ["tax", "Tax % for this line"]];
 const ALIGNS = [["left", "Left"], ["center", "Center"], ["right", "Right"]];
 const TYPE_TXT = Object.fromEntries(TYPES);
-const ROLE_TXT = { quantity: "Qty", rate: "Rate", amount: "Amount" };
+const ROLE_TXT = { quantity: "Qty", rate: "Rate", amount: "Amount", tax: "Tax %" };
 const opts = (list, v) => list.map(([k, t]) => `<option value="${k}"${k === v ? " selected" : ""}>${t}</option>`).join("");
 const ICON = {
   grip: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
@@ -104,7 +104,7 @@ function onField(e) {
   }
   if (f === "visible") { toggleVisible(c.key); return; }
   if (f === "type") c.type = el.value;
-  else if (f === "role") api.setRole(c, el.value);
+  else if (f === "role") { api.setRole(c, el.value); if (el.value === "tax") { c.type = "percentage"; if (c.align === "left") c.align = "right"; } }
   else if (f === "width") {
     if (e.type === "input" && el.type === "text" && el.value.trim() === "") return;
     c.width = Math.max(5, Math.min(80, Math.round(num(el.value)) || c.width));

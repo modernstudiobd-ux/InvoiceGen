@@ -18,12 +18,15 @@ export const sectionDefs = [
   ["logo", "Logo"], ["company", "Company details"], ["client", "Client details"], ["status", "Invoice status"],
   ["invoiceDate", "Invoice date"], ["dueDate", "Due date"], ["reference", "Reference / PO"], ["balance", "Balance due"],
   ["notes", "Notes"], ["discount", "Discount"], ["tax", "Tax"], ["shipping", "Shipping"], ["payment", "Payment details"],
-  ["terms", "Terms"], ["footer", "Footer"]
+  ["terms", "Terms"], ["footer", "Footer"],
+  ["payTerms", "Payment terms"], ["tax2", "Second tax"], ["amountPaid", "Amount paid & balance"],
+  ["amountWords", "Amount in words"], ["payQr", "Online payment link & QR"], ["signature", "Signature / stamp"]
 ];
+const SECTIONS_OFF_BY_DEFAULT = new Set(["status", "tax2", "amountWords"]);
 
 // Every section defaults to shown except Invoice status, which most invoices
 // don't need and is off until someone turns it on.
-export const defaultSections = () => Object.fromEntries(sectionDefs.map(x => [x[0], x[0] !== "status"]));
+export const defaultSections = () => Object.fromEntries(sectionDefs.map(x => [x[0], !SECTIONS_OFF_BY_DEFAULT.has(x[0])]));
 
 // Renameable document labels ("INVOICE", "Bill to", "Balance due", ...) are
 // now ordinary form fields living directly on the invoice canvas (ids
@@ -74,7 +77,8 @@ export const state = {
   zoom: 1,
   columns: defaultColumns(),
   items: [],
-  sections: defaultSections()
+  sections: defaultSections(),
+  signature: ""
 };
 
 export const fields = [
@@ -84,8 +88,15 @@ export const fields = [
   "discount", "tax", "shipping", "notes", "paymentDetails", "terms", "notesAlign", "template", "accent", "accentHex",
   "totalColorHex", "balanceLabelColorHex", "headerColorHex", "headerTextColorHex", "invoiceColorHex", "paperSize",
   "labelTitle", "labelBillTo", "labelBalance", "labelNote", "labelPayment", "labelTerms",
-  "labelInvoiceDate", "labelDueDate", "labelReference"
+  "labelInvoiceDate", "labelDueDate", "labelReference",
+  // v3.37.0
+  "paymentTerms", "labelPayTerms", "labelTax", "labelTax2", "tax2", "amountPaid", "labelPaid",
+  "signName", "signHeight", "footerText", "watermark", "watermarkText", "invoiceFont", "docLanguage",
+  "payProvider", "payLink", "useLetterhead", "lhTop", "lhBottom"
 ];
+// Checkbox-aware read/write for the `fields` above (everything else is a plain .value).
+export function getFieldVal(id) { const el = $(id); if (!el) return ""; return el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; }
+export function setFieldVal(id, v) { const el = $(id); if (!el) return; if (el.type === "checkbox") el.checked = v === "1" || v === true; else el.value = v; }
 
 export const DEFAULT_ACCENT = "#18181b";
 
@@ -112,7 +123,7 @@ const TEMPLATE_PADDING_MM = {
   luxury: { top: 18, right: 16, bottom: 18, left: 16 },
   agency: { top: 16, right: 16, bottom: 14, left: 20 },
   medical: { top: 14, right: 14, bottom: 14, left: 14 },
-  legal: { top: 16, right: 18, bottom: 16, left: 18 },
+  legal: { top: 13, right: 16, bottom: 13, left: 16 },
   realestate: { top: 14, right: 14, bottom: 14, left: 14 },
   freelancer: { top: 14, right: 14, bottom: 14, left: 14 },
   restaurant: { top: 14, right: 14, bottom: 14, left: 14 },
@@ -129,8 +140,20 @@ const TEMPLATE_PADDING_MM = {
 // page/paper edge) — the exact relationship "Modern Professional" already
 // used (padding-bottom 11mm → footer 9mm from the bottom), now applied to
 // every template instead of one hardcoded 12mm/9mm pair for all of them.
+// Letterhead in use → keep content clear of its printed header/footer artwork.
+export function letterheadInsetsMm() {
+  const on = $("useLetterhead") && $("useLetterhead").checked;
+  let has = false; try { has = !!localStorage.getItem("invoiceStudio.letterhead.v1"); } catch {}
+  if (!on || !has) return null;
+  const n = (id, d) => { const v = Number($(id) && $(id).value); return Number.isFinite(v) && v >= 0 ? Math.min(120, v) : d; };
+  return { top: n("lhTop", 30), bottom: n("lhBottom", 25) };
+}
+function withLetterhead(p) {
+  const lh = letterheadInsetsMm();
+  return lh ? { ...p, top: Math.max(p.top, lh.top), bottom: Math.max(p.bottom, lh.bottom) } : p;
+}
 export function templateFooterInsetMm(tpl) {
-  const p = TEMPLATE_PADDING_MM[tpl] || TEMPLATE_PADDING_MM.modern;
+  const p = withLetterhead(TEMPLATE_PADDING_MM[tpl] || TEMPLATE_PADDING_MM.modern);
   return { left: p.left, right: p.right, bottom: Math.max(0, p.bottom - 2) };
 }
 
@@ -151,7 +174,7 @@ export function templateFooterInsetMm(tpl) {
 // .invoice keeps using its own padding-left/padding-right for print
 // unchanged; only top/bottom are rebuilt as repeating table content.
 export function templatePaddingMm(tpl) {
-  return TEMPLATE_PADDING_MM[tpl] || TEMPLATE_PADDING_MM.modern;
+  return withLetterhead(TEMPLATE_PADDING_MM[tpl] || TEMPLATE_PADDING_MM.modern);
 }
 
 // @page margin is always 0 — the repeating footer lives as real in-flow
@@ -179,6 +202,6 @@ export function applyPaperSize() {
 // (used for localStorage autosave, History entries, export, and undo/redo).
 export function serialize() {
   let f = {};
-  fields.forEach(id => f[id] = $(id).value);
-  return { version: 2, docType: state.docType, logo: state.logo, logoNatural: state.logoNatural, zoom: state.zoom, columns: state.columns, items: state.items, sections: state.sections, fields: f };
+  fields.forEach(id => f[id] = getFieldVal(id));
+  return { version: 2, docType: state.docType, logo: state.logo, logoNatural: state.logoNatural, signature: state.signature, zoom: state.zoom, columns: state.columns, items: state.items, sections: state.sections, fields: f };
 }

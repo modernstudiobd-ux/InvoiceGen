@@ -23,13 +23,24 @@ export function itemValue(item, col) {
 }
 
 export function calc() {
-  let ac = roleCol("amount"),
-    subtotal = state.items.reduce((s, i) => s + num(itemValue(i, ac || { role: "none", key: "amount" })), 0),
+  let ac = roleCol("amount"), tc = roleCol("tax"),
+    lineAmt = i => num(itemValue(i, ac || { role: "none", key: "amount" })),
+    subtotal = state.items.reduce((s, i) => s + lineAmt(i), 0),
     dr = Math.max(0, Math.min(100, num($("discount").value))),
     disc = subtotal * dr / 100,
     taxable = subtotal - disc,
     tr = Math.max(0, Math.min(100, num($("tax").value))),
     tax = taxable * tr / 100,
-    ship = Math.max(0, num($("shipping").value));
-  return { subtotal, dr, disc, tr, tax, ship, total: taxable + tax + ship };
+    t2el = $("tax2"), t2on = state.sections.tax2 !== false,
+    tr2 = t2on && t2el ? Math.max(0, Math.min(100, num(t2el.value))) : 0,
+    tax2 = taxable * tr2 / 100,
+    // Per-line tax: a column with the "tax" role holds each line's rate (%);
+    // the invoice discount reduces each line proportionally before tax.
+    itemTax = tc ? state.items.reduce((s, i) => s + lineAmt(i) * (1 - dr / 100) * Math.max(0, num(i[tc.key])) / 100, 0) : 0,
+    ship = Math.max(0, num($("shipping").value)),
+    total = taxable + tax + tax2 + itemTax + ship,
+    pel = $("amountPaid"), paidOn = state.sections.amountPaid !== false,
+    paid = paidOn && pel ? Math.max(0, num(pel.value)) : 0,
+    balance = total - paid;
+  return { subtotal, dr, disc, tr, tax, tr2, tax2, itemTax, hasItemTax: !!tc, ship, total, paid, balance };
 }

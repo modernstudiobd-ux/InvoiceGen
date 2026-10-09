@@ -335,3 +335,7 @@
 .template-dark .sumrow.total{border-top:1px solid #2a2e37;color:#fff}
 .template-dark .notebox{background:#171a20;border:1px solid #2a2e37}
 .template-dark .footer{color:#9aa1ac}
+/* v3.37.0 — Legal: centre the document title and number like the rest of its header */
+.template-legal .invtitle h2 input{text-align:center}
+.template-legal .invno{justify-content:center;text-align:center}
+.template-legal .invno input{text-align:center}

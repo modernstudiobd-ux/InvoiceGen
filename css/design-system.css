@@ -1076,3 +1076,166 @@ kbd{display:inline-block;min-width:1.6em;padding:2px 6px;border:1px solid var(--
   .actions-primary .save-status{grid-column:3}
   .pdf-guide{width:100vw}
 }
+
+/* ==== v3.37.0 — Document features ==== */
+/* edit-only affordances: never in Preview or print */
+body.canvas-preview-mode .invoice .edit-chip,body.canvas-preview-mode .invoice .extras-add{display:none!important}
+.billto-head{display:flex;align-items:center;gap:8px}
+.billto-head .label{flex:1;min-width:0}
+.edit-chip{flex:none;min-height:26px;padding:0 10px;border:1px dashed #c9cfdb;border-radius:9999px;background:#fff;color:#344054;font:500 11px/1 Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.edit-chip:hover{border-color:#18181b;color:#18181b}
+.edit-chip:focus-visible{outline:2px solid #18181b;outline-offset:2px}
+.table-toolbar-title{flex:1}
+.table-toolbar #pickProductBtn{display:inline-flex;align-items:center;gap:6px}
+/* payment terms row */
+.invoice .terms-select{border:0;background:transparent;color:inherit;font:inherit;text-align:right;text-align-last:right;padding:0;max-width:100%;cursor:pointer}
+body:not(.canvas-preview-mode) .invoice #paymentTermsDisplay{display:none}
+body.canvas-preview-mode .invoice #paymentTerms{display:none}
+/* summary label inputs (Tax name, Amount paid) */
+.invoice .sum-label{width:auto;min-width:3ch;max-width:14ch;field-sizing:content;border:0;background:transparent;color:inherit;font:inherit;padding:0}
+.invoice .sum-label::placeholder{color:inherit;opacity:1}
+.invoice .balance-row{font-weight:700}
+.invoice .balance-row strong{font-size:1.05em}
+.invoice #paidRow .ship-view{display:none}
+body.canvas-preview-mode .invoice #paidRow .money-input{display:none!important}
+body.canvas-preview-mode .invoice #paidRow .ship-view{display:inline}
+.invoice #itemTaxRow[hidden]{display:none}
+/* amount in words */
+.invoice .amount-words{margin:10px 0 0;padding:8px 0;border-top:1px dashed var(--line,#e3e6ee)}
+.invoice .amount-words p{margin:2px 0 0;font-style:italic;font-size:12px;color:inherit}
+/* payment link + signature row */
+.invoice .extras-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-top:14px}
+.invoice .extras-row>.section-hidden{display:none}
+.invoice .payqr{display:flex;align-items:center;gap:12px;min-width:0}
+.invoice .payqr-code{flex:none;width:84px;height:84px;cursor:pointer}
+.invoice .payqr-code:empty{display:none}
+.invoice .payqr-code svg{width:100%;height:100%;display:block}
+.invoice .payqr-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.invoice .payqr-text a{color:inherit;font-size:11.5px;font-weight:600;text-decoration:none;word-break:break-all}
+.invoice .payqr-hint{font-size:10.5px;opacity:.75}
+.invoice .payqr:not(.has-link) .payqr-text{display:none}
+.invoice .payqr.has-link #payLinkBtn{display:none}
+.invoice .signbox{margin-left:auto;display:flex;flex-direction:column;align-items:center;min-width:180px;text-align:center}
+.invoice .sign-img img{display:block;height:var(--sign-h,64px);width:auto;max-width:240px;object-fit:contain}
+.invoice .sign-line{width:100%;border-top:1px solid currentColor;opacity:.5;margin:4px 0 4px}
+.invoice .signbox .sign-name{width:100%;text-align:center;border:0;background:transparent;color:inherit;font:inherit;font-size:11px;padding:0}
+.invoice .signbox.has-sign #signAddBtn{display:none}
+.invoice .extras-add{min-height:30px;padding:0 12px;border:1px dashed #c9cfdb;border-radius:8px;background:transparent;color:#475467;font:500 11.5px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.invoice .extras-add:hover{border-color:#18181b;color:#18181b}
+.invoice .extras-add:focus-visible{outline:2px solid #18181b;outline-offset:2px}
+/* watermark */
+.invoice{position:relative}
+.invoice .watermark{display:none}
+.invoice.has-watermark .watermark{display:flex;position:absolute;left:0;right:0;top:calc(var(--page-h,297mm) * .5 - 60px);height:120px;align-items:center;justify-content:center;pointer-events:none;z-index:3;font:800 104px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;color:var(--accent,#18181b);opacity:.08;transform:rotate(-28deg);white-space:nowrap;overflow:visible}
+/* brand font */
+.invoice.has-font,.invoice.has-font :is(input,textarea,select,th,td,h2,strong,span,p,div,a){font-family:var(--inv-font)!important}
+/* letterhead */
+.invoice.has-letterhead{background-image:var(--letterhead)!important;background-size:100% var(--page-h,297mm)!important;background-repeat:repeat-y!important;background-position:top left!important}
+@media print{
+  .invoice .edit-chip,.invoice .extras-add{display:none!important}
+  .invoice #paymentTerms{display:none!important}
+  .invoice #paymentTermsDisplay{display:inline!important}
+  .invoice #paidRow .money-input{display:none!important}
+  .invoice #paidRow .ship-view{display:inline!important}
+}
+/* Design panel: Brand */
+.field-lab,.sub-lab{display:block;font-size:12px;font-weight:500;color:var(--ds-body);margin:0 0 6px}
+.sub-lab{margin:8px 0 2px}
+.preset-row{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.preset{aspect-ratio:1;min-width:24px;border-radius:9999px;border:2px solid var(--ds-card);background:var(--c);box-shadow:0 0 0 1px var(--ds-hairline-strong);cursor:pointer}
+.preset:hover,.preset[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ds-ink)}
+.preset:focus-visible{outline:2px solid var(--ds-ink);outline-offset:2px}
+.brand-upload{display:flex;align-items:center;gap:10px}
+.brand-thumb{flex:none;width:72px;height:44px;border:1px dashed var(--ds-hairline-strong);border-radius:8px;background:#fff center/contain no-repeat;display:grid;place-items:center;overflow:hidden}
+.brand-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.brand-thumb.lh{width:44px;height:60px;background-size:cover}
+.brand-upload-acts{display:flex;gap:6px;flex-wrap:wrap}
+.check-row{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--ds-ink);cursor:pointer}
+.check-row input{width:16px;height:16px;accent-color:var(--ds-ink)}
+#brandPanel .field{margin-bottom:12px}
+#brandPanel input[type=range]{width:100%;accent-color:var(--ds-ink)}
+#watermarkTextField[hidden]{display:none}
+/* dialogs */
+.small-dialog{width:min(520px,calc(100vw - 32px))}
+.share-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0 20px}
+.share-acts .btn{min-height:44px}
+.share-acts [data-share="native"]{grid-column:1/-1}
+.share-acts [hidden]{display:none}
+#shareMsg{min-height:150px;padding:10px 12px;line-height:1.45;resize:vertical}
+.picker-search{max-width:none;margin:14px 0 8px}
+.picker-list{list-style:none;margin:0;padding:0;max-height:min(52dvh,420px);overflow:auto;border:1px solid var(--ds-hairline);border-radius:12px}
+.picker-list li+li{border-top:1px solid var(--ds-hairline-soft)}
+.picker-item{display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-height:52px;padding:10px 14px;border:0;background:transparent;color:var(--ds-ink);text-align:left;cursor:pointer;font:inherit}
+.picker-item:hover,.picker-item:focus-visible{background:var(--ds-canvas-soft);outline:none}
+.picker-item strong{font-size:14px;font-weight:600}
+.picker-item span{font-size:12.5px;color:var(--ds-muted)}
+.picker-item .picker-row{display:flex;justify-content:space-between;gap:12px;width:100%;color:var(--ds-ink)}
+.picker-item .picker-row b{font-weight:600;font-variant-numeric:tabular-nums}
+.picker-item.added{background:var(--ds-canvas-soft)}
+.picker-item.added strong::after{content:"  ✓ added";font-weight:500;color:var(--ds-success)}
+.picker-empty{padding:28px 16px;text-align:center;font-size:13px;color:var(--ds-muted)}
+.cat-fields{display:grid;gap:12px;margin-top:14px}
+.req{color:var(--ds-error)}
+/* pages: lists */
+.app-page .pg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:16px}
+.pg-lines{display:flex;flex-direction:column;gap:2px}
+.pg-lines span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-page #clientsPanel .history-filters,.app-page #productsPanel .history-filters,.app-page #reportsPanel .history-filters{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.app-page #clientsPanel .history-filters .btn,.app-page #productsPanel .history-filters .btn{min-height:44px;padding:0 16px}
+/* reports */
+.rp-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
+.rp-tile{padding:16px;border:1px solid var(--ds-hairline);border-radius:14px;background:var(--ds-card);display:flex;flex-direction:column;gap:6px;min-width:0}
+.rp-tile span{font-size:12.5px;color:var(--ds-muted)}
+.rp-tile strong{font:700 22px/1.15 var(--font-display),"InvScript",sans-serif;color:var(--ds-ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rp-card{margin:0 0 16px;padding:20px;border:1px solid var(--ds-hairline);border-radius:14px;background:var(--ds-card)}
+.rp-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.rp-card-head h3{margin:0;font:600 15px/1.3 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+.rp-chart{position:relative}
+.rp-chart svg{display:block;width:100%;height:220px;overflow:visible}
+.rp-grid{stroke:var(--ds-hairline);stroke-width:1}
+.rp-mark{fill:var(--ds-primary)}
+.rp-hit{fill:transparent}
+.rp-bar{cursor:default;outline:none}
+.rp-bar:hover .rp-mark,.rp-bar:focus .rp-mark{fill:var(--ds-ink)}
+.rp-bar:focus .rp-hit{fill:var(--ds-canvas-soft)}
+.rp-x{font:500 11px Inter,system-ui,sans-serif;fill:var(--ds-muted)}
+.rp-tip{position:absolute;top:-6px;transform:translate(-50%,-100%);padding:8px 10px;border-radius:8px;background:var(--ds-ink);color:var(--ds-card);font-size:12px;line-height:1.4;pointer-events:none;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.18);z-index:2}
+.rp-tip strong{display:block}
+.rp-table-toggle{margin-top:12px;font-size:13px}
+.rp-table-toggle summary{cursor:pointer;font-weight:500;color:var(--ds-ink);min-height:32px;display:flex;align-items:center}
+.rp-table-wrap{overflow-x:auto}
+.rp-table{width:100%;border-collapse:collapse;font-size:13px;color:var(--ds-body);font-variant-numeric:tabular-nums}
+.rp-table th,.rp-table td{padding:9px 10px;border-bottom:1px solid var(--ds-hairline-soft);text-align:right;white-space:nowrap}
+.rp-table th:first-child{text-align:left;color:var(--ds-ink);font-weight:500}
+.rp-table thead th{font-size:12px;font-weight:600;color:var(--ds-muted);text-transform:none}
+.rp-note{display:block;margin-top:4px}
+#reportCurWrap[hidden]{display:none}
+@media (max-width:900px){.rp-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){
+  .rp-card{padding:16px}
+  .rp-chart svg{height:180px}
+  .app-page .pg-grid{grid-template-columns:1fr}
+  .invoice .extras-row{flex-direction:column;align-items:stretch}
+  .invoice .signbox{margin-left:0;align-self:flex-end}
+  .share-acts{grid-template-columns:1fr}
+}
+.fe-client-bar{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 14px}
+.fe-client-bar .btn{min-height:36px}
+.fe-sign-thumb{width:120px;background:#fff}
+.fe-sign-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.fe-sign-empty{font:400 11px/1.2 Inter,system-ui,sans-serif;color:var(--ds-muted);text-align:center;padding:4px}
+#feSum [hidden]{display:none}
+@media (max-width:640px){.fe-client-bar .btn{flex:1;min-height:44px}}
+#lhSpacing[hidden]{display:none}
+#brandPanel .field-lab,#brandPanel .sub-lab{display:block;font-size:12px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ds-muted);margin:0 0 6px}
+#brandPanel .sub-lab{margin:10px 0 2px}
+#brandPanel .brand-upload-acts label.btn{display:inline-flex;align-items:center;margin:0;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--ds-ink)}
+#brandPanel .check-row{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ds-ink);margin:10px 0 6px}
+#brandPanel .grid2 .field{margin-bottom:0}
+.app-page #reportsPanel .history-filters{justify-content:flex-start}
+.app-page #clientsPanel .history-filters,.app-page #productsPanel .history-filters,.app-page #reportsPanel .history-filters{flex-direction:row;justify-content:flex-start;max-width:none}
+@media (max-width:640px){.app-page #clientsPanel .history-filters .btn,.app-page #productsPanel .history-filters .btn{flex:1 1 100%}}
+/* Empty extras row takes no space in Preview/print */
+body.canvas-preview-mode .invoice .extras-row:not(:has(> :not(.print-hide-empty):not(.section-hidden))){display:none}
+.invoice .extras-row:not(:has(> :not(.section-hidden))){display:none}
+@media print{.invoice .extras-row:not(:has(> :not(.print-hide-empty):not(.section-hidden))){display:none!important}}

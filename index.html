@@ -100,6 +100,7 @@
          zone. Keeps the "danger" styling (red) as visual separation from
          the other three, plus a confirm() dialog (js/library.js). -->
     <div class="actions-secondary" id="actionsSecondary">
+      <button class="btn small" id="shareBtn" title="Send this invoice to your client by email or WhatsApp"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>Send to client</button>
       <button class="btn small" id="duplicateInvoiceBtn" title="Save a copy with the next invoice number and today's dates"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="btn-label">Copy</span></button>
       <button class="btn small" id="exportBtn" title="Download this invoice as a JSON file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span class="btn-label">Export</span></button>
       <button class="btn small" id="importBtn" title="Import an invoice from a JSON file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span class="btn-label">Import</span></button>
@@ -230,6 +231,26 @@
       </button>
       <!-- Panel lives in #floatingLayer — see the comment there. -->
     </div>
+    <div class="nav-label" aria-hidden="true">Business</div>
+    <div class="history-dropdown navitem-dropdown">
+      <button class="navitem" id="clientsToggleBtn" type="button" title="Your saved clients">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span><strong>Clients</strong><small>Saved client details</small></span>
+      </button>
+    </div>
+    <div class="history-dropdown navitem-dropdown">
+      <button class="navitem" id="productsToggleBtn" type="button" title="Your saved products and services">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg>
+        <span><strong>Products &amp; services</strong><small>Items you bill often</small></span>
+      </button>
+    </div>
+    <div class="history-dropdown navitem-dropdown">
+      <button class="navitem" id="reportsToggleBtn" type="button" title="Totals from your saved invoices">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="4" y1="20" x2="20" y2="20"/><rect x="5" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="7" width="3" height="10" rx="1"/><rect x="16" y="4" width="3" height="13" rx="1"/></svg>
+        <span><strong>Reports</strong><small>Billed, paid and outstanding</small></span>
+      </button>
+    </div>
+    <div class="nav-label" aria-hidden="true">App</div>
     <div class="history-dropdown navitem-dropdown">
       <button class="navitem" id="settingsToggleBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="settingsPanel" title="Application preferences">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
@@ -411,6 +432,7 @@
         <table class="metatable">
           <tr data-section="invoiceDate"><td><input id="labelInvoiceDate" placeholder="Invoice date" aria-label="Invoice date row label"></td><td><input id="invoiceDate" type="date" aria-label="Invoice date"><span class="date-display" id="invoiceDateDisplay"></span></td></tr>
           <tr data-section="dueDate"><td><input id="labelDueDate" placeholder="Due date" aria-label="Due date row label"></td><td><input id="dueDate" type="date" aria-label="Due date"><span class="date-display" id="dueDateDisplay"></span></td></tr>
+          <tr data-section="payTerms"><td><input id="labelPayTerms" placeholder="Payment terms" aria-label="Payment terms row label"></td><td><select id="paymentTerms" class="terms-select" aria-label="Payment terms (sets the due date)"><option value="">Choose terms</option><option value="0">Due on receipt</option><option value="7">Net 7</option><option value="14">Net 14</option><option value="15">Net 15</option><option value="30">Net 30</option><option value="45">Net 45</option><option value="60">Net 60</option><option value="90">Net 90</option></select><span class="date-display" id="paymentTermsDisplay"></span></td></tr>
           <tr data-section="reference"><td><input id="labelReference" placeholder="Reference" aria-label="Reference row label"></td><td><input id="reference" placeholder="Add value" aria-label="Reference / PO value"></td></tr>
         </table>
         <div class="statusbalance">
@@ -423,7 +445,7 @@
     </header>
     <section class="billrow">
       <div data-section="client">
-        <input id="labelBillTo" class="label" placeholder="BILL TO" aria-label="Bill to label">
+        <div class="billto-head"><input id="labelBillTo" class="label" placeholder="BILL TO" aria-label="Bill to label"><button type="button" class="edit-chip" id="pickClientBtn" aria-haspopup="dialog">Choose saved client</button></div>
         <input id="clientName" class="clientname" title="Needed before printing" placeholder="Client name" aria-label="Client company name">
         <div class="metaText" id="pClientMeta">
           <input id="clientContact" placeholder="Contact name" aria-label="Client contact">
@@ -445,6 +467,7 @@
          (js/layout.js) — only its location moved. -->
     <div class="table-toolbar" id="itemsTableToolbar">
       <span class="table-toolbar-title">Line items</span>
+      <button class="btn small" id="pickProductBtn" type="button" aria-haspopup="dialog" title="Add items from your saved products and services"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 8 12 3 3 8v8l9 5 9-5Z"/><path d="m3 8 9 5 9-5"/></svg>Add saved item</button>
       <div class="history-dropdown">
         <button class="btn small" id="importToggleBtn" aria-haspopup="true" aria-expanded="false" aria-controls="importPanel" title="Import line items from a CSV or Excel file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV</button>
         <!-- Panel lives in #floatingLayer — see the comment there. -->
@@ -457,11 +480,15 @@
         <textarea id="notes" class="metaText" rows="1" placeholder="Click to add a note" aria-label="Invoice note text"></textarea>
       </div>
       <div class="summary">
-        <div class="sumrow"><span>Subtotal</span><strong id="pSubtotal">£0.00</strong></div>
-        <div class="sumrow" id="discountRow" data-section="discount"><span>Discount <input id="discount" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Discount percentage">%</span><strong id="pDiscount">−£0.00</strong></div>
-        <div class="sumrow" id="taxRow" data-section="tax"><span>Tax <input id="tax" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Tax percentage">%</span><strong id="pTax">£0.00</strong></div>
-        <div class="sumrow" id="shippingRow" data-section="shipping"><span>Shipping</span><input id="shipping" type="number" class="money-input" min="0" step=".01" value="0" aria-label="Shipping amount"><strong id="pShipping" class="ship-view" aria-hidden="true"></strong></div>
-        <div class="sumrow total"><span>Total</span><span id="pTotal">£0.00</span></div>
+        <div class="sumrow"><span id="sumLabSubtotal">Subtotal</span><strong id="pSubtotal">£0.00</strong></div>
+        <div class="sumrow" id="discountRow" data-section="discount"><span><span id="sumLabDiscount">Discount</span> <input id="discount" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Discount percentage">%</span><strong id="pDiscount">−£0.00</strong></div>
+        <div class="sumrow" id="taxRow" data-section="tax"><span><input id="labelTax" class="sum-label" placeholder="Tax" aria-label="Tax label (e.g. VAT, GST)"> <input id="tax" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Tax percentage">%</span><strong id="pTax">£0.00</strong></div>
+        <div class="sumrow" id="tax2Row" data-section="tax2"><span><input id="labelTax2" class="sum-label" placeholder="Second tax" aria-label="Second tax label (e.g. Service charge)"> <input id="tax2" type="number" class="pct-input" min="0" max="100" step=".01" value="0" aria-label="Second tax percentage">%</span><strong id="pTax2">£0.00</strong></div>
+        <div class="sumrow" id="itemTaxRow" hidden><span id="sumLabItemTax">Item tax</span><strong id="pItemTax">£0.00</strong></div>
+        <div class="sumrow" id="shippingRow" data-section="shipping"><span id="sumLabShipping">Shipping</span><input id="shipping" type="number" class="money-input" min="0" step=".01" value="0" aria-label="Shipping amount"><strong id="pShipping" class="ship-view" aria-hidden="true"></strong></div>
+        <div class="sumrow total"><span id="sumLabTotal">Total</span><span id="pTotal">£0.00</span></div>
+        <div class="sumrow paid-row" id="paidRow" data-section="amountPaid"><span><input id="labelPaid" class="sum-label" placeholder="Amount paid" aria-label="Amount paid label"></span><input id="amountPaid" type="number" class="money-input" min="0" step=".01" value="0" aria-label="Amount already paid"><strong id="pPaid" class="ship-view" aria-hidden="true"></strong></div>
+        <div class="sumrow balance-row" id="balanceRow" data-section="amountPaid"><span id="sumLabBalance">Balance due</span><strong id="pBalanceDue">£0.00</strong></div>
       </div>
     </section>
     <section class="paymentgrid">
@@ -474,6 +501,21 @@
         <textarea id="terms" class="metaText" rows="1" placeholder="Click to add terms" aria-label="Terms text"></textarea>
       </div>
     </section>
+    <section class="amount-words" id="amountWordsRow" data-section="amountWords"><span class="label" id="sumLabWords">Amount in words</span><p id="pAmountWords"></p></section>
+    <section class="extras-row">
+      <div class="payqr" id="payQrBox" data-section="payQr">
+        <div class="payqr-code" id="pPayQr" aria-hidden="true"></div>
+        <div class="payqr-text"><span class="label" id="pPayTitle">Pay online</span><a id="pPayLink" target="_blank" rel="noopener noreferrer"></a><span class="payqr-hint" id="pPayHint">Scan to pay</span></div>
+        <button type="button" class="extras-add" id="payLinkBtn" aria-haspopup="dialog">+ Add an online payment link</button>
+      </div>
+      <div class="signbox" id="signBox" data-section="signature">
+        <div class="sign-img"><img id="pSignature" alt="Signature or company stamp" hidden></div>
+        <button type="button" class="extras-add" id="signAddBtn">+ Add signature or stamp</button>
+        <div class="sign-line"></div>
+        <input id="signName" class="sign-name" placeholder="Authorized signature" aria-label="Name or title under the signature">
+      </div>
+    </section>
+    <div class="watermark" id="pWatermark" aria-hidden="true"></div>
     <footer class="footer" data-section="footer"><span id="pFooterCompany">Your Company Ltd.</span><span id="pFooterInvoice">Invoice #INV-1001</span></footer>
   </article>
  </div>
@@ -599,6 +641,31 @@
       </div>
     </div>
     </details>
+  </section>
+  <section class="panel" id="brandPanel">
+    <div class="panelhead"><h2>Brand</h2></div>
+    <div class="field"><span class="field-lab" id="presetLab">Color presets</span><div class="preset-row" id="colorPresets" role="group" aria-labelledby="presetLab"></div></div>
+    <div class="field"><label for="invoiceFont">Font</label>
+      <select id="invoiceFont"><option value="">Template default</option><option value="Inter">Inter (modern sans)</option><option value="Noto Sans">Noto Sans (clean sans)</option><option value="Montserrat">Montserrat (geometric)</option><option value="PT Serif">PT Serif (classic serif)</option><option value="Lora">Lora (elegant serif)</option><option value="Playfair Display">Playfair Display (luxury)</option><option value="IBM Plex Mono">IBM Plex Mono (technical)</option></select></div>
+    <div class="field"><label for="docLanguage">Document language</label>
+      <select id="docLanguage"><option value="en">English</option><option value="bn">বাংলা (Bangla)</option><option value="ar">العربية (Arabic)</option><option value="hi">हिन्दी (Hindi)</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option></select>
+      <span class="hint">Translates the headings and labels printed on the document.</span></div>
+    <div class="field"><label for="footerText">Footer text</label><input id="footerText" placeholder="e.g. www.yourstudio.com · Thank you for your business" autocomplete="off"></div>
+    <div class="grid2">
+      <div class="field"><label for="watermark">Watermark</label>
+        <select id="watermark"><option value="">None</option><option value="PAID">Paid</option><option value="DRAFT">Draft</option><option value="COPY">Copy</option><option value="OVERDUE">Overdue</option><option value="VOID">Void</option><option value="custom">Custom text…</option></select></div>
+      <div class="field" id="watermarkTextField"><label for="watermarkText">Watermark text</label><input id="watermarkText" maxlength="24" placeholder="e.g. CONFIDENTIAL" autocomplete="off"></div>
+    </div>
+    <div class="field"><span class="field-lab">Signature or stamp</span>
+      <div class="brand-upload"><div class="brand-thumb" id="signThumb" aria-hidden="true"></div>
+        <div class="brand-upload-acts"><label class="btn small" for="signFile">Upload</label><input id="signFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="signRemoveBtn">Remove</button></div></div>
+      <label for="signHeight" class="sub-lab">Size</label><input id="signHeight" type="range" min="32" max="140" value="64" aria-label="Signature size"></div>
+    <div class="field"><span class="field-lab">Letterhead background</span>
+      <div class="brand-upload"><div class="brand-thumb lh" id="lhThumb" aria-hidden="true"></div>
+        <div class="brand-upload-acts"><label class="btn small" for="lhFile">Upload</label><input id="lhFile" type="file" accept="image/png,image/jpeg,image/webp" class="visually-hidden"><button type="button" class="btn small" id="lhRemoveBtn">Remove</button></div></div>
+      <label class="check-row"><input type="checkbox" id="useLetterhead"> Use letterhead on this document</label>
+      <div class="grid2" id="lhSpacing"><div class="field"><label for="lhTop">Space at top (mm)</label><input id="lhTop" type="number" min="0" max="120" step="1" value="30" inputmode="numeric"></div><div class="field"><label for="lhBottom">Space at bottom (mm)</label><input id="lhBottom" type="number" min="0" max="120" step="1" value="25" inputmode="numeric"></div></div>
+      <span class="hint">Upload a full-page image of your printed letterhead (A4 or Letter shape). Set the space so your text clears its header and footer.</span></div>
   </section>
   <section class="panel">
     <div class="panelhead"><h2>Layout</h2></div>
@@ -735,6 +802,26 @@
        Alignment/Template/Currency/Table Columns remain per-invoice-only,
        exactly as before (see the hint text below). Help remains real,
        current documentation of this app's own less-obvious interactions. -->
+  <div class="history-panel" id="clientsPanel" aria-label="Clients">
+    <div class="history-panel-head"><h2>Clients</h2><button class="btn small primary" id="clientAddBtn" type="button">Add client</button></div>
+    <div class="history-filters"><div class="pg-search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="search" id="clientSearch" placeholder="Search clients" aria-label="Search clients" autocomplete="off"></div>
+      <button class="btn small" id="clientSaveCurrentBtn" type="button">Save client from current invoice</button></div>
+    <span class="hint" id="clientsCount"></span>
+    <div id="clientsList" class="pg-grid"></div>
+  </div>
+  <div class="history-panel" id="productsPanel" aria-label="Products and services">
+    <div class="history-panel-head"><h2>Products &amp; services</h2><button class="btn small primary" id="productAddBtn" type="button">Add item</button></div>
+    <div class="history-filters"><div class="pg-search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="search" id="productSearch" placeholder="Search products and services" aria-label="Search products" autocomplete="off"></div>
+      <button class="btn small" id="productSaveCurrentBtn" type="button">Save items from current invoice</button></div>
+    <span class="hint" id="productsCount"></span>
+    <div id="productsList" class="pg-grid"></div>
+  </div>
+  <div class="history-panel" id="reportsPanel" aria-label="Reports">
+    <div class="history-panel-head"><h2>Reports</h2></div>
+    <div class="history-filters"><label class="pg-sort"><span>Period</span><select id="reportPeriod"><option value="12">Last 12 months</option><option value="ytd">This year</option><option value="all">All time</option></select></label>
+      <label class="pg-sort" id="reportCurWrap"><span>Currency</span><select id="reportCurrency"></select></label></div>
+    <div id="reportsBody"></div>
+  </div>
   <div class="history-panel" id="settingsPanel" role="dialog" aria-label="Settings">
     <div class="history-panel-head"><h2>Settings</h2></div>
     <section class="set-group" aria-labelledby="setDocH">
@@ -752,6 +839,13 @@
           <button type="button" class="theme-btn" data-theme="dark" role="tab" title="Dark theme">Dark</button>
           <button type="button" class="theme-btn" data-theme="system" role="tab" title="Match your device setting">Auto</button>
         </div></div>
+    </section>
+    <section class="set-group" aria-labelledby="setBackupH">
+      <h3 id="setBackupH">Backup &amp; restore</h3>
+      <div class="set-row"><div class="set-text"><span class="set-label">Download a backup</span><p id="backupLast">Saves every invoice, client, product, template and setting into one file. Keep it somewhere safe.</p></div>
+        <button class="btn small primary" id="backupBtn" type="button">Download backup</button></div>
+      <div class="set-row"><div class="set-text"><span class="set-label">Restore from a backup</span><p>Replaces everything on this device with the contents of a backup file.</p></div>
+        <button class="btn small" id="restoreBtn" type="button">Restore…</button><input type="file" id="restoreFile" class="hidden" accept=".json,application/json"></div>
     </section>
     <p class="hint set-note">Settings are saved on this device. Template, colors, currency and columns are set per document in the Design panel.</p>
     <section class="set-group danger-zone" aria-labelledby="setDangerH">
@@ -823,6 +917,11 @@
         <li><strong>Table columns</strong><span>Use <em>Edit columns</em> (or the ⋮ on a column) to rename, hide, reorder or resize columns. Drag the cards to change the order.</span></li>
         <li><strong>Import items</strong><span>Add many items at once from Excel, Google Sheets or a CSV file. Open “How to prepare your file” for an example and a sample file.</span></li>
         <li><strong>Download PDF</strong><span>Opens the print window set up for saving. Choose <em>Save as PDF</em> and the file looks exactly like the printout. The file is named after the invoice number and client.</span></li>
+        <li><strong>Clients and products</strong><span>Save clients and the things you sell once, then use <em>Choose saved client</em> and <em>Add saved item</em> on any invoice.</span></li>
+        <li><strong>Payments</strong><span>Add an online payment link (PayPal, Stripe, Wise, Payoneer, Square or Revolut) to print a QR code, and record <em>Amount paid</em> to show the balance due.</span></li>
+        <li><strong>Taxes</strong><span>Rename the tax (VAT, GST…), switch on a second tax under Show / Hide Sections, or add a column with the <em>Tax % for this line</em> calculation for per-item tax.</span></li>
+        <li><strong>Brand</strong><span>In the Design panel: colour presets, font, document language, footer text, watermark, signature or stamp, and your letterhead.</span></li>
+        <li><strong>Back up your data</strong><span>Everything is stored only on this device. Use Settings → Download backup regularly, and Restore to move to a new device.</span></li>
         <li><strong>Brand templates</strong><span>Save your company details and design once, then reuse them for every new invoice or another business.</span></li>
         <li><strong>Currency</strong><span>Click the currency box to choose from the list, click it again to type and search.</span></li>
         <li><strong>Install as an app</strong><span>Install it from your browser's menu or the install banner. It then works fully offline.</span></li>
@@ -863,6 +962,7 @@
         <option value="quantity">Quantity</option>
         <option value="rate">Rate</option>
         <option value="amount">Amount</option>
+        <option value="tax">Tax % for this line</option>
       </select>
     </div>
     <div class="logo-settings-footer" style="display:flex;gap:6px">
@@ -928,6 +1028,40 @@
     <p class="imp-note" id="pdfGuideFile"></p>
     <label class="cs-switch pdf-dontshow"><input type="checkbox" id="pdfGuideHide"><span>Don't show this again</span></label>
     <footer class="cs-foot"><button type="button" class="btn" data-pdf="cancel">Cancel</button><button type="button" class="btn primary" data-pdf="go">Continue</button></footer>
+  </div>
+</dialog>
+<dialog class="cs-dialog small-dialog" id="payLinkDialog" aria-labelledby="payLinkTitle">
+  <div class="cs-inner">
+    <header class="cs-head"><div><h2 id="payLinkTitle">Online payment link</h2><p class="cs-sub">Adds a "Pay online" link and a QR code your client can scan.</p></div>
+      <button type="button" class="cs-icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></header>
+    <div class="cs-field" style="margin-top:14px"><label for="payProvider">Payment provider</label>
+      <select id="payProvider" class="fe-input"><option value="PayPal">PayPal</option><option value="Stripe">Stripe</option><option value="Wise">Wise</option><option value="Payoneer">Payoneer</option><option value="Square">Square</option><option value="Revolut">Revolut</option><option value="other">Other payment link</option></select></div>
+    <div class="cs-field" style="margin-top:12px"><label for="payLink">Payment link</label><input id="payLink" class="fe-input" type="url" inputmode="url" placeholder="https://paypal.me/yourname" autocomplete="off" spellcheck="false"><p class="fe-err" id="payLinkErr" hidden role="alert"></p></div>
+    <footer class="cs-foot"><button type="button" class="btn danger" id="payLinkClear">Remove link</button><button type="button" class="btn primary" data-close>Done</button></footer>
+  </div>
+</dialog>
+<dialog class="cs-dialog small-dialog" id="shareDialog" aria-labelledby="shareTitle">
+  <div class="cs-inner">
+    <header class="cs-head"><div><h2 id="shareTitle">Send to client</h2><p class="cs-sub">Download the PDF first, then attach it to your message.</p></div>
+      <button type="button" class="cs-icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></header>
+    <div class="cs-field" style="margin-top:14px"><label for="shareTo">Client email</label><input id="shareTo" class="fe-input" type="email" autocomplete="off"></div>
+    <div class="cs-field" style="margin-top:12px"><label for="shareMsg">Message</label><textarea id="shareMsg" class="fe-input" rows="7"></textarea></div>
+    <div class="share-acts">
+      <button type="button" class="btn" data-share="pdf">Download PDF</button>
+      <button type="button" class="btn" data-share="email">Email</button>
+      <button type="button" class="btn" data-share="whatsapp">WhatsApp</button>
+      <button type="button" class="btn" data-share="copy">Copy message</button>
+      <button type="button" class="btn primary" data-share="native" hidden>Share…</button>
+    </div>
+  </div>
+</dialog>
+<dialog class="cs-dialog" id="pickerDialog" aria-labelledby="pickerTitle">
+  <div class="cs-inner">
+    <header class="cs-head"><div><h2 id="pickerTitle"></h2><p class="cs-sub" id="pickerSub"></p></div>
+      <button type="button" class="cs-icon-btn" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button></header>
+    <div class="pg-search picker-search"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="search" id="pickerSearch" placeholder="Search" aria-label="Search" autocomplete="off"></div>
+    <ul class="picker-list" id="pickerList" role="listbox" aria-labelledby="pickerTitle"></ul>
+    <footer class="cs-foot"><button type="button" class="btn" id="pickerManage">Manage list</button><button type="button" class="btn primary" data-close id="pickerDone">Done</button></footer>
   </div>
 </dialog>
 <script type="module" src="js/main.js"></script>

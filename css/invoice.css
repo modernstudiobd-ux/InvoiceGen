@@ -603,3 +603,4 @@ body.canvas-preview-mode .table-toolbar{display:none}
 body.canvas-preview-mode .invoice #shippingRow .money-input{display:none!important}
 body.canvas-preview-mode .invoice #shippingRow .ship-view{display:inline}
 @media print{.invoice #shippingRow .money-input{display:none!important}.invoice #shippingRow .ship-view{display:inline!important}}
+.invoice:not(.edit-stacked) .bottomgrid>.summary{grid-column:2}

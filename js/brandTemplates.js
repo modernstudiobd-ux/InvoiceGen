@@ -12,7 +12,7 @@
 // is already on screen.
 
 import { $, esc, uid, safeLogo } from "./dom.js";
-import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP } from "./state.js";
+import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, getFieldVal, setFieldVal } from "./state.js";
 import { normalizeLabels, syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
 import { renderToggles } from "./toggles.js";
@@ -21,7 +21,7 @@ import { save } from "./persistence.js";
 import { toast } from "./toast.js";
 import { dateFmt } from "./format.js";
 import { closeTemplatesPanel, setMobileView } from "./layout.js";
-import { ICON_EDIT, ICON_TRASH } from "./library.js";
+import { ICON_EDIT, ICON_TRASH } from "./icons.js";
 
 export const BRAND_KEY = "invoiceStudio.brandTemplates.v1";
 
@@ -32,7 +32,7 @@ export const BRAND_KEY = "invoiceStudio.brandTemplates.v1";
 const BRAND_FIELD_IDS = fields.filter(id => ![
   "invoiceNumber", "status", "invoiceDate", "dueDate", "reference",
   "clientName", "clientContact", "clientTax", "clientAddress", "clientEmail",
-  "discount", "tax", "shipping", "notes"
+  "discount", "tax", "shipping", "notes", "amountPaid", "watermark", "watermarkText", "tax2"
 ].includes(id));
 
 export function loadBrandTemplates() {
@@ -48,11 +48,12 @@ export function saveBrandTemplates(list) {
 // Snapshot just the brand-identity slice of the current on-screen invoice.
 function serializeBrand() {
   let f = {};
-  BRAND_FIELD_IDS.forEach(id => f[id] = $(id).value);
+  BRAND_FIELD_IDS.forEach(id => f[id] = getFieldVal(id));
   return {
     fields: f,
     logo: state.logo,
     logoNatural: state.logoNatural,
+    signature: state.signature,
     columns: state.columns,
     sections: state.sections
   };
@@ -87,7 +88,7 @@ export function applyBrandTemplate(id) {
   const entry = loadBrandTemplates().find(t => t.id === id);
   if (!entry) return;
   const d = entry.snapshot || {};
-  BRAND_FIELD_IDS.forEach(fid => { if (d.fields && fid in d.fields && typeof d.fields[fid] === "string") $(fid).value = d.fields[fid]; });
+  BRAND_FIELD_IDS.forEach(fid => { if (d.fields && fid in d.fields && typeof d.fields[fid] === "string") setFieldVal(fid, d.fields[fid]); });
   // Pre-3.15 templates kept labels in a separate top-level `labels` object.
   const legacyLabels = (d.labels && typeof d.labels === "object") ? d.labels : {};
   Object.entries(LEGACY_LABEL_MAP).forEach(([fid, legacyKey]) => {
@@ -97,8 +98,9 @@ export function applyBrandTemplate(id) {
     $(fid).value = legacyVal || "";
   });
   state.logo = safeLogo(d.logo);
+  if ("signature" in d) state.signature = safeLogo(d.signature);
   state.logoNatural = (d.logoNatural && typeof d.logoNatural.w === "number" && typeof d.logoNatural.h === "number") ? d.logoNatural : null;
-  let cleanColumns = Array.isArray(d.columns) ? d.columns.filter(c => c && typeof c === "object" && typeof c.key === "string" && typeof c.label === "string").map(c => ({ id: typeof c.id === "string" ? c.id : uid(), key: c.key, label: c.label, type: ["text", "number", "currency", "percentage", "date"].includes(c.type) ? c.type : "text", width: Number.isFinite(Number(c.width)) ? Number(c.width) : 15, align: ["left", "right", "center"].includes(c.align) ? c.align : "left", visible: c.visible !== false, role: ["none", "quantity", "rate", "amount"].includes(c.role) ? c.role : "none" })) : [];
+  let cleanColumns = Array.isArray(d.columns) ? d.columns.filter(c => c && typeof c === "object" && typeof c.key === "string" && typeof c.label === "string").map(c => ({ id: typeof c.id === "string" ? c.id : uid(), key: c.key, label: c.label, type: ["text", "number", "currency", "percentage", "date"].includes(c.type) ? c.type : "text", width: Number.isFinite(Number(c.width)) ? Number(c.width) : 15, align: ["left", "right", "center"].includes(c.align) ? c.align : "left", visible: c.visible !== false, role: ["none", "quantity", "rate", "amount", "tax"].includes(c.role) ? c.role : "none" })) : [];
   state.columns = cleanColumns.length ? cleanColumns : defaultColumns();
   state.sections = { ...defaultSections(), ...(d.sections && typeof d.sections === "object" ? d.sections : {}) };
   setAccent($("accentHex").value);

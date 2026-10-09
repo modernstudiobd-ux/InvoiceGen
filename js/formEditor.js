@@ -11,6 +11,7 @@ import { state, sectionDefs } from "./state.js";
 import { itemValue } from "./calc.js";
 import { num, fmtCell, CURRENCY_SYMBOLS } from "./format.js";
 import { initColumnsDialog, openColumnsDialog, syncColumnsDialog } from "./columnDialog.js";
+import { openPicker, saveCurrentClient } from "./catalog.js";
 
 let api = null;          // { addItem, renderPreview, save, refreshItemRowAndTotals }
 let built = false;
@@ -22,6 +23,7 @@ const GROUPS = [
   ["Details", [
     ["invoiceNumber", "Number", "text", null], ["status", "Status", "select", "status"],
     ["invoiceDate", "Issue date", "date", "invoiceDate", "", "labelInvoiceDate"], ["dueDate", "Due date", "date", "dueDate", "", "labelDueDate"],
+    ["paymentTerms", "Payment terms", "select", "payTerms"],
     ["reference", "Reference / PO", "text", "reference", "full", "labelReference"]]],
   ["Client", [
     ["clientName", "Client name", "text", "client"], ["clientEmail", "Client email", "email", "client"],
@@ -30,16 +32,19 @@ const GROUPS = [
   ["ITEMS", []],
   ["COLUMNS", []],
   ["Totals", [
-    ["discount", "Discount %", "num", "discount"], ["tax", "Tax %", "num", "tax"], ["shipping", "Shipping", "num", "shipping"]]],
+    ["discount", "Discount %", "num", "discount"], ["tax", "Tax %", "num", "tax"], ["shipping", "Shipping", "num", "shipping"],
+    ["labelTax", "Tax name (e.g. VAT, GST)", "text", "tax"], ["tax2", "Second tax %", "num", "tax2"], ["amountPaid", "Amount already paid", "num", "amountPaid"]]],
   ["Notes & terms", [
     ["notes", "Notes", "area", "notes", "full"], ["paymentDetails", "Payment details", "area", "payment", "full"],
-    ["terms", "Terms", "area", "terms", "full"], ["notesAlign", "Notes alignment", "select", "notes"]]],
+    ["terms", "Terms", "area", "terms", "full"], ["notesAlign", "Notes alignment", "select", "notes"],
+    ["payProvider", "Online payment provider", "select", "payQr"], ["payLink", "Online payment link (shows a QR code)", "url", "payQr"]]],
   ["Your company", [
     ["companyName", "Company name", "text", "company", "full"], ["companyEmail", "Email", "email", "company"],
     ["companyPhone", "Phone", "tel", "company"], ["companyWebsite", "Website", "url", "company"],
     ["companyReg", "Registration number", "text", "company"], ["companyVat", "VAT / Tax number", "text", "company"],
-    ["companyAddress", "Address", "area", "company", "full"]]],
+    ["companyAddress", "Address", "area", "company", "full"], ["footerText", "Footer text", "text", "footer", "full"]]],
   ["LOGO", []],
+  ["SIGN", [["signName", "Name or title under the signature", "text", "signature", "full"]]],
   ["DESIGN", []],
   ["LABELS", [
     ["labelTitle", "Document title", "text", null], ["labelBillTo", "Client heading", "text", "client"],
@@ -48,13 +53,14 @@ const GROUPS = [
     ["labelNote", "Notes heading", "text", "notes"], ["labelPayment", "Payment heading", "text", "payment"],
     ["labelTerms", "Terms heading", "text", "terms"]]]
 ];
-const PROFILE = new Set(["Your company", "LOGO", "DESIGN", "LABELS"]);
+const PROFILE = new Set(["Your company", "LOGO", "SIGN", "DESIGN", "LABELS"]);
 const NAV = [["Details", "feSecDetails"], ["Client", "feSecClient"], ["Items", "feItemsSec"], ["Totals", "feSecTotals"], ["Notes", "feSecNotes"], ["Business", "feProfile"]];
 const PH = {
   clientName: "e.g. Acme Ltd", clientEmail: "billing@acme.com", clientContact: "e.g. Jane Smith", clientTax: "e.g. GB123456789",
   clientAddress: "Street, city, postcode", companyName: "e.g. Your Studio", companyEmail: "hello@yourstudio.com",
   companyPhone: "+1 555 123 4567", companyWebsite: "https://yourstudio.com", invoiceNumber: "e.g. INV-0001",
-  reference: "e.g. PO-1234", notes: "e.g. Thank you for your business", discount: "0", tax: "0", shipping: "0.00"
+  reference: "e.g. PO-1234", notes: "e.g. Thank you for your business", discount: "0", tax: "0", shipping: "0.00",
+  tax2: "0", amountPaid: "0.00", labelTax: "Tax", payLink: "https://paypal.me/yourname", footerText: "e.g. www.yourstudio.com · Thank you!", signName: "e.g. Jane Smith, Director"
 };
 const AC = { companyName: "organization", companyEmail: "email", companyPhone: "tel", companyWebsite: "url", companyAddress: "street-address" };
 const SECID = { Details: "feSecDetails", Client: "feSecClient", Totals: "feSecTotals", "Notes & terms": "feSecNotes" };
@@ -90,7 +96,7 @@ function fieldEl(def) {
   });
   let box = el;
   if (kind === "num") {
-    const sym = id === "shipping" ? null : "%";
+    const sym = id === "shipping" || id === "amountPaid" ? null : "%";
     box = document.createElement("div"); box.className = "fe-affix" + (sym ? " fe-suffix" : " fe-prefix");
     const a = document.createElement("span"); a.className = "fe-aff"; a.setAttribute("aria-hidden", "true");
     if (sym) a.textContent = sym; else a.dataset.cur = "1";
@@ -130,6 +136,10 @@ function build() {
       sec.innerHTML = '<h2>Logo</h2><div class="fe-logo"><div class="fe-logo-thumb" id="feLogoThumb"><img alt="" id="feLogoImg" hidden><span id="feLogoLetter">Y</span></div><div class="fe-logo-actions"><label class="btn small primary" for="feLogoFile">Upload logo</label><input id="feLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="feLogoRemove">Remove</button><button type="button" class="btn small" id="feLogoReset">Reset size</button></div></div>' +
         '<div class="fe-grid"><div class="fe-field fe-full"><label for="fe_logoHeight">Size</label><div class="fe-wrow fe-logo-size"><input class="fe-range" id="fe_logoHeight" type="range" min="24" max="160" step="1" aria-describedby="feLogoSizeHint"><span class="fe-affix fe-suffix"><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off" aria-label="Logo height in pixels"><span class="fe-aff" aria-hidden="true">px</span></span></div><p class="fe-hint" id="feLogoSizeHint">Drag to resize. Proportions stay locked.</p></div>' +
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
+    } else if (title === "SIGN") {
+      sec.innerHTML = '<h2>Signature or stamp</h2><div class="fe-logo"><div class="fe-logo-thumb fe-sign-thumb" id="feSignThumb"></div><div class="fe-logo-actions"><button type="button" class="btn small primary" id="feSignUpload">Upload signature or stamp</button><button type="button" class="btn small" id="feSignRemove">Remove</button></div></div><div class="fe-grid"></div>';
+      const grid = sec.querySelector(".fe-grid");
+      defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
     } else if (title === "COLUMNS") {
       return;   // column + import tools live in the Line items toolbar (see ITEMS)
     } else if (title === "DESIGN") {
@@ -148,7 +158,7 @@ function build() {
           '<button type="button" class="btn small icon fe-libar-help" id="feImportInfo" aria-expanded="false" aria-controls="feImportHelp" aria-label="How to set up your import file" title="How to set up your file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7"/><line x1="12" y1="17.2" x2="12" y2="17.3"/></svg></button></div>' +
         '</div>' +
         '<div class="fe-import-help" id="feImportHelp" hidden></div>' +
-        '<div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div>';
+        '<div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost" id="fePickProduct">+ Add saved item</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div>';
     } else {
       sec.innerHTML = `<h2>${title}</h2><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
@@ -156,7 +166,7 @@ function build() {
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
       if (title === "Totals") {
         const sum = document.createElement("dl"); sum.className = "fe-sum"; sum.id = "feSum";
-        sum.innerHTML = '<div><dt>Subtotal</dt><dd id="feSub"></dd></div><div><dt>Discount</dt><dd id="feDisc"></dd></div><div><dt>Tax</dt><dd id="feTax"></dd></div><div class="fe-total"><dt id="feTotLabel">Total</dt><dd id="feTot"></dd></div>';
+        sum.innerHTML = '<div><dt>Subtotal</dt><dd id="feSub"></dd></div><div><dt>Discount</dt><dd id="feDisc"></dd></div><div><dt>Tax</dt><dd id="feTax"></dd></div><div id="feTax2Wrap"><dt>Second tax</dt><dd id="feTax2"></dd></div><div id="feItemTaxWrap"><dt>Item tax</dt><dd id="feItemTax"></dd></div><div class="fe-total"><dt id="feTotLabel">Total</dt><dd id="feTot"></dd></div><div id="fePaidWrap"><dt>Amount paid</dt><dd id="fePaid"></dd></div><div class="fe-total" id="feBalWrap"><dt>Balance due</dt><dd id="feBal"></dd></div>';
         sec.appendChild(sum);
       }
     }
@@ -183,6 +193,8 @@ function build() {
     });
   }
 
+  const cs = $("feSecClient");
+  if (cs) { const bar = document.createElement("div"); bar.className = "fe-client-bar"; bar.innerHTML = '<button type="button" class="btn small" id="fePickClient">Choose saved client</button><button type="button" class="btn small" id="feSaveClient">Save this client</button>'; cs.querySelector("h2").after(bar); }
   root.addEventListener("click", e => {
     const go = e.target.closest(".fe-nav [data-go]");
     if (go) {
@@ -192,6 +204,11 @@ function build() {
       return;
     }
     if (e.target.closest("#feAddItem")) { api.addItem(); return; }
+    if (e.target.closest("#fePickProduct")) { openPicker("product"); return; }
+    if (e.target.closest("#fePickClient")) { openPicker("client"); return; }
+    if (e.target.closest("#feSaveClient")) { saveCurrentClient(); return; }
+    if (e.target.closest("#feSignUpload")) { $("signFile").click(); return; }
+    if (e.target.closest("#feSignRemove")) { $("signRemoveBtn").click(); return; }
     const oc = e.target.closest("#feGoCols, #feEditCols, .fe-colpill");
     if (oc) { openColumnsDialog(oc, oc.dataset.key); return; }
     if (e.target.closest("#feClearAll")) { const b = $("clearItemsBtn"); if (b) b.click(); return; }
@@ -280,11 +297,16 @@ function updateAmounts() {
     const item = state.items[Number(n.dataset.idx)], col = cols.find(c => c.role === "amount");
     if (item && col) n.textContent = fmtCell(itemValue(item, col), col);
   });
-  [["feSub", "pSubtotal"], ["feDisc", "pDiscount"], ["feTax", "pTax"], ["feTot", "pTotal"]].forEach(([a, b]) => {
+  const showRow = (id, on) => { const el = $(id); if (el && el.hidden === on) el.hidden = !on; };
+  showRow("feTax2Wrap", state.sections.tax2 !== false);
+  const paidOn = state.sections.amountPaid !== false && num($("amountPaid").value) > 0;
+  showRow("fePaidWrap", paidOn); showRow("feBalWrap", paidOn);
+  showRow("feItemTaxWrap", !$("itemTaxRow").hidden);
+  [["feSub", "pSubtotal"], ["feDisc", "pDiscount"], ["feTax", "pTax"], ["feTax2", "pTax2"], ["feItemTax", "pItemTax"], ["feTot", "pTotal"], ["fePaid", "pPaid"], ["feBal", "pBalanceDue"]].forEach(([a, b]) => {
     const t = $(a), s = $(b); if (t && s && t.textContent !== s.textContent) t.textContent = s.textContent;
   });
   const tl = $("feTotLabel"), bl = $("labelBalance");
-  if (tl && bl) { const v = bl.value || bl.placeholder || "Total"; if (tl.textContent !== v) tl.textContent = v; }
+  if (tl && bl) { const v = paidOn ? "Total" : (bl.value || bl.placeholder || "Total"); if (tl.textContent !== v) tl.textContent = v; }
 }
 
 function renderItems() {
@@ -328,6 +350,11 @@ function renderColumns() {
   if (sig === colsSig) return;
   colsSig = sig;
   host.innerHTML = state.columns.map(c => `<button type="button" role="listitem" class="fe-colpill${c.visible ? "" : " is-off"}" data-key="${esc(c.key)}" style="--w:${Math.max(5, Math.round(num(c.width)))}" aria-label="Edit ${esc(c.label)} column${c.visible ? "" : " (hidden)"}"><span>${esc(c.label)}</span></button>`).join("");
+}
+function syncSign() {
+  const t = $("feSignThumb"); if (!t) return;
+  const want = state.signature ? `<img src="${esc(state.signature)}" alt="">` : '<span class="fe-sign-empty">No signature</span>';
+  if (t.dataset.v !== (state.signature || "-")) { t.innerHTML = want; t.dataset.v = state.signature || "-"; }
 }
 function syncLogo() {
   const img = $("feLogoImg"), letter = $("feLogoLetter"); if (!img) return;
@@ -376,6 +403,7 @@ function buildDesign(sec) {
     '<h3 class="fe-sub">Show / hide sections</h3><div class="fe-toggles" id="feToggles"></div></details>';
   const g = sec.querySelector("#feDesignGrid");
   mirrorSelect("template", "Template", g); mirrorSelect("paperSize", "Page size", g);
+  mirrorSelect("invoiceFont", "Font", g); mirrorSelect("docLanguage", "Document language", g); mirrorSelect("watermark", "Watermark", g);
   const cg = sec.querySelector("#feColorGrid");
   colorRow("accent", "Accent color", cg, false);
   COLOR_ROWS.forEach(([id, l]) => colorRow(id, l, cg, true));
@@ -414,6 +442,7 @@ export function syncFormEditor() {
   renderColumns();
   syncColumnsDialog();
   syncLogo();
+  syncSign();
   syncDesign();
   updateAmounts();
 }

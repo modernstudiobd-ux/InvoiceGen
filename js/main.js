@@ -28,7 +28,11 @@ import { initCalculators } from "./calculators.js";
 import { initFormEditor } from "./formEditor.js";
 import { initNavDeclutter, initMoreMenu, initPanelAccordion, initHistoryFilters, initFirstRun, confirmPrint, syncMobileTotal } from "./uxExtras.js";
 // layout.js self-wires its own listeners on import (sidebar resize, mobile view switch, floating panels, etc.)
-import { setCanvasMode } from "./layout.js";
+import { setCanvasMode, openPage, closePage } from "./layout.js";
+import { initFeatures } from "./features.js";
+import { initCatalog } from "./catalog.js";
+import { initReports } from "./reports.js";
+import { initBackup } from "./backup.js";
 
 /* --- Form field bindings: any change to a tracked field re-renders +
    autosaves. This also covers the document-label fields living directly on
@@ -314,6 +318,11 @@ initMoreMenu();
 initNavDeclutter();
 initPanelAccordion();
 initFormEditor({ addItem, renderPreview, save, refreshItemRowAndTotals, handleLogoFile, addColumn, removeColumn, hideColumn, setRole });
+initFeatures({ renderPreview, save, printPdf: () => $("pdfBtn").click() });
+initCatalog({ renderPreview, save, openPage, closePage });
+initReports();
+initBackup();
+renderPreview();
 try {
   const cm = localStorage.getItem("invoiceStudio.canvasMode");
   // Phones default to the Form editor (far easier than editing on a tiny page); Edit stays one tap away.

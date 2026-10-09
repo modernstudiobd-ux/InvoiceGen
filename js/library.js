@@ -58,7 +58,7 @@ export function saveToHistory() {
     let id = getCurrentId();
     if (!id) { id = uid(); setCurrentId(id); }
     const lib = loadLibrary();
-    const meta = { id, invoiceNumber: $("invoiceNumber").value || "Untitled", clientName: $("clientName").value || "", status: $("status").value, currency: $("currency").value, total: calc().total, updatedAt: Date.now(), snapshot: snap };
+    const meta = { id, invoiceNumber: $("invoiceNumber").value || "Untitled", clientName: $("clientName").value || "", status: $("status").value, currency: $("currency").value, total: calc().total, paid: calc().paid, docType: state.docType || "invoice", invoiceDate: $("invoiceDate").value, updatedAt: Date.now(), snapshot: snap };
     const idx = lib.findIndex(x => x.id === id);
     if (idx >= 0) lib[idx] = meta; else lib.unshift(meta);
     if (!saveLibrary(lib)) return false;
@@ -71,10 +71,8 @@ export function saveToHistory() {
   }
 }
 
-const SVG = (d) => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${d}</svg>`;
-export const ICON_COPY = SVG('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
-export const ICON_EDIT = SVG('<path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>');
-export const ICON_TRASH = SVG('<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>');
+import { ICON_COPY, ICON_EDIT, ICON_TRASH, SVG } from "./icons.js";
+export { ICON_COPY, ICON_EDIT, ICON_TRASH };
 const ICON_DOC = SVG('<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>');
 
 export function renderHistory() {

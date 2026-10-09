@@ -2,7 +2,8 @@
 // entry, or an imported .json file) back into live app state + a full re-render.
 
 import { $, uid, safeLogo } from "./dom.js";
-import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, DOC_TYPES } from "./state.js";
+import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, DOC_TYPES, setFieldVal } from "./state.js";
+const NEW_FIELD_DEFAULTS = { paymentTerms: "", tax2: "0", amountPaid: "0", watermark: "", watermarkText: "", signName: "", footerText: "", payLink: "", useLetterhead: "", lhTop: "30", lhBottom: "25" };
 import { syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
 import { renderToggles } from "./toggles.js";
@@ -11,7 +12,10 @@ import { save } from "./persistence.js";
 
 export function load(d) {
   if (!d || typeof d !== "object") throw Error("Invalid invoice file.");
-  fields.forEach(id => { if (d.fields && id in d.fields && typeof d.fields[id] === "string") $(id).value = d.fields[id]; });
+  fields.forEach(id => {
+    if (d.fields && id in d.fields && typeof d.fields[id] === "string") setFieldVal(id, d.fields[id]);
+    else if (NEW_FIELD_DEFAULTS[id] !== undefined) setFieldVal(id, NEW_FIELD_DEFAULTS[id]);   // older saves: reset new fields
+  });
   // Labels (document title, "Bill to", row labels, ...) used to live in a
   // separate top-level `labels` object instead of `fields` — fill any
   // label field an older save didn't have under `fields` from that legacy
@@ -27,8 +31,9 @@ export function load(d) {
   state.docType = Object.prototype.hasOwnProperty.call(DOC_TYPES, d.docType) ? d.docType : "invoice";
   state.logo = safeLogo(d.logo);
   state.logoNatural = (d.logoNatural && typeof d.logoNatural.w === "number" && typeof d.logoNatural.h === "number") ? d.logoNatural : null;
+  state.signature = safeLogo(d.signature);
   state.zoom = (typeof d.zoom === "number" && d.zoom >= 0.5 && d.zoom <= 1.5) ? d.zoom : 1;
-  let cleanColumns = Array.isArray(d.columns) ? d.columns.filter(c => c && typeof c === "object" && typeof c.key === "string" && typeof c.label === "string").map(c => ({ id: typeof c.id === "string" ? c.id : uid(), key: c.key, label: c.label, type: ["text", "number", "currency", "percentage", "date"].includes(c.type) ? c.type : "text", width: Number.isFinite(Number(c.width)) ? Number(c.width) : 15, align: ["left", "right", "center"].includes(c.align) ? c.align : "left", visible: c.visible !== false, role: ["none", "quantity", "rate", "amount"].includes(c.role) ? c.role : "none" })) : [];
+  let cleanColumns = Array.isArray(d.columns) ? d.columns.filter(c => c && typeof c === "object" && typeof c.key === "string" && typeof c.label === "string").map(c => ({ id: typeof c.id === "string" ? c.id : uid(), key: c.key, label: c.label, type: ["text", "number", "currency", "percentage", "date"].includes(c.type) ? c.type : "text", width: Number.isFinite(Number(c.width)) ? Number(c.width) : 15, align: ["left", "right", "center"].includes(c.align) ? c.align : "left", visible: c.visible !== false, role: ["none", "quantity", "rate", "amount", "tax"].includes(c.role) ? c.role : "none" })) : [];
   state.columns = cleanColumns.length ? cleanColumns : defaultColumns();
   state.items = Array.isArray(d.items) ? d.items.filter(i => i && typeof i === "object") : [];
   state.sections = { ...defaultSections(), ...(d.sections && typeof d.sections === "object" ? d.sections : {}) };

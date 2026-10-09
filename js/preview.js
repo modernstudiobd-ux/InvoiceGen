@@ -9,6 +9,7 @@ import { syncFormEditor } from "./formEditor.js";
 import { applyAllOptionalColors } from "./accent.js";
 import { syncCurrencyDisplay } from "./currencySearch.js";
 import { buildColumnHeaderHtml, buildAddColumnHeaderHtml } from "./columnCanvas.js";
+import { renderExtras } from "./features.js";
 
 // Writes text into a preview element — a thin wrapper kept mainly so every
 // preview text update goes through one place (guards against a missing
@@ -215,14 +216,7 @@ export function renderPreview() {
   }
 
   let t = calc();
-  setText($("pSubtotal"), money(t.subtotal));
-  setText($("pDiscount"), "−" + money(t.disc));
-  setText($("pTax"), money(t.tax));
-  setText($("pShipping"), money(t.ship));
-  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total)); syncMobileTotal();
-  $("discountRow").classList.toggle("print-hide-empty", !t.disc);
-  $("taxRow").classList.toggle("print-hide-empty", !t.tax);
-  $("shippingRow").classList.toggle("print-hide-empty", !t.ship);
+  applyTotals(t);
   $("pLogoFallback").textContent = ($("companyName").value.trim()[0] || "I").toUpperCase();
   let img = $("pLogo"), box = img.closest(".logobox");
   const logoSize = Math.max(24, Math.min(160, num($("logoHeight").value) || 48));
@@ -278,15 +272,30 @@ export function refreshItemRowAndTotals(idx) {
     }
   }
   let t = calc();
+  applyTotals(t);
+  syncFormEditor();
+}
+
+// Totals block (both full renders and the fast per-cell refresh go through here).
+function applyTotals(t) {
   setText($("pSubtotal"), money(t.subtotal));
   setText($("pDiscount"), "−" + money(t.disc));
   setText($("pTax"), money(t.tax));
+  setText($("pTax2"), money(t.tax2));
+  setText($("pItemTax"), money(t.itemTax));
   setText($("pShipping"), money(t.ship));
-  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.total)); syncMobileTotal();
+  setText($("pPaid"), "−" + money(t.paid));
+  setText($("pBalanceDue"), money(t.balance));
+  setText($("pTotal"), money(t.total)); setText($("pBalance"), money(t.balance));
   $("discountRow").classList.toggle("print-hide-empty", !t.disc);
   $("taxRow").classList.toggle("print-hide-empty", !t.tax);
+  $("tax2Row").classList.toggle("print-hide-empty", !t.tax2);
+  $("itemTaxRow").hidden = !t.hasItemTax;
   $("shippingRow").classList.toggle("print-hide-empty", !t.ship);
-  syncFormEditor();
+  $("paidRow").classList.toggle("print-hide-empty", !t.paid);
+  $("balanceRow").classList.toggle("print-hide-empty", !t.paid);
+  renderExtras(t);
+  syncMobileTotal();
 }
 
 // Textareas living on the canvas (company/client address, notes, payment
