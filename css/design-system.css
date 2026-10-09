@@ -906,3 +906,34 @@ body.page-open #feFab,body.page-open #feSnack,body.page-open .first-run{display:
 .app.page-open .navitem[data-doctype]{background:transparent}
 .app.page-open .navitem[data-doctype] strong{color:inherit}
 .app.page-open .navitem[data-doctype] .icon{color:inherit}
+
+/* ==== v3.34.0 — Line items toolbar: columns + import, compact, always beside Line items ==== */
+#feItemsSec>h2{margin-bottom:10px}
+.fe-libar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;margin:0 0 12px;border:1px solid var(--ds-hairline);border-radius:12px;background:var(--ds-canvas-soft)}
+.fe-libar-cols{flex:1 1 100%;min-width:0;display:flex;flex-direction:column;gap:6px}
+.fe-libar-lab{font:600 12px/1 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+.fe-libar-lab small{font-weight:400;color:var(--ds-muted)}
+.fe-libar .fe-colstrip{gap:4px}
+.fe-libar .fe-colpill{min-height:28px;font-size:11.5px}
+.fe-libar-acts{flex:1 1 100%;display:flex;align-items:center;gap:6px}
+.fe-libar-acts .btn{min-height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;white-space:nowrap}
+.fe-libar-acts .btn .icon{width:15px;height:15px;margin:0}
+.fe-libar-acts .btn.icon{width:36px;padding:0;justify-content:center}
+.fe-libar-help.active{background:var(--ds-strong);border-color:var(--ds-ink)}
+.fe-import-help{margin:-4px 0 12px;padding:12px 14px;border:1px solid var(--ds-hairline);border-radius:12px;background:var(--ds-card);font-size:13px;color:var(--ds-body)}
+.fe-import-help[hidden]{display:none}
+.fe-import-help-title{margin:0 0 4px;font:600 13px/1.3 Inter,system-ui,sans-serif;color:var(--ds-ink)}
+.fe-import-help p{margin:4px 0}
+.fe-import-help .importhelp-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;margin:6px 0}
+.fe-import-help .importhelp-list li{padding:0;border:0;font-size:12px;color:var(--ds-muted)}
+.fe-import-help .importhelp-list strong{display:inline;font-size:12px}
+.fe-import-help .importhelp-list strong::after{content:" — "}
+.fe-import-help .importhelp-aliases{display:inline}
+.fe-import-help .hint{font-size:12px}
+@media (max-width:640px){.fe-import-help .importhelp-list{grid-template-columns:1fr}}
+@media (max-width:640px){.fe-libar-acts .btn:not(.icon){flex:1}}
+@media (max-width:640px){
+  .fe-libar-acts .btn{min-height:44px}
+  .fe-libar-acts .btn.icon{width:44px}
+  .fe-libar .fe-colpill{min-height:32px}
+}

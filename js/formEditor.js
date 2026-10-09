@@ -131,8 +131,7 @@ function build() {
         '<div class="fe-grid"><div class="fe-field fe-full"><label for="fe_logoHeight">Size</label><div class="fe-wrow fe-logo-size"><input class="fe-range" id="fe_logoHeight" type="range" min="24" max="160" step="1" aria-describedby="feLogoSizeHint"><span class="fe-affix fe-suffix"><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off" aria-label="Logo height in pixels"><span class="fe-aff" aria-hidden="true">px</span></span></div><p class="fe-hint" id="feLogoSizeHint">Drag to resize. Proportions stay locked.</p></div>' +
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
     } else if (title === "COLUMNS") {
-      sec.className += " fe-colsec"; sec.id = "feColsSec";
-      sec.innerHTML = '<div class="fe-colsum"><div class="fe-colsum-head"><div><h3>Table columns</h3><small id="feColCount"></small></div><button type="button" class="btn small" id="feEditCols" aria-haspopup="dialog">Edit columns</button></div><div class="fe-colstrip" id="feCols" role="list" aria-label="Columns in table order"></div></div>';
+      return;   // column + import tools live in the Line items toolbar (see ITEMS)
     } else if (title === "DESIGN") {
       buildDesign(sec);
     } else if (title === "LABELS") {
@@ -141,7 +140,15 @@ function build() {
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
     } else if (title === "ITEMS") {
       sec.id = "feItemsSec";
-      sec.innerHTML = '<h2>Line items</h2><div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div><div class="fe-import" id="feImportBox"><div class="fe-import-title">Import from spreadsheet</div><p class="fe-hint">Upload a CSV or Excel file (.csv, .xlsx, .xls). Its columns are matched to your table columns automatically.</p><button type="button" class="btn primary" id="feImport">Choose CSV / Excel file</button><div id="feImportHelp"></div></div>';
+      sec.innerHTML = '<h2>Line items</h2>' +
+        '<div class="fe-libar" role="group" aria-label="Table columns and import">' +
+          '<div class="fe-libar-cols"><span class="fe-libar-lab">Columns <small id="feColCount"></small></span><div class="fe-colstrip" id="feCols" role="list" aria-label="Columns in table order"></div></div>' +
+          '<div class="fe-libar-acts"><button type="button" class="btn small" id="feEditCols" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="20"/></svg>Edit columns</button>' +
+          '<button type="button" class="btn small" id="feImport" title="Import line items from a CSV or Excel file (.csv, .xlsx, .xls)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV / Excel</button>' +
+          '<button type="button" class="btn small icon fe-libar-help" id="feImportInfo" aria-expanded="false" aria-controls="feImportHelp" aria-label="How to set up your import file" title="How to set up your file"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7"/><line x1="12" y1="17.2" x2="12" y2="17.3"/></svg></button></div>' +
+        '</div>' +
+        '<div class="fe-import-help" id="feImportHelp" hidden></div>' +
+        '<div id="feItems" class="fe-items"></div><div class="fe-item-tools"><button type="button" class="fe-add" id="feAddItem">+ Add line item</button><button type="button" class="fe-add fe-ghost fe-danger" id="feClearAll">Clear all items</button></div>';
     } else {
       sec.innerHTML = `<h2>${title}</h2><div class="fe-grid"></div>`;
       const grid = sec.querySelector(".fe-grid");
@@ -153,12 +160,11 @@ function build() {
         sec.appendChild(sum);
       }
     }
-    if (title === "COLUMNS") { const imp = root.querySelector("#feImportBox"); if (imp) { imp.before(sec); return; } }
     (PROFILE.has(title) ? profBody : root).appendChild(sec);
     if (title === "Notes & terms") root.appendChild(prof);
   });
   const help = document.querySelector("#importPanel .importhelp"), hh = $("feImportHelp");
-  if (help && hh) hh.innerHTML = '<details class="fe-details fe-help">' + help.innerHTML.replace(/<summary>[\s\S]*?<\/summary>/, "<summary>How to set up your file</summary>") + "</details>";
+  if (help && hh) { const body = help.querySelector(".importhelp-body"); hh.innerHTML = '<p class="fe-import-help-title">Set up your CSV / Excel file</p>' + (body ? body.innerHTML : ""); }
   const foot = document.createElement("div"); foot.className = "fe-foot";
   foot.innerHTML = '<button type="button" class="btn primary" id="feSeePreview">See preview</button>';
   root.appendChild(foot);
@@ -197,6 +203,8 @@ function build() {
     }
     if (e.target.closest("#feSeePreview")) { $("canvasModePreviewBtn").click(); return; }
     if (e.target.closest("#feImport")) { $("importSheetBtn").click(); return; }
+    const info = e.target.closest("#feImportInfo");
+    if (info) { const h = $("feImportHelp"), open = h.hidden; h.hidden = !open; info.setAttribute("aria-expanded", String(open)); info.classList.toggle("active", open); return; }
     if (e.target.closest("#feLogoRemove")) { $("removeLogoBtn").click(); return; }
     if (e.target.closest("#feLogoReset")) { $("resetLogoSizeBtn").click(); return; }
     const pos = e.target.closest("#feLogoPos button");
@@ -315,7 +323,7 @@ let colsSig = "";
 /* Compact, read-only summary of the table columns (in order). Editing happens in the Table columns popup. */
 function renderColumns() {
   const host = $("feCols"); if (!host) return;
-  const cc = $("feColCount"); if (cc) cc.textContent = state.columns.filter(c => c.visible).length + " of " + state.columns.length + " shown";
+  const cc = $("feColCount"); if (cc) cc.textContent = "· " + state.columns.filter(c => c.visible).length + " of " + state.columns.length + " shown";
   const sig = state.columns.map(c => [c.key, c.label, c.visible ? 1 : 0, Math.round(num(c.width))].join("|")).join(";");
   if (sig === colsSig) return;
   colsSig = sig;
