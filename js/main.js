@@ -332,7 +332,7 @@ renderPreview();
 try {
   const cm = localStorage.getItem("invoiceStudio.canvasMode");
   // Phones default to the Form editor (far easier than editing on a tiny page); Edit stays one tap away.
-  if (cm === "form" || (cm === null && window.matchMedia("(max-width:640px)").matches)) setCanvasMode("form");
+  if (cm === "form" || cm === null) setCanvasMode("form");
 } catch {}
 initHistoryFilters(renderHistory);
 initFirstRun();

@@ -399,14 +399,14 @@ function colorRow(id, label, host, optional) {
 }
 function buildDesign(sec) {
   sec.innerHTML = '<details class="fe-details" id="feDesignDetails"><summary>Design &amp; layout</summary><p class="fe-hint">Template, page size, colors and which sections appear on the document.</p>' +
-    '<div class="fe-grid" id="feDesignGrid"></div><h3 class="fe-sub">Colors</h3><div class="fe-grid" id="feColorGrid"></div><button type="button" class="btn small" id="feResetColors">Reset colors</button>' +
+    '<div class="fe-grid" id="feDesignGrid"></div><h3 class="fe-sub">Colors</h3><div class="fe-grid" id="feColorGrid"></div><details class="fe-details fe-customcolors"><summary>Custom colors</summary><div class="fe-grid" id="feCustomGrid"></div></details><button type="button" class="btn small" id="feResetColors">Reset colors</button>' +
     '<h3 class="fe-sub">Show / hide sections</h3><div class="fe-toggles" id="feToggles"></div></details>';
   const g = sec.querySelector("#feDesignGrid");
   mirrorSelect("template", "Template", g); mirrorSelect("paperSize", "Page size", g);
   mirrorSelect("colorStyle", "Color style", g); mirrorSelect("invoiceFont", "Font", g); mirrorSelect("docLanguage", "Document language", g); mirrorSelect("watermark", "Watermark", g);
   const cg = sec.querySelector("#feColorGrid");
   colorRow("accent", "Brand color", cg, false);
-  COLOR_ROWS.forEach(([id, l]) => colorRow(id, l, cg, true));
+  COLOR_ROWS.forEach(([id, l]) => colorRow(id, l, sec.querySelector("#feCustomGrid"), true));
   sec.querySelector("#feResetColors").addEventListener("click", () => { const b = $("resetColorBtn"); if (b) b.click(); });
   const t = sec.querySelector("#feToggles");
   sectionDefs.forEach(([k, l]) => {

@@ -41,6 +41,7 @@
 <link rel="stylesheet" href="css/templates.css">
 <link rel="stylesheet" href="css/responsive.css">
 <link rel="stylesheet" href="css/design-system.css">
+<link rel="stylesheet" href="css/phone.css">
 <link rel="stylesheet" href="css/print.css">
 <style id="pageSizeCSS"></style>
 </head>
@@ -611,8 +612,8 @@
       <span class="hint" id="colorStyleHint"></span>
     </div>
     <details class="advanced-colors" id="advancedColors">
-    <summary>Custom colors (advanced)</summary>
-    <div class="hint" style="margin:8px 0 10px">The settings below are optional overrides — leave the HEX field empty to keep the template's own default (the Balance due label color is chosen automatically for readability).</div>
+    <summary>Custom colors</summary>
+    <div class="hint" style="margin:8px 0 10px">Optional. Leave a field empty to keep the template's color.</div>
     <div class="field">
       <label for="balanceLabelColorHex">Balance due label color</label>
       <div class="colorrow">
@@ -663,6 +664,7 @@
       <select id="docLanguage"><option value="en">English</option><option value="zh">中文 (Chinese, Simplified)</option><option value="es">Español (Spanish)</option><option value="hi">हिन्दी (Hindi)</option><option value="ar">العربية (Arabic)</option><option value="bn">বাংলা (Bangla)</option><option value="pt">Português (Portuguese)</option><option value="ru">Русский (Russian)</option><option value="ja">日本語 (Japanese)</option><option value="de">Deutsch (German)</option><option value="fr">Français (French)</option><option value="ur">اردو (Urdu)</option><option value="id">Bahasa Indonesia (Indonesian)</option><option value="tr">Türkçe (Turkish)</option><option value="ko">한국어 (Korean)</option><option value="vi">Tiếng Việt (Vietnamese)</option><option value="it">Italiano (Italian)</option><option value="fa">فارسی (Persian)</option><option value="th">ไทย (Thai)</option><option value="pl">Polski (Polish)</option><option value="uk">Українська (Ukrainian)</option><option value="nl">Nederlands (Dutch)</option><option value="ms">Bahasa Melayu (Malay)</option><option value="sw">Kiswahili (Swahili)</option></select>
       <span class="hint">Translates the headings and labels printed on the document.</span></div>
     <div class="field"><label for="footerText">Footer text</label><input id="footerText" placeholder="e.g. www.yourstudio.com · Thank you for your business" autocomplete="off"></div>
+    <details class="brand-more" id="brandMore"><summary>Watermark, signature and letterhead</summary>
     <div class="grid2">
       <div class="field"><label for="watermark">Watermark</label>
         <select id="watermark"><option value="">None</option><option value="PAID">Paid</option><option value="DRAFT">Draft</option><option value="COPY">Copy</option><option value="OVERDUE">Overdue</option><option value="VOID">Void</option><option value="custom">Custom text…</option></select></div>
@@ -678,6 +680,7 @@
       <label class="check-row"><input type="checkbox" id="useLetterhead"> Use letterhead on this document</label>
       <div class="grid2" id="lhSpacing"><div class="field"><label for="lhTop">Space at top (mm)</label><input id="lhTop" type="number" min="0" max="120" step="1" value="30" inputmode="numeric"></div><div class="field"><label for="lhBottom">Space at bottom (mm)</label><input id="lhBottom" type="number" min="0" max="120" step="1" value="25" inputmode="numeric"></div></div>
       <span class="hint">Upload a full-page image of your printed letterhead (A4 or Letter shape). Set the space so your text clears its header and footer.</span></div>
+    </details>
   </section>
   <section class="panel">
     <div class="panelhead"><h2>Layout</h2></div>
@@ -698,7 +701,7 @@
         </select>
       </div>
     </div>
-    <span class="hint">Page size affects screen, print and PDF. Alignment applies to notes, payment and terms text.</span>
+    
   </section>
   <section class="panel">
     <div class="panelhead"><h2>Show / Hide Sections</h2></div>
@@ -842,6 +845,11 @@
         <select id="settingPaperSize"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">US Letter (8.5 × 11 in)</option></select></div>
       <div class="set-row"><div class="set-text"><label for="settingDateFormat">Date format</label><p>How dates are written on your documents.</p></div>
         <select id="settingDateFormat"><option value="dmy">31/12/2026 (day first)</option><option value="mdy">12/31/2026 (month first)</option></select></div>
+    </section>
+    <section class="set-group" aria-labelledby="setEditorH">
+      <h3 id="setEditorH">Editor</h3>
+      <div class="set-row"><div class="set-text"><label for="settingEditMode">Edit mode</label><p>Type directly on the invoice. Works best on a large screen. Form and Preview stay available.</p></div>
+        <select id="settingEditMode"><option value="1">Show</option><option value="0">Hide</option></select></div>
     </section>
     <section class="set-group" aria-labelledby="settingThemeLabel">
       <h3>Appearance</h3>
@@ -1112,5 +1120,8 @@
 </dialog>
 <div id="posReceipt" aria-hidden="true"></div>
 <script type="module" src="js/main.js"></script>
+<script type="module" src="js/editorPrefs.js"></script>
+<script type="module" src="js/designUx.js"></script>
+<script type="module" src="js/tooltips.js"></script>
 </body>
 </html>
