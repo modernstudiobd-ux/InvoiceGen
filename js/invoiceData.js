@@ -3,7 +3,7 @@
 
 import { $, uid, safeLogo } from "./dom.js";
 import { state, fields, defaultColumns, defaultSections, defaultLabels, LEGACY_LABEL_MAP, DOC_TYPES, setFieldVal } from "./state.js";
-const NEW_FIELD_DEFAULTS = { paymentTerms: "", tax2: "0", amountPaid: "0", watermark: "", watermarkText: "", signName: "", footerText: "", payLink: "", useLetterhead: "", lhTop: "30", lhBottom: "25", colorStyle: "" };
+const NEW_FIELD_DEFAULTS = { paymentTerms: "", tax2: "0", amountPaid: "0", watermark: "", watermarkText: "", signName: "", footerText: "", payLink: "", useLetterhead: "", lhTop: "30", lhBottom: "25", colorStyle: "", signAuto: "1" };
 import { syncDocTypeUI } from "./docType.js";
 import { setAccent, applyAllOptionalColors } from "./accent.js";
 import { renderToggles } from "./toggles.js";

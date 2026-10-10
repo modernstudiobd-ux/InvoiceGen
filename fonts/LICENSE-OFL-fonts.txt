@@ -35,3 +35,9 @@ Copyright 2022 The Noto Project Authors (https://github.com/notofonts/sinhala)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 All fonts above: SIL Open Font License 1.1 — https://openfontlicense.org
+
+
+== great vibes
+Copyright 2010 The Great Vibes Pro Project Authors (https://github.com/googlefonts/great-vibes)
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.

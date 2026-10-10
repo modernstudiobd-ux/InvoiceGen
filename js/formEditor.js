@@ -11,7 +11,8 @@ import { state, sectionDefs } from "./state.js";
 import { itemValue } from "./calc.js";
 import { num, fmtCell, CURRENCY_SYMBOLS } from "./format.js";
 import { initColumnsDialog, openColumnsDialog, syncColumnsDialog } from "./columnDialog.js";
-import { openPicker, saveCurrentClient } from "./catalog.js";
+import { openPicker, saveCurrentClient, syncClientSaveButtons } from "./catalog.js";
+import { signatureName } from "./features.js";
 
 let api = null;          // { addItem, renderPreview, save, refreshItemRowAndTotals }
 let built = false;
@@ -154,9 +155,11 @@ function build() {
         '<div class="fe-grid"><div class="fe-field fe-full"><label for="fe_logoHeight">Size</label><div class="fe-wrow fe-logo-size"><input class="fe-range" id="fe_logoHeight" type="range" min="24" max="160" step="1" aria-describedby="feLogoSizeHint"><span class="fe-affix fe-suffix"><input class="fe-input fe-num" id="fe_logoHeightValue" type="text" inputmode="numeric" autocomplete="off" aria-label="Logo height in pixels"><span class="fe-aff" aria-hidden="true">px</span></span></div><p class="fe-hint" id="feLogoSizeHint">Drag to resize. Proportions stay locked.</p></div>' +
         '<div class="fe-field"><span class="fe-lab">Position</span><div class="fe-seg" id="feLogoPos" role="group" aria-label="Logo position"><button type="button" data-pos="">Auto</button><button type="button" data-pos="left">Left</button><button type="button" data-pos="above">Above</button></div></div></div>';
     } else if (title === "SIGN") {
-      sec.innerHTML = '<h2>Signature or stamp</h2><div class="fe-logo"><div class="fe-logo-thumb fe-sign-thumb" id="feSignThumb"></div><div class="fe-logo-actions"><button type="button" class="btn small primary" id="feSignUpload">Upload signature or stamp</button><button type="button" class="btn small" id="feSignRemove">Remove</button></div></div><div class="fe-grid"></div>';
+      sec.innerHTML = '<h2>Signature or stamp</h2><div class="fe-logo"><div class="fe-logo-thumb fe-sign-thumb" id="feSignThumb"></div><div class="fe-logo-actions"><button type="button" class="btn small primary" id="feSignUpload">Upload signature or stamp</button><button type="button" class="btn small" id="feSignRemove">Remove</button></div></div><div class="fe-grid"></div><label class="fe-chk fe-sign-auto"><input type="checkbox" id="fe_signAuto"> No image? Sign with my name in handwriting</label><p class="fe-hint">Uses the name typed below, e.g. "Jane Smith, Director" signs as Jane Smith.</p>';
       const grid = sec.querySelector(".fe-grid");
       defs.forEach(d => { const f = fieldEl(d); if (f) grid.appendChild(f); });
+      const sa = sec.querySelector("#fe_signAuto");
+      sa.addEventListener("change", () => { const src = $("signAuto"); if (!src) return; src.checked = sa.checked; src.dispatchEvent(new Event("input", { bubbles: true })); });
     } else if (title === "COLUMNS") {
       return;   // column + import tools live in the Line items toolbar (see ITEMS)
     } else if (title === "DESIGN") {
@@ -211,7 +214,7 @@ function build() {
   }
 
   const cs = $("feSecClient");
-  if (cs) { const bar = document.createElement("div"); bar.className = "fe-client-bar"; bar.innerHTML = '<button type="button" class="btn small" id="fePickClient">Choose saved client</button><button type="button" class="btn small" id="feSaveClient">Save this client</button>'; cs.querySelector("h2").after(bar); }
+  if (cs) { const bar = document.createElement("div"); bar.className = "fe-client-bar"; bar.innerHTML = '<button type="button" class="btn small" id="fePickClient">Choose saved client</button><button type="button" class="btn small" id="feSaveClient">Save as client</button>'; cs.querySelector("h2").after(bar); }
   root.addEventListener("click", e => {
     const go = e.target.closest(".fe-nav [data-go]");
     if (go) {
@@ -223,7 +226,8 @@ function build() {
     if (e.target.closest("#feAddItem")) { api.addItem(); return; }
     if (e.target.closest("#fePickProduct")) { openPicker("product"); return; }
     if (e.target.closest("#fePickClient")) { openPicker("client"); return; }
-    if (e.target.closest("#feSaveClient")) { saveCurrentClient(); return; }
+    const sc = e.target.closest("#feSaveClient");
+    if (sc) { if (sc.dataset.state !== "saved") saveCurrentClient(); return; }
     if (e.target.closest("#feSignUpload")) { $("signFile").click(); return; }
     if (e.target.closest("#feSignRemove")) { $("signRemoveBtn").click(); return; }
     const oc = e.target.closest("#feGoCols, #feEditCols, .fe-colpill");
@@ -371,8 +375,12 @@ function renderColumns() {
 }
 function syncSign() {
   const t = $("feSignThumb"); if (!t) return;
-  const want = state.signature ? `<img src="${esc(state.signature)}" alt="">` : '<span class="fe-sign-empty">No signature</span>';
-  if (t.dataset.v !== (state.signature || "-")) { t.innerHTML = want; t.dataset.v = state.signature || "-"; }
+  const auto = $("signAuto"), sa = $("fe_signAuto");
+  if (sa && auto && sa.checked !== auto.checked) sa.checked = auto.checked;
+  const name = !state.signature && auto && auto.checked ? signatureName() : "";
+  const key = state.signature || (name ? "s:" + name : "-");
+  const want = state.signature ? `<img src="${esc(state.signature)}" alt="">` : name ? `<span class="sign-script-thumb">${esc(name)}</span>` : '<span class="fe-sign-empty">No signature</span>';
+  if (t.dataset.v !== key) { t.innerHTML = want; t.dataset.v = key; }
 }
 function syncLogo() {
   const img = $("feLogoImg"), letter = $("feLogoLetter"); if (!img) return;
@@ -467,6 +475,7 @@ export function syncFormEditor() {
   syncColumnsDialog();
   syncLogo();
   syncSign();
+  syncClientSaveButtons();
   syncDesign();
   updateAmounts();
 }

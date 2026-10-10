@@ -434,7 +434,7 @@
     </header>
     <section class="billrow">
       <div data-section="client">
-        <div class="billto-head"><input id="labelBillTo" class="label" placeholder="BILL TO" aria-label="Bill to label"><button type="button" class="edit-chip" id="pickClientBtn" aria-haspopup="dialog">Choose saved client</button></div>
+        <div class="billto-head"><input id="labelBillTo" class="label" placeholder="BILL TO" aria-label="Bill to label"><button type="button" class="edit-chip" id="pickClientBtn" aria-haspopup="dialog">Choose saved client</button><button type="button" class="edit-chip" id="saveClientChipBtn">Save as client</button></div>
         <input id="clientName" class="clientname" title="Needed before printing" placeholder="Client name" aria-label="Client company name">
         <div class="metaText" id="pClientMeta">
           <input id="clientContact" placeholder="Contact name" aria-label="Client contact">
@@ -498,7 +498,7 @@
         <button type="button" class="extras-add" id="payLinkBtn" aria-haspopup="dialog">+ Add an online payment link</button>
       </div>
       <div class="signbox" id="signBox" data-section="signature">
-        <div class="sign-img"><img id="pSignature" alt="Signature or company stamp" hidden></div>
+        <div class="sign-img"><img id="pSignature" alt="Signature or company stamp" hidden><div class="sign-script" id="pSignScript" hidden></div></div>
         <button type="button" class="extras-add" id="signAddBtn">+ Add signature or stamp</button>
         <div class="sign-line"></div>
         <input id="signName" class="sign-name" placeholder="Authorized signature" aria-label="Name or title under the signature">
@@ -660,7 +660,8 @@
     <div class="field"><span class="field-lab">Signature or stamp</span>
       <div class="brand-upload"><div class="brand-thumb" id="signThumb" aria-hidden="true"></div>
         <div class="brand-upload-acts"><label class="btn small" for="signFile">Upload</label><input id="signFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="visually-hidden"><button type="button" class="btn small" id="signRemoveBtn">Remove</button></div></div>
-      <label for="signHeight" class="sub-lab">Size</label><input id="signHeight" type="range" min="32" max="140" value="64" aria-label="Signature size"></div>
+      <label for="signHeight" class="sub-lab">Size</label><input id="signHeight" type="range" min="32" max="140" value="64" aria-label="Signature size">
+      <label class="check-row"><input type="checkbox" id="signAuto" checked> No image? Sign with my name in handwriting</label></div>
     <div class="field"><span class="field-lab">Letterhead background</span>
       <div class="brand-upload"><div class="brand-thumb lh" id="lhThumb" aria-hidden="true"></div>
         <div class="brand-upload-acts"><label class="btn small" for="lhFile">Upload</label><input id="lhFile" type="file" accept="image/png,image/jpeg,image/webp" class="visually-hidden"><button type="button" class="btn small" id="lhRemoveBtn">Remove</button></div></div>

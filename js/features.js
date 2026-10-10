@@ -102,6 +102,13 @@ export function fitLabels() { FIT_IDS.forEach(id => fitInput($(id))); }
 export function docNounL() { return tr(lang(), "noun", state.docType || "invoice"); }
 
 /* ------------------------------ render ------------------------------ */
+/* The name part of "Name or title under the signature": "Jane Smith, Director"
+   → "Jane Smith". Used for the handwritten signature when no image is uploaded. */
+export function signatureName() {
+  const el = $("signName"); const v = el ? (el.value || "").trim() : "";
+  return v.split(/\s*(?:,|\||·|•|\n|\s[-–—]\s|\/)\s*/)[0].trim().slice(0, 60);
+}
+
 export function renderExtras(t) {
   { const cb = $("clearItemsBtn"); if (cb) cb.hidden = !(state.items && state.items.length); }
   const inv = $("invoice"); if (!inv) return;
@@ -142,13 +149,19 @@ export function renderExtras(t) {
 
   // Signature / stamp.
   const sig = $("pSignature"), hasSig = !!state.signature;
+  // No image: write the signer's name in a handwritten font (if allowed).
+  const script = $("pSignScript"), sName = signatureName();
+  const useScript = !hasSig && !!sName && !!($("signAuto") && $("signAuto").checked);
+  if (script) { if (script.textContent !== (useScript ? sName : "")) script.textContent = useScript ? sName : ""; script.hidden = !useScript; }
+  $("signBox").classList.toggle("has-script", useScript);
+  { const ab = $("signAddBtn"), t = useScript ? "Use an image instead" : "+ Add signature or stamp"; if (ab && ab.textContent !== t) ab.textContent = t; }
   if (hasSig) { if (sig.getAttribute("src") !== state.signature) sig.src = state.signature; } else sig.removeAttribute("src");
   sig.hidden = !hasSig;
   inv.style.setProperty("--sign-h", Math.max(32, Math.min(140, num($("signHeight").value) || 64)) + "px");
   $("signBox").classList.toggle("has-sign", hasSig);
   $("signBox").classList.toggle("print-hide-empty", !hasSig && !$("signName").value.trim());
   $("signName").placeholder = tr(L, "sign");
-  const th = $("signThumb"); if (th) th.innerHTML = hasSig ? `<img src="${esc(state.signature)}" alt="">` : "";
+  const th = $("signThumb"); if (th) th.innerHTML = hasSig ? `<img src="${esc(state.signature)}" alt="">` : useScript ? `<span class="sign-script-thumb">${esc(sName)}</span>` : "";
 
   // Online payment link + QR.
   const link = normalizeUrl($("payLink").value), prov = $("payProvider").value;

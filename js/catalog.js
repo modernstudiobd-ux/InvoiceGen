@@ -32,7 +32,27 @@ export function saveCurrentClient() {
   if (!c.name) { toast("Add a client name first."); return; }
   const list = loadClients(), ex = list.find(x => S(x.name).toLowerCase() === c.name.toLowerCase());
   if (ex) Object.assign(ex, c, { updatedAt: Date.now() }); else list.unshift({ id: uid(), ...c, updatedAt: Date.now() });
-  if (store(CK, list)) { renderClients(); toast(ex ? `Updated ${c.name}.` : `Saved ${c.name} to Clients.`); }
+  if (store(CK, list)) { renderClients(); syncClientSaveButtons(); toast(ex ? `Updated ${c.name}.` : `Saved ${c.name} to Clients.`); }
+}
+
+/* "Save as client" buttons (Form, Edit canvas, Clients page) say what a click
+   will do: save a new client, update a changed one, or nothing to do. */
+const noun = () => ({ invoice: "invoice", estimate: "estimate", receipt: "receipt" })[state.docType] || "invoice";
+export function syncClientSaveButtons() {
+  const c = currentClient();
+  const ex = c.name ? loadClients().find(x => S(x.name).toLowerCase() === c.name.toLowerCase()) : null;
+  const st = !c.name ? "empty" : !ex ? "new" : CLIENT_FIELDS.every(([k]) => S(ex[k]) === c[k]) ? "saved" : "changed";
+  const label = st === "saved" ? "Saved in Clients ✓" : st === "changed" ? "Update saved client" : "Save as client";
+  const title = st === "empty" ? "Type a client name first, then save it for next time"
+    : st === "saved" ? "This client is already in your saved Clients" : st === "changed" ? "Save the changes to this client" : "Save these client details to use on any document";
+  ["feSaveClient", "saveClientChipBtn"].forEach(id => {
+    const b = $(id); if (!b) return;
+    if (b.dataset.state === st && b.textContent === label) return;
+    b.textContent = label; b.title = title; b.dataset.state = st;
+    b.setAttribute("aria-disabled", String(st === "saved"));
+  });
+  const pageBtn = $("clientSaveCurrentBtn"), pt = "Save client from current " + noun();
+  if (pageBtn && pageBtn.textContent !== pt) pageBtn.textContent = pt;
 }
 
 /* ---------------- product actions ---------------- */
@@ -118,6 +138,7 @@ const I_BOX = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="current
 const match = (q, ...xs) => !q || xs.join(" ").toLowerCase().includes(q);
 
 export function renderClients() {
+  syncClientSaveButtons();
   const root = $("clientsList"); if (!root) return;
   const all = loadClients(), q = S($("clientSearch") && $("clientSearch").value).toLowerCase();
   const list = all.filter(c => match(q, c.name, c.contact, c.email)).sort((a, b) => S(a.name).localeCompare(S(b.name)));
@@ -196,6 +217,11 @@ export function initCatalog(callbacks) {
     else { const p = loadProducts().find(x => x.id === it.dataset.id); if (p) { addProduct(p); it.classList.add("added"); toast(`Added "${p.description}".`); } }
   });
   $("pickClientBtn").addEventListener("click", () => openPicker("client"));
+  const chip = $("saveClientChipBtn");
+  if (chip) chip.addEventListener("click", () => { if (chip.dataset.state !== "saved") saveCurrentClient(); });
+  ["clientName", "clientEmail", "clientContact", "clientTax", "clientAddress"].forEach(id => { const el = $(id); if (el) el.addEventListener("input", syncClientSaveButtons); });
+  window.addEventListener("invoicestudio:loaded", syncClientSaveButtons);
+  syncClientSaveButtons();
   $("pickProductBtn").addEventListener("click", () => openPicker("product"));
   window.addEventListener("invoicestudio:page", e => { if (e.detail === "clients") renderClients(); if (e.detail === "products") renderProducts(); });
   renderClients(); renderProducts();

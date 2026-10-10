@@ -92,7 +92,9 @@ export const fields = [
   // v3.37.0
   "paymentTerms", "labelPayTerms", "labelTax", "labelTax2", "tax2", "amountPaid", "labelPaid",
   "signName", "signHeight", "footerText", "watermark", "watermarkText", "invoiceFont", "docLanguage",
-  "payProvider", "payLink", "useLetterhead", "lhTop", "lhBottom", "colorStyle"
+  "payProvider", "payLink", "useLetterhead", "lhTop", "lhBottom", "colorStyle",
+  // v3.41.0
+  "signAuto"
 ];
 // Checkbox-aware read/write for the `fields` above (everything else is a plain .value).
 export function getFieldVal(id) { const el = $(id); if (!el) return ""; return el.type === "checkbox" ? (el.checked ? "1" : "") : el.value; }
