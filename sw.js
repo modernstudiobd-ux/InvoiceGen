@@ -1,7 +1,7 @@
 // InvoGen - Invoice Generator — Service Worker
 // Bump this version string whenever index.html (or any cached asset) changes,
 // so returning users automatically pick up the new version.
-const VERSION = "v3.39.0";
+const VERSION = "v3.40.0";
 const SHELL_CACHE = `invoice-studio-shell-${VERSION}`;
 const RUNTIME_CACHE = `invoice-studio-runtime-${VERSION}`;
 
@@ -13,8 +13,9 @@ const SHELL_ASSETS = [
   "./favicon.ico",
   "./css/base.css",
   "./css/design-system.css",
-  "./css/phone.css",
   "./css/invoice.css",
+  "./css/phone.css",
+  "./css/polish.css",
   "./css/print.css",
   "./css/responsive.css",
   "./css/templates.css",
@@ -60,6 +61,7 @@ const SHELL_ASSETS = [
   "./icons/apple-touch-icon.png",
   "./icons/favicon-16.png",
   "./icons/favicon-32.png",
+  "./icons/favicon.svg",
   "./icons/icon-128.png",
   "./icons/icon-144.png",
   "./icons/icon-152.png",
@@ -99,8 +101,10 @@ const SHELL_ASSETS = [
   "./js/columnCanvas.js",
   "./js/columnDialog.js",
   "./js/currencySearch.js",
+  "./js/designUx.js",
   "./js/docType.js",
   "./js/dom.js",
+  "./js/editorPrefs.js",
   "./js/features.js",
   "./js/fonts.js",
   "./js/formEditor.js",
@@ -117,6 +121,7 @@ const SHELL_ASSETS = [
   "./js/main.js",
   "./js/pdfExport.js",
   "./js/persistence.js",
+  "./js/polish.js",
   "./js/pos.js",
   "./js/preview.js",
   "./js/print.js",
@@ -125,12 +130,10 @@ const SHELL_ASSETS = [
   "./js/state.js",
   "./js/toast.js",
   "./js/toggles.js",
+  "./js/tooltips.js",
   "./js/uxExtras.js",
   "./js/vendor/qrcode.js",
   "./js/vendor/xlsx.full.min.js",
-  "./js/editorPrefs.js",
-  "./js/designUx.js",
-  "./js/tooltips.js",
   "./js/version.js",
   "./js/words.js"
 ];

@@ -336,8 +336,8 @@ button.design-reopen-btn{display:none}
    invoice, its toolbar, and its print/PDF output always look exactly the
    same no matter which theme is editing it in.
    ------------------------------------------------------------------------ */
-:root[data-theme="dark"]{--bg:#12141c;--panel:#1a1d29;--panel-alt:#232735;--ink:#e7e9ee;--muted:#9aa1ac;--line:#2c3140}
-:root[data-theme="dark"] body{background:radial-gradient(1100px 620px at 14% -8%,#1c2032 0%,var(--bg) 46%) fixed,var(--bg)}
+:root[data-theme="dark"]{--bg:#0c0a09;--panel:#1c1917;--panel-alt:#26211f;--ink:#fafaf9;--muted:#a8a29e;--line:#292524}
+:root[data-theme="dark"] body{background:var(--bg)}
 /* Canvas shield: keeps the invoice toolbar (Undo/Redo/Zoom/Currency/Edit-
    Preview), the canvas itself and the document inside it fully unaffected
    by the vars above. */
@@ -359,23 +359,23 @@ button.design-reopen-btn{display:none}
 :root[data-theme="dark"] .sidebar .btn:hover,
 :root[data-theme="dark"] .right-sidebar .btn:hover,
 :root[data-theme="dark"] .appheader .btn:hover,
-:root[data-theme="dark"] .history-panel .btn:hover{border-color:#454b60}
-:root[data-theme="dark"] .field label{color:#a9b0bd}
+:root[data-theme="dark"] .history-panel .btn:hover{border-color:#57534e}
+:root[data-theme="dark"] .field label{color:#a8a29e}
 :root[data-theme="dark"] .field input,
 :root[data-theme="dark"] .field select,
-:root[data-theme="dark"] .field textarea{background:var(--panel-alt);border-color:#333849;color:var(--ink)}
+:root[data-theme="dark"] .field textarea{background:var(--panel-alt);border-color:#44403c;color:var(--ink)}
 :root[data-theme="dark"] .navitem:hover{background:var(--panel-alt)}
 :root[data-theme="dark"] .navitem.active,
 :root[data-theme="dark"] .navitem[aria-current="page"]{background:rgba(var(--app-accent-rgb),.16)}
 :root[data-theme="dark"] .theme-switch,
 :root[data-theme="dark"] .logo-position-switch{background:var(--panel-alt)}
 :root[data-theme="dark"] .theme-btn.active,
-:root[data-theme="dark"] .logo-position-btn.active{background:#2d3242}
-:root[data-theme="dark"] .toast{background:#080a10}
+:root[data-theme="dark"] .logo-position-btn.active{background:#292524}
+:root[data-theme="dark"] .toast{background:#0c0a09}
 :root[data-theme="dark"] .install-banner{background:rgba(var(--app-accent-rgb),.16);border-color:rgba(var(--app-accent-rgb),.3)}
-:root[data-theme="dark"] .notice{background:rgba(var(--app-accent-rgb),.14);border-color:rgba(var(--app-accent-rgb),.26);color:#cbd0da}
+:root[data-theme="dark"] .notice{background:rgba(var(--app-accent-rgb),.14);border-color:rgba(var(--app-accent-rgb),.26);color:#d6d3d1}
 :root[data-theme="dark"] .sidebar-footer{border-color:var(--line)}
-:root[data-theme="dark"] .historycard{background:var(--panel-alt);border-color:#333849}
+:root[data-theme="dark"] .historycard{background:var(--panel-alt);border-color:#44403c}
 :root[data-theme="dark"] .historycard.current{border-color:var(--app-accent)}
 
 
@@ -497,7 +497,7 @@ button.design-reopen-btn{display:none}
    generous but even spacing. Theme tokens (not hardcoded colors) so the
    existing dark theme keeps working. */
 :root{--surface-2:#f7f8fb;--surface-hover:#f1f3f9;--line-strong:#c9cfdb;--radius-card:14px;--ctrl-h:36px}
-:root[data-theme="dark"]{--surface-2:#232735;--surface-hover:#2a2f3f;--line-strong:#454b60}
+:root[data-theme="dark"]{--surface-2:#211d1b;--surface-hover:#292524;--line-strong:#44403c}
 
 /* Section cards (Design panel + left-sidebar panels): header band + body. */
 .panel{border-radius:var(--radius-card);padding:12px 14px 14px;background:var(--panel)}

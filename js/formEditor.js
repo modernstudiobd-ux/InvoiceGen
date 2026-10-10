@@ -33,7 +33,7 @@ const GROUPS = [
   ["COLUMNS", []],
   ["Totals", [
     ["discount", "Discount %", "num", "discount"], ["tax", "Tax %", "num", "tax"], ["shipping", "Shipping", "num", "shipping"],
-    ["labelTax", "Tax name (e.g. VAT, GST)", "text", "tax"], ["tax2", "Second tax %", "num", "tax2"], ["amountPaid", "Amount already paid", "num", "amountPaid"]]],
+    ["labelTax", "Tax name", "text", "tax"], ["tax2", "Second tax %", "num", "tax2"], ["amountPaid", "Amount already paid", "num", "amountPaid"]]],
   ["Notes & terms", [
     ["notes", "Notes", "area", "notes", "full"], ["paymentDetails", "Payment details", "area", "payment", "full"],
     ["terms", "Terms", "area", "terms", "full"], ["notesAlign", "Notes alignment", "select", "notes"],
@@ -53,8 +53,19 @@ const GROUPS = [
     ["labelNote", "Notes heading", "text", "notes"], ["labelPayment", "Payment heading", "text", "payment"],
     ["labelTerms", "Terms heading", "text", "terms"]]]
 ];
-const PROFILE = new Set(["Your company", "LOGO", "SIGN", "DESIGN", "LABELS"]);
-const NAV = [["Details", "feSecDetails"], ["Client", "feSecClient"], ["Items", "feItemsSec"], ["Totals", "feSecTotals"], ["Notes", "feSecNotes"], ["Business", "feProfile"]];
+const BIZ = new Set(["Your company", "LOGO"]);
+const PROFILE = new Set(["SIGN", "DESIGN", "LABELS"]);
+let bizUserToggled = false;
+// Decide once, after the saved draft has loaded: open "Your business" only for
+// someone who hasn't set it up. Never auto-collapse while they're typing in it.
+let bizDecided = false, draftLoaded = false;
+const markLoaded = () => { draftLoaded = true; setTimeout(() => { if (built) syncFormEditor(); }, 0); };
+window.addEventListener("invoicestudio:loaded", markLoaded);
+// The saved draft is read synchronously while the app modules run, so by the
+// time the document has finished parsing it is in place.
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => { if (!draftLoaded) markLoaded(); });
+else setTimeout(() => { if (!draftLoaded) markLoaded(); }, 0);
+const NAV = [["Business", "feBiz"], ["Details", "feSecDetails"], ["Client", "feSecClient"], ["Items", "feItemsSec"], ["Totals", "feSecTotals"], ["Notes", "feSecNotes"], ["Design", "feProfile"]];
 const PH = {
   clientName: "e.g. Acme Ltd", clientEmail: "billing@acme.com", clientContact: "e.g. Jane Smith", clientTax: "e.g. GB123456789",
   clientAddress: "Street, city, postcode", companyName: "e.g. Your Studio", companyEmail: "hello@yourstudio.com",
@@ -127,8 +138,14 @@ function build() {
   nav.innerHTML = NAV.map(([t, id]) => `<button type="button" data-go="${id}">${t}</button>`).join("");
   root.appendChild(nav);
   const prof = document.createElement("details"); prof.className = "fe-details fe-profile"; prof.id = "feProfile";
-  prof.innerHTML = '<summary><span>Business profile &amp; design</span><small id="feProfileSum"></small></summary><p class="fe-hint">Your company details, logo, template, colors and labels. Usually set once.</p><div class="fe-profile-body"></div>';
+  prof.innerHTML = '<summary><span>Design, signature &amp; labels</span><small id="feProfileSum"></small></summary><p class="fe-hint">Template, colors, signature and headings. Usually set once.</p><div class="fe-profile-body"></div>';
   const profBody = prof.querySelector(".fe-profile-body");
+  // Your business comes first: it's what a new user must fill in before anything else.
+  const biz = document.createElement("details"); biz.className = "fe-details fe-profile fe-biz"; biz.id = "feBiz";
+  biz.innerHTML = '<summary><span>Your business</span><small id="feBizSum"></small></summary><p class="fe-hint" id="feBizHint">Your name, contact details and logo. They appear on every document and are kept for next time.</p><div class="fe-profile-body"></div>';
+  const bizBody = biz.querySelector(".fe-profile-body");
+  biz.querySelector("summary").addEventListener("click", () => { bizUserToggled = true; });
+  root.appendChild(biz);
   GROUPS.forEach(([title, defs]) => {
     const sec = document.createElement("section"); sec.className = "fe-sec";
     if (SECID[title]) sec.id = SECID[title];
@@ -170,7 +187,7 @@ function build() {
         sec.appendChild(sum);
       }
     }
-    (PROFILE.has(title) ? profBody : root).appendChild(sec);
+    (BIZ.has(title) ? bizBody : PROFILE.has(title) ? profBody : root).appendChild(sec);
     if (title === "Notes & terms") root.appendChild(prof);
   });
   const help = document.querySelector("#importPanel .importhelp"), hh = $("feImportHelp");
@@ -199,7 +216,7 @@ function build() {
     const go = e.target.closest(".fe-nav [data-go]");
     if (go) {
       const t = $(go.dataset.go); if (!t) return;
-      if (t.tagName === "DETAILS") t.open = true;
+      if (t.tagName === "DETAILS") { t.open = true; if (t.id === "feBiz") bizUserToggled = true; }
       t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth", block: "start" });
       return;
     }
@@ -311,6 +328,7 @@ function updateAmounts() {
 
 function renderItems() {
   const host = $("feItems"); if (!host) return;
+  const clr = $("feClearAll"); if (clr) clr.hidden = !state.items.length;
   const cols = visibleCols();
   const sig = cols.map(c => [c.key, c.label, c.type, c.role].join("|")).join(";") + "#" + state.items.length;
   if (sig === itemsSig) {
@@ -324,7 +342,7 @@ function renderItems() {
     return;
   }
   itemsSig = sig;
-  if (!state.items.length) { host.innerHTML = '<p class="fe-empty">No line items yet.</p>'; return; }
+  if (!state.items.length) { host.innerHTML = '<p class="fe-empty">No line items yet. Add your first item below.</p>'; return; }
   const prim = cols.filter(c => c.role !== "amount" && !["number", "currency", "percentage", "date"].includes(c.type)).sort((a, b) => num(b.width) - num(a.width))[0];
   const tpl = cols.map(c => c === prim ? "minmax(150px,3fr)" : c.role === "amount" ? "minmax(84px,1fr)" : "minmax(60px,1fr)").join(" ");
   const touch = typeof matchMedia === "function" && matchMedia("(pointer:coarse)").matches;
@@ -410,8 +428,8 @@ function buildDesign(sec) {
   sec.querySelector("#feResetColors").addEventListener("click", () => { const b = $("resetColorBtn"); if (b) b.click(); });
   const t = sec.querySelector("#feToggles");
   sectionDefs.forEach(([k, l]) => {
-    const row = document.createElement("div"); row.className = "fe-toggle";
-    row.innerHTML = `<span id="fe-tl-${k}">${l}</span><label class="switch"><input type="checkbox" data-fe-section="${k}" aria-labelledby="fe-tl-${k}"><span class="slider"></span></label>`;
+    const row = document.createElement("label"); row.className = "fe-toggle";
+    row.innerHTML = `<span id="fe-tl-${k}">${l}</span><span class="switch"><input type="checkbox" data-fe-section="${k}" aria-labelledby="fe-tl-${k}"><span class="slider"></span></span>`;
     const cb = row.querySelector("input");
     cb.addEventListener("change", () => { state.sections[k] = cb.checked; api.renderPreview(); api.save(); });
     t.appendChild(row); sectionToggles.push([k, cb]);
@@ -438,7 +456,12 @@ export function syncFormEditor() {
   });
   const cur = $("currency"), sym = cur ? (CURRENCY_SYMBOLS[cur.value] || cur.value || "") : "";
   document.querySelectorAll('#formEditor .fe-aff[data-cur]').forEach(a => { if (a.textContent !== sym) a.textContent = sym; });
-  const ps = $("feProfileSum"), cn = $("companyName"); if (ps && cn) ps.textContent = (cn.value || "").trim();
+  const cn = $("companyName"), name = cn ? (cn.value || "").trim() : "";
+  const setUp = !!name && name !== "Your Company Ltd.";
+  const bs = $("feBizSum"); if (bs) { const t = setUp ? name : "Not set up yet"; if (bs.textContent !== t) bs.textContent = t; bs.classList.toggle("fe-todo", !setUp); }
+  const bz = $("feBiz");
+  if (bz && draftLoaded && !bizDecided) { bizDecided = true; if (!bizUserToggled) bz.open = !setUp; }
+  const ps = $("feProfileSum"), tp = $("template"); if (ps && tp && tp.selectedIndex >= 0) { const t = tp.options[tp.selectedIndex].text; if (ps.textContent !== t) ps.textContent = t; }
   renderItems();
   renderColumns();
   syncColumnsDialog();

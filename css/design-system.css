@@ -17,7 +17,7 @@
 /* ---- Tokens ---------------------------------------------------------------- */
 :root{
   --font-display:"Space Grotesk",Inter,system-ui,sans-serif;
-  --ds-ink:#0c0a09;--ds-primary:#292524;--ds-body:#4e4e4e;--ds-muted:#777169;--ds-disabled:#a8a29e;
+  --ds-ink:#0c0a09;--ds-primary:#292524;--ds-body:#4e4e4e;--ds-muted:#6f6a63;--ds-disabled:#a8a29e;
   --ds-hairline:#e7e5e4;--ds-hairline-soft:#f0efed;--ds-hairline-strong:#d6d3d1;
   --ds-canvas:#f5f5f5;--ds-canvas-soft:#fafafa;--ds-card:#fff;--ds-strong:#f0efed;
   --ds-success:#16a34a;--ds-error:#dc2626;

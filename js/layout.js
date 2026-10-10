@@ -413,6 +413,8 @@ function showPage(name) {
   if (p) {
     if (docItem && docItem.getAttribute("aria-current")) { docItem.classList.add("nav-held"); docItem.removeAttribute("aria-current"); }
     $("appPageTitle").textContent = p.title;
+    const mvt = document.querySelector(".mobileview-title");
+    if (mvt) { if (!mvt.dataset.docNoun) mvt.dataset.docNoun = mvt.textContent; mvt.textContent = p.title; }
     $("appPageSub").textContent = p.sub;
     // Header-row actions (e.g. "Clear all") move up into the page header.
     p.el.querySelectorAll(".history-panel-head .btn").forEach(b => { b.dataset.pageAction = "1"; pageActions.appendChild(b); });
@@ -427,6 +429,9 @@ function showPage(name) {
   } else {
     if (docItem && docItem.classList.contains("nav-held")) { docItem.classList.remove("nav-held"); if (!document.querySelector("[data-doctype][aria-current]")) docItem.setAttribute("aria-current", "page"); }
     document.title = baseTitle;
+    const mvt = document.querySelector(".mobileview-title");
+    if (mvt && mvt.dataset.docNoun) { mvt.textContent = mvt.dataset.docNoun; delete mvt.dataset.docNoun; }
+    window.dispatchEvent(new CustomEvent("invoicestudio:page", { detail: null }));
     requestAnimationFrame(() => { try { fitInvoiceCanvas(); } catch {} });
   }
 }

@@ -670,7 +670,8 @@ export function fitInvoiceCanvas() {
   // than the window is completely ordinary, so there's nothing to trade
   // off by dropping it.
   // Form mode (wide screens): the form takes the left half, the live preview the right.
-  if (document.body.classList.contains("form-mode") && window.innerWidth > 1080) available = Math.max(0, Math.floor((available - 24) / 2));
+  // The form keeps 42% (never under 340px); the preview gets the rest — see css/polish.css.
+  if (document.body.classList.contains("form-mode") && window.innerWidth > 1080) { const inner = Math.max(0, available - 24); available = Math.max(0, Math.floor(inner - Math.max(340, inner * 0.42))); }
   const fit = Math.min(1, available / naturalW);
   const isPreviewMode = document.body.classList.contains("canvas-preview-mode");
   // ROOT CAUSE of the "Edit canvas never goes single-column" bug: the
@@ -773,7 +774,10 @@ export function fitInvoiceCanvas() {
     footerInvoiceEl.textContent = docNounL() + " #" + invNo + (pageCount > 1 ? `  ·  ${pageCount} pages` : "");
   }
 
-  $("zoomLabel").textContent = Math.round(state.zoom * 100) + "%";
+  // Show the real on-screen size; "Fit" when the page is shrunk to fit the pane.
+  const zl = $("zoomLabel");
+  zl.textContent = (!stacked && state.zoom === 1 && fit < 0.995) ? "Fit" : Math.round((stacked ? state.zoom : total) * 100) + "%";
+  zl.title = "Preview size — " + Math.round((stacked ? state.zoom : total) * 100) + "% of the real page";
   const meta = $("previewMeta");
   if (meta) {
     const sizeName = p.pdfName === "LETTER" ? "US Letter" : "A4";

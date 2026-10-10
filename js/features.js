@@ -103,6 +103,7 @@ export function docNounL() { return tr(lang(), "noun", state.docType || "invoice
 
 /* ------------------------------ render ------------------------------ */
 export function renderExtras(t) {
+  { const cb = $("clearItemsBtn"); if (cb) cb.hidden = !(state.items && state.items.length); }
   const inv = $("invoice"); if (!inv) return;
   const L = lang(), doc = state.docType || "invoice", cur = $("currency").value;
 

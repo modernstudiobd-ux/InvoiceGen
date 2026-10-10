@@ -7,6 +7,6 @@ import { save } from "./persistence.js";
 
 export function renderToggles() {
   let r = $("sectionToggles");
-  r.innerHTML = sectionDefs.map(([k, l]) => `<div class="toggleline"><span id="toggle-label-${k}">${l}</span><label class="switch"><input type="checkbox" data-section-toggle="${k}" aria-labelledby="toggle-label-${k}" ${state.sections[k] ? "checked" : ""}><span class="slider"></span></label></div>`).join("");
+  r.innerHTML = sectionDefs.map(([k, l]) => `<label class="toggleline"><span id="toggle-label-${k}">${l}</span><span class="switch"><input type="checkbox" data-section-toggle="${k}" aria-labelledby="toggle-label-${k}" ${state.sections[k] ? "checked" : ""}><span class="slider"></span></span></label>`).join("");
   r.querySelectorAll("[data-section-toggle]").forEach(e => e.onchange = () => { state.sections[e.dataset.sectionToggle] = e.checked; renderPreview(); save(); });
 }

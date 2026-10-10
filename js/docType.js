@@ -36,7 +36,7 @@ export function syncDocTypeUI() {
     btn.classList.toggle("active", on);
   });
   const title = document.querySelector(".mobileview-title");
-  if (title) title.textContent = cfg.noun;
+  if (title) { if (document.body.classList.contains("page-open")) title.dataset.docNoun = cfg.noun; else title.textContent = cfg.noun; }
   PLACEHOLDER_IDS.forEach(id => { const el = $(id); if (el) el.placeholder = cfg.labels[id]; });
   sectionDefs.forEach(def => {
     if (TOGGLE_KEYS[def[0]]) def[1] = cfg.labels[TOGGLE_KEYS[def[0]]];
