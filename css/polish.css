@@ -99,7 +99,9 @@ label.fe-toggle .switch,label.toggleline .switch{display:inline-block;flex:none}
 @media (max-width:1080px){.fe-nav{scroll-padding-inline:16px}}
 
 /* Narrow form column (desktop split): one field per row, nothing truncated. */
-#formEditor{container:fe/inline-size}
+/* width:100% is required: a size container can't size itself from its content,
+   so with the wide-screen margin-inline:auto it would shrink to nothing. */
+#formEditor{container:fe/inline-size;width:100%;box-sizing:border-box}
 @container fe (max-width:420px){
   .fe-grid:not(.fe-grid3){grid-template-columns:minmax(0,1fr)}
 }
